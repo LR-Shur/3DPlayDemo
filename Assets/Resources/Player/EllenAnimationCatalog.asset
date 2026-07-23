@@ -1,0 +1,765 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76f94c775125a714bb25d82d51950a9f, type: 3}
+  m_Name: EllenAnimationCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::Train.Gameplay.Player.Animation.Data.PlayerAnimationCatalog
+  _definitions:
+  - _id: 74
+    _category: 5
+    _clip: {fileID: 1827226128182048838, guid: aec8a5725c5098d4597081f0ff0d0b9b, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 38
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 831731cc28f622d468b1e78d5552185a, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 39
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: aefda392dec71684f97735553054e986, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 40
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 5fd200a0351707c41a26cc49d7d2f3e2, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 41
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: f4471a1eca2f2fc4485f7504a024deb1, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 42
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 4384cd463555add48adff2613887752e, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 28
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 982a8480c0234d948b14779b8f0c70b1, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 29
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 787c00e1461b5d54386d814b43079cb6, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 30
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 7504190473f9d0e47ab5e33f6c4005f8, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 31
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 4b1246dd56603d14c82ceb1341930b85, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 32
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 2b27359ad5b9dc04ea8720a3dca8a94c, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 33
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 2ab66e900a879424097885e6fd95e1d8, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 34
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 1b3e4761467614b41a83898e6f44e95c, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 35
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 8bee230be9976924eb0002a876b99635, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 36
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 6e6d69052b2ff324fa514e5d5df0055b, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 37
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 07d592bf1ffac384baa188d33be07c35, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 43
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 1c92cd6389393ae419442afdd5a3c1b8, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 44
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 7cdacb8d01a494f4c890c19916c294be, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 49
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 20a48a95c63538944ad613a56d10d952, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 50
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 17929d13af67b7b4691fa4fca8c65351, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 51
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 0975491caa9fd9247ad701e328f373e7, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 47
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 6952314750a49f247bb954d88db46f2b, type: 3}
+    _loop: 1
+    _fadeDuration: 0.15
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 1
+  - _id: 48
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: ba23f25fc199eb741a8eeed65496a155, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 45
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: c247b90255adf9a4f9fdcceb7e4bc213, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 46
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 35f8ea674ea6fac4593deab99165c602, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 11
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 8c6e1837be5a51e48b2b9d23557bbfef, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 12
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 2dd55ad9825440843a56177431920a33, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 13
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: ad59db9b46a7cba4d995c0e4b22b3002, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 14
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 1f460a561f4b34647bd54fcfcf7bc479, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 15
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 1c84d533ec9c78c438b8026a12aaf118, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 16
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: f667d4a92fba38646986e10e96f5bca3, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 17
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 09991d6da0eb9f649adadcfc43548ebc, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 18
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 4db5def8d7d889144a283c9964f699c0, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 19
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 4dbba259cf710c842babc58eea2d4c18, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 20
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 4c81e02cc194d8d418e306d6fe5eb2dd, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 21
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: e5d7ae6991c775c40bc59302f25deded, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 22
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 353780a2af5c8ac489cd1e526adb7f00, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 23
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: ec7f2859ae2d416448773e0dd22d0b79, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 24
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: ce3079a1842ab3f4eb50e6d94cb9c4d7, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 25
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: af98903ce0cce8542b274551ca990dfa, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 26
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 95a57939397b6c04ca7facd0da6b5e0b, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 27
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 7c5c875cccb2d9d4da07b08921f83942, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 57
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: d62e862d274a86f40a423bd85683339d, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 58
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: e26740d26c5cde342a08a05f6ef1237e, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 55
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 6067ea472b3742845ba204137a81c02a, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 56
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: f951438fc89245b4ca42c7729e80e537, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 54
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: c230fe70c67d2ab4987d26ed60839f45, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 52
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: f06e1a7005b8723489b802a86ccb4ee0, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 53
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: e5a3c38f733315e4fb06e20150cd9c0b, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 10
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 8be20ba33080a7349ada307d9a89fbc7, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 2
+    _rootMotionPositionScale: 1
+    _useRootMotion: 1
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 9
+    _category: 1
+    _clip: {fileID: 1827226128182048838, guid: 2ef178e4a640bca4db3d04fd2929bedb, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 2
+    _rootMotionPositionScale: 1
+    _useRootMotion: 1
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 73
+    _category: 4
+    _clip: {fileID: 1827226128182048838, guid: b55b74e89b21bdc4695f27b747b999eb, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 0
+    _category: 0
+    _clip: {fileID: 1827226128182048838, guid: 1475ae0f397e68f499104189bd7721de, type: 3}
+    _loop: 1
+    _fadeDuration: 0.15
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 1
+  - _id: 1
+    _category: 0
+    _clip: {fileID: 1827226128182048838, guid: 6f184ae2ac637d24ca8156c9839e6669, type: 3}
+    _loop: 1
+    _fadeDuration: 0.15
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 1
+  - _id: 6
+    _category: 0
+    _clip: {fileID: 1827226128182048838, guid: 53c732906f73f534b807477ef89cf70f, type: 3}
+    _loop: 1
+    _fadeDuration: 0.15
+    _movementPolicy: 1
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 1
+  - _id: 7
+    _category: 0
+    _clip: {fileID: 1827226128182048838, guid: 1d85c409797477e46bb2edfae330b277, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 8
+    _category: 0
+    _clip: {fileID: 1827226128182048838, guid: 41fa736a2315fbf4a848901d99b77dd6, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 2
+    _category: 0
+    _clip: {fileID: 1827226128182048838, guid: 2bb558f68e0db6240b1e30fba2aa72e6, type: 3}
+    _loop: 1
+    _fadeDuration: 0.15
+    _movementPolicy: 1
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 1
+  - _id: 5
+    _category: 0
+    _clip: {fileID: 1827226128182048838, guid: a7c5414fbb2eb374e8fa4f22e5643029, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 3
+    _category: 0
+    _clip: {fileID: 1827226128182048838, guid: 53c6fceb91ea14747abcf56679a1bceb, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 4
+    _category: 0
+    _clip: {fileID: 1827226128182048838, guid: 89ba800601c19ed40a47d2f300f6df7c, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 65
+    _category: 2
+    _clip: {fileID: 1827226128182048838, guid: ea7286d27fce4b145b024ec0a9c66173, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 64
+    _category: 2
+    _clip: {fileID: 1827226128182048838, guid: 9e4725ef0fbe4b644931d20ba8002b66, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 63
+    _category: 2
+    _clip: {fileID: 1827226128182048838, guid: e570fdbe5479a9748aa097a70afe00d5, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 62
+    _category: 2
+    _clip: {fileID: 1827226128182048838, guid: e7e9c3005bb53404fb3065a8be62ce1f, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 61
+    _category: 2
+    _clip: {fileID: 1827226128182048838, guid: f72ae40e1e3a2d74aa15a08bdee959ab, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 60
+    _category: 2
+    _clip: {fileID: 1827226128182048838, guid: 32d03b4136668b44883edf5866e49c37, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 59
+    _category: 2
+    _clip: {fileID: 1827226128182048838, guid: d56fe38572ddf3145b98933983164c58, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 68
+    _category: 3
+    _clip: {fileID: 1827226128182048838, guid: 85dab82ca1d5c7c409ebab0acf4ffce5, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 69
+    _category: 3
+    _clip: {fileID: 1827226128182048838, guid: 96cfd9b635f9d494ebd6f00e33c78f32, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 71
+    _category: 3
+    _clip: {fileID: 1827226128182048838, guid: 42515997f4d26a7408301abd9301a3cc, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 72
+    _category: 3
+    _clip: {fileID: 1827226128182048838, guid: 213d6b2dd313fb841a6bb299b998cbad, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 70
+    _category: 3
+    _clip: {fileID: 1827226128182048838, guid: 146e1c07ce947644abd468a8178769b9, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 66
+    _category: 3
+    _clip: {fileID: 1827226128182048838, guid: e07dc230d1086fb4c81859b83884e7d7, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0
+  - _id: 67
+    _category: 3
+    _clip: {fileID: 1827226128182048838, guid: f9c50ceb6c426b1458f18a224821846f, type: 3}
+    _loop: 0
+    _fadeDuration: 0.1
+    _movementPolicy: 0
+    _rootMotionPositionScale: 1
+    _useRootMotion: 0
+    _hasMovementPolicyConfigured: 1
+    _canBeInterrupted: 0

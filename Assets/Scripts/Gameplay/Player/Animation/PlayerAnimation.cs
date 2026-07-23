@@ -1,124 +1,155 @@
 using System;
 using Animancer;
+using Train.Gameplay.Player.Animation.Data;
 using UnityEngine;
 
 namespace Train.Gameplay.Player.Animation
 {
     /// <summary>
-    /// 集中管理所有直接调用 Animancer 的逻辑，并向游戏状态暴露语义化的玩家动画命令。
+    /// 集中管理所有直接调用 Animancer 的逻辑，并从动画目录按语义标识查找定义。
     /// 具体状态不需要了解动画片段、淡入时间或 Animancer 事件配置。
     /// </summary>
     public sealed class PlayerAnimation : MonoBehaviour
     {
         [SerializeField] private AnimancerComponent _animancer;
-        [SerializeField, Min(0f)] private float _fadeDuration = 0.15f;
-        [SerializeField] private ClipTransition _idle = new ClipTransition();
-        [SerializeField] private ClipTransition _walk = new ClipTransition();
-        [SerializeField] private ClipTransition _run = new ClipTransition();
-        [SerializeField] private ClipTransition _dodgeForward = new ClipTransition();
-        [SerializeField] private ClipTransition _dodgeBackward = new ClipTransition();
-        [SerializeField] private ClipTransition _attack = new ClipTransition();
+        [SerializeField] private PlayerAnimationCatalog _catalog;
+
+        [Header("运行时动画调试（播放时查看）")]
+        [SerializeField, Tooltip("状态机最后请求播放的动画标识。")]
+        private PlayerAnimationId _currentAnimationId;
+        [SerializeField, Tooltip("当前实际交给 Animancer 播放的动画片段。")]
+        private AnimationClip _currentAnimationClip;
+        [SerializeField, Tooltip("当前动画已播放到的归一化进度；循环动画会持续递增。")]
+        private float _currentAnimationNormalizedTime;
+        [SerializeField, Tooltip("当前动画采用的水平位移策略。")]
+        private PlayerAnimationMovementPolicy _currentMovementPolicy;
+        [SerializeField, Tooltip("当前 Root Motion 位移缩放系数；仅 RootMotion 策略生效。")]
+        private float _currentRootMotionPositionScale = 1f;
+
+        private AnimancerState _currentAnimationState;
 
         /// <summary>
-        /// 当 Inspector 中未指定时查找 Animancer 组件。
+        /// 当 Inspector 中未指定时查找 Animancer 组件和默认动画目录。
         /// </summary>
         private void Awake()
         {
             _animancer ??= GetComponent<AnimancerComponent>();
+            _catalog ??= Resources.Load<PlayerAnimationCatalog>("Player/EllenAnimationCatalog");
         }
 
         /// <summary>
-        /// 播放待机循环动画。
+        /// 每帧刷新 Inspector 中显示的当前动画进度，便于在运行时定位状态机与动画播放问题。
         /// </summary>
-        public void PlayIdle()
+        private void Update()
         {
-            PlayLoop(_idle, "Idle");
+            if (_currentAnimationState != null)
+            {
+                _currentAnimationNormalizedTime = _currentAnimationState.NormalizedTime;
+            }
         }
 
         /// <summary>
-        /// 播放步行循环动画。
+        /// 播放目录中配置为循环的动画。
         /// </summary>
-        public void PlayWalk()
+        /// <param name="id">需要播放的动画标识。</param>
+        public void PlayLoop(PlayerAnimationId id)
         {
-            PlayLoop(_walk, "Walk");
-        }
-
-        /// <summary>
-        /// 播放奔跑循环动画。
-        /// </summary>
-        public void PlayRun()
-        {
-            PlayLoop(_run, "Run");
-        }
-
-        /// <summary>
-        /// 根据锁定的翻滚方向播放对应的翻滚动画。
-        /// </summary>
-        /// <param name="dodgeDirection">翻滚开始时锁定的世界坐标方向。</param>
-        /// <param name="onEnded">翻滚动画播放结束时调用的回调。</param>
-        public void PlayDodge(Vector3 dodgeDirection, Action onEnded)
-        {
-            var isBackward = Vector3.Dot(transform.forward, dodgeDirection) < -0.1f;
-            var transition = isBackward && _dodgeBackward.IsValid ? _dodgeBackward : _dodgeForward;
-            PlayOneShot(transition, "Dodge", onEnded);
-        }
-
-        /// <summary>
-        /// 播放第一段基础攻击动画，并在结束后调用回调。
-        /// </summary>
-        /// <param name="onEnded">攻击动画播放结束时调用的回调。</param>
-        public void PlayAttack(Action onEnded)
-        {
-            PlayOneShot(_attack, "Attack", onEnded);
-        }
-
-        /// <summary>
-        /// 当已分配动画片段时播放循环过渡。
-        /// </summary>
-        /// <param name="transition">需要播放的循环过渡。</param>
-        /// <param name="label">用于配置错误提示的可读名称。</param>
-        private void PlayLoop(ClipTransition transition, string label)
-        {
-            if (!ValidateTransition(transition, label))
+            if (!TryGetDefinition(id, out var definition))
             {
                 return;
             }
 
-            _animancer.Play(transition, _fadeDuration);
+            if (!definition.Loop)
+            {
+                Debug.LogWarning($"动画 {id} 未配置为循环动画。", this);
+            }
+
+            PlayDefinition(definition, null);
         }
 
         /// <summary>
-        /// 播放非循环过渡，并设置其结束回调。
+        /// 播放目录中配置的一次性动画，并设置其结束回调。
         /// </summary>
-        /// <param name="transition">需要播放的一次性过渡。</param>
-        /// <param name="label">用于配置错误提示的可读名称。</param>
+        /// <param name="id">需要播放的动画标识。</param>
         /// <param name="onEnded">动画片段播放结束后调用的回调。</param>
-        private void PlayOneShot(ClipTransition transition, string label, Action onEnded)
+        public void PlayOneShot(PlayerAnimationId id, Action onEnded)
         {
-            if (!ValidateTransition(transition, label))
+            if (!TryGetDefinition(id, out var definition))
             {
                 onEnded?.Invoke();
                 return;
             }
 
-            var state = _animancer.Play(transition, _fadeDuration);
-            state.Events(this).OnEnd = onEnded;
+            if (definition.Loop)
+            {
+                Debug.LogWarning($"动画 {id} 被配置为循环动画，不能作为一次性动作播放。", this);
+            }
+
+            PlayDefinition(definition, onEnded);
         }
 
         /// <summary>
-        /// 校验 Animancer 和请求的过渡是否可以播放。
+        /// 查询指定动画的位移策略与 Root Motion 位移缩放系数。
+        /// 状态机读取该数据并配置移动组件，不在状态类中写死动画距离。
         /// </summary>
-        /// <param name="transition">需要校验的过渡。</param>
-        /// <param name="label">错误信息中使用的可读名称。</param>
-        /// <returns>过渡可播放时返回 true。</returns>
-        private bool ValidateTransition(ClipTransition transition, string label)
+        /// <param name="id">需要查询的动画标识。</param>
+        /// <param name="movementPolicy">动画播放期间采用的位移策略。</param>
+        /// <param name="rootMotionPositionScale">Root Motion 水平位移的缩放系数。</param>
+        /// <returns>动画目录存在该动画定义时返回 true。</returns>
+        public bool TryGetMovementSettings(
+            PlayerAnimationId id,
+            out PlayerAnimationMovementPolicy movementPolicy,
+            out float rootMotionPositionScale)
         {
-            if (_animancer != null && transition != null && transition.IsValid)
+            if (TryGetDefinition(id, out var definition))
+            {
+                movementPolicy = definition.MovementPolicy;
+                rootMotionPositionScale = definition.RootMotionPositionScale;
+                return true;
+            }
+
+            movementPolicy = PlayerAnimationMovementPolicy.KeepInPlace;
+            rootMotionPositionScale = 1f;
+            return false;
+        }
+
+        /// <summary>
+        /// 根据目录定义播放动画，并统一配置循环与动画结束事件。
+        /// </summary>
+        /// <param name="definition">已通过目录查询的动画定义。</param>
+        /// <param name="onEnded">一次性动画结束时调用的回调。</param>
+        private void PlayDefinition(PlayerAnimationDefinition definition, Action onEnded)
+        {
+            var state = _animancer.Play(definition.Clip, definition.FadeDuration, FadeMode.FromStart);
+            _currentAnimationId = definition.Id;
+            _currentAnimationClip = definition.Clip;
+            _currentAnimationNormalizedTime = 0f;
+            _currentMovementPolicy = definition.MovementPolicy;
+            _currentRootMotionPositionScale = definition.RootMotionPositionScale;
+            _currentAnimationState = state;
+            if (definition.Loop && !state.IsLooping)
+            {
+                Debug.LogWarning($"动画 {definition.Id} 被标记为循环，但 FBX 导入设置未启用循环。", this);
+            }
+
+            state.Events(this).OnEnd = definition.Loop ? null : onEnded;
+        }
+
+        /// <summary>
+        /// 从目录中获取可播放的动画定义，并校验 Animancer 与资源引用。
+        /// </summary>
+        /// <param name="id">需要查询的动画标识。</param>
+        /// <param name="definition">查询成功时返回动画定义。</param>
+        /// <returns>定义存在且可播放时返回 true。</returns>
+        private bool TryGetDefinition(PlayerAnimationId id, out PlayerAnimationDefinition definition)
+        {
+            if (_animancer != null && _catalog != null && _catalog.TryGet(id, out definition))
             {
                 return true;
             }
 
-            Debug.LogError($"PlayerAnimation is missing a valid {label} transition or AnimancerComponent.", this);
+            Debug.LogError($"PlayerAnimation 缺少 AnimancerComponent、动画目录或动画 {id} 的有效配置。", this);
+            definition = null;
             return false;
         }
     }

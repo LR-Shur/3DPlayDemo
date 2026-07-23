@@ -1,3 +1,4 @@
+using Train.Gameplay.Player.Animation.Data;
 using UnityEngine;
 
 namespace Train.Gameplay.Player.Movement
@@ -15,7 +16,9 @@ namespace Train.Gameplay.Player.Movement
 
         private Transform _cameraTransform;
         private PlayerMovementMode _movementMode;
+        private float _rootMotionPositionScale = 1f;
         private float _verticalVelocity;
+        private bool _hasReportedMissingCharacterController;
 
         /// <summary>
         /// 获取当前选中的水平移动来源。
@@ -32,8 +35,21 @@ namespace Train.Gameplay.Player.Movement
         /// </summary>
         private void Awake()
         {
-            _characterController ??= GetComponent<CharacterController>();
+            EnsureCharacterController();
         }
+
+        /// <summary>
+        /// 在编辑器内修改组件时自动回填同一对象上的 CharacterController 引用。
+        /// </summary>
+        private void OnValidate()
+        {
+            EnsureCharacterController();
+        }
+
+        /// <summary>
+        /// 获取移动组件是否已找到可用的 CharacterController。
+        /// </summary>
+        public bool IsReady => EnsureCharacterController();
 
         /// <summary>
         /// 设置用于计算移动坐标轴和角色朝向的相机。
@@ -54,7 +70,25 @@ namespace Train.Gameplay.Player.Movement
         }
 
         /// <summary>
-        /// 使用相机相对的输入轴移动，并使玩家保持面向相机的水平前方方向。
+        /// 根据动画定义配置当前动画期间的位移来源与 Root Motion 位移缩放。
+        /// 原地和代码移动动画均不会接收动画位移；只有 RootMotion 会接收 Animator 位移。
+        /// </summary>
+        /// <param name="movementPolicy">动画定义指定的水平位移策略。</param>
+        /// <param name="rootMotionPositionScale">Root Motion 水平位移缩放系数。</param>
+        public void ConfigureAnimationMovement(
+            PlayerAnimationMovementPolicy movementPolicy,
+            float rootMotionPositionScale)
+        {
+            _movementMode = movementPolicy == PlayerAnimationMovementPolicy.RootMotion
+                ? PlayerMovementMode.AnimationRootMotion
+                : PlayerMovementMode.Scripted;
+            _rootMotionPositionScale = movementPolicy == PlayerAnimationMovementPolicy.RootMotion
+                ? Mathf.Max(0f, rootMotionPositionScale)
+                : 1f;
+        }
+
+        /// <summary>
+        /// 使用相机相对的输入轴移动，并只在存在移动输入时朝实际移动方向转身。
         /// </summary>
         /// <param name="input">当前输入向量，Y 表示前后，X 表示左右。</param>
         /// <param name="speed">以米每秒为单位的水平移动速度。</param>
@@ -65,9 +99,15 @@ namespace Train.Gameplay.Player.Movement
                 return;
             }
 
-            FaceCameraDirection();
-            var horizontalVelocity = GetCameraRelativeDirection(input) * speed;
-            Move(horizontalVelocity * Time.deltaTime);
+            var movementDirection = GetCameraRelativeDirection(input);
+            if (movementDirection.sqrMagnitude <= 0.0001f)
+            {
+                Move(Vector3.zero);
+                return;
+            }
+
+            FaceMovementDirection(movementDirection);
+            Move(movementDirection * speed * Time.deltaTime);
         }
 
         /// <summary>
@@ -99,7 +139,7 @@ namespace Train.Gameplay.Player.Movement
             }
 
             deltaPosition.y = 0f;
-            Move(deltaPosition);
+            Move(deltaPosition * _rootMotionPositionScale);
         }
 
         /// <summary>
@@ -116,22 +156,17 @@ namespace Train.Gameplay.Player.Movement
         }
 
         /// <summary>
-        /// 将角色旋转至相机的水平前方方向。
+        /// 将角色旋转至本次输入换算得到的实际水平移动方向。
         /// </summary>
-        private void FaceCameraDirection()
+        /// <param name="movementDirection">已转换到世界坐标系的水平移动方向。</param>
+        private void FaceMovementDirection(Vector3 movementDirection)
         {
-            if (_cameraTransform == null)
+            if (movementDirection.sqrMagnitude <= 0.0001f)
             {
                 return;
             }
 
-            var forward = Vector3.ProjectOnPlane(_cameraTransform.forward, Vector3.up);
-            if (forward.sqrMagnitude <= 0.0001f)
-            {
-                return;
-            }
-
-            var targetRotation = Quaternion.LookRotation(forward.normalized, Vector3.up);
+            var targetRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
             transform.rotation = Quaternion.RotateTowards(
                 transform.rotation,
                 targetRotation,
@@ -144,6 +179,11 @@ namespace Train.Gameplay.Player.Movement
         /// <param name="horizontalDisplacement">当前帧请求的水平位移。</param>
         private void Move(Vector3 horizontalDisplacement)
         {
+            if (!EnsureCharacterController())
+            {
+                return;
+            }
+
             if (_characterController.isGrounded && _verticalVelocity < 0f)
             {
                 _verticalVelocity = -2f;
@@ -152,6 +192,35 @@ namespace Train.Gameplay.Player.Movement
             _verticalVelocity += _gravity * Time.deltaTime;
             var verticalDisplacement = Vector3.up * (_verticalVelocity * Time.deltaTime);
             _characterController.Move(horizontalDisplacement + verticalDisplacement);
+        }
+
+        /// <summary>
+        /// 确保移动组件拥有同一对象上的 CharacterController。
+        /// 缺失时仅记录一次错误并禁用自身，防止每帧重复抛出空引用异常。
+        /// </summary>
+        /// <returns>成功取得 CharacterController 时返回 true。</returns>
+        private bool EnsureCharacterController()
+        {
+            if (_characterController != null)
+            {
+                return true;
+            }
+
+            _characterController = GetComponent<CharacterController>();
+            if (_characterController != null)
+            {
+                _hasReportedMissingCharacterController = false;
+                return true;
+            }
+
+            if (!_hasReportedMissingCharacterController)
+            {
+                Debug.LogError("PlayerMotor 必须与 CharacterController 挂在同一个对象上。", this);
+                _hasReportedMissingCharacterController = true;
+            }
+
+            enabled = false;
+            return false;
         }
     }
 

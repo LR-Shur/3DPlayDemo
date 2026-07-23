@@ -14,6 +14,7 @@ namespace Train.Gameplay.Player.Input
 
         private InputActionMap _playerMap;
         private InputAction _moveAction;
+        private InputAction _lookAction;
         private InputAction _sprintAction;
         private InputAction _attackAction;
         private InputAction _dodgeAction;
@@ -24,6 +25,11 @@ namespace Train.Gameplay.Player.Input
         /// 获取当前二维移动输入。
         /// </summary>
         public Vector2 Move => _moveAction != null ? _moveAction.ReadValue<Vector2>() : Vector2.zero;
+
+        /// <summary>
+        /// 获取当前相机旋转输入，来自鼠标移动或手柄右摇杆。
+        /// </summary>
+        public Vector2 Look => _lookAction != null ? _lookAction.ReadValue<Vector2>() : Vector2.zero;
 
         /// <summary>
         /// 获取冲刺动作当前是否被按住。
@@ -44,6 +50,7 @@ namespace Train.Gameplay.Player.Input
 
             _playerMap = _actionsAsset.FindActionMap(_actionMapName, true);
             _moveAction = _playerMap.FindAction("Move", true);
+            _lookAction = _playerMap.FindAction("Look", true);
             _sprintAction = _playerMap.FindAction("Sprint", true);
             _attackAction = _playerMap.FindAction("Attack", true);
             _dodgeAction = _playerMap.FindAction("Dodge", true);

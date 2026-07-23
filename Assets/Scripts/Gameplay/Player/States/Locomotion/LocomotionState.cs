@@ -18,11 +18,11 @@ namespace Train.Gameplay.Player.States.Locomotion
         }
 
         /// <summary>
-        /// 启用脚本移动，并选择合适的初始移动子状态。
+        /// 选择合适的初始移动子状态。
+        /// 具体子状态会依据其动画定义配置对应的位移策略。
         /// </summary>
         public override void Enter()
         {
-            Context.Motor.SetMovementMode(Movement.PlayerMovementMode.Scripted);
             RefreshLocomotionChild();
         }
 

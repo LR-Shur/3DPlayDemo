@@ -1,4 +1,5 @@
 using Train.Gameplay.Player.Core;
+using Train.Gameplay.Player.Animation.Data;
 
 namespace Train.Gameplay.Player.States.Locomotion
 {
@@ -23,7 +24,8 @@ namespace Train.Gameplay.Player.States.Locomotion
         /// </summary>
         public override void Enter()
         {
-            Context.Animation.PlayRun();
+            ConfigureAnimationMovement(PlayerAnimationId.Run);
+            Context.Animation.PlayLoop(PlayerAnimationId.Run);
         }
 
         /// <summary>

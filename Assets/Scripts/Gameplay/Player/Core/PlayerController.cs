@@ -29,11 +29,11 @@ namespace Train.Gameplay.Player.Core
             _input ??= GetComponent<PlayerInputReader>();
             _motor ??= GetComponent<PlayerMotor>();
             _animation ??= GetComponentInChildren<PlayerAnimation>();
-            _cameraTransform ??= Camera.main != null ? Camera.main.transform : null;
+            _cameraTransform ??= UnityEngine.Camera.main != null ? UnityEngine.Camera.main.transform : null;
 
-            if (_input == null || _motor == null || _animation == null || _config == null || _cameraTransform == null)
+            if (_input == null || _motor == null || !_motor.IsReady || _animation == null || _config == null || _cameraTransform == null)
             {
-                Debug.LogError("PlayerController requires Input, Motor, Animation, Config, and Camera references.", this);
+                Debug.LogError("PlayerController 缺少输入、移动、动画、配置、相机或 CharacterController 引用。", this);
                 enabled = false;
                 return;
             }

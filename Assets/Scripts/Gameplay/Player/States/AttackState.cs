@@ -1,4 +1,5 @@
 using Train.Gameplay.Player.Core;
+using Train.Gameplay.Player.Animation.Data;
 using Train.Gameplay.Player.States.Locomotion;
 
 namespace Train.Gameplay.Player.States
@@ -23,8 +24,9 @@ namespace Train.Gameplay.Player.States
         public override void Enter()
         {
             Context.Input.ClearBufferedButtons();
-            Context.Motor.SetMovementMode(Movement.PlayerMovementMode.Scripted);
-            Context.Animation.PlayAttack(OnAttackAnimationEnded);
+            var animationId = PlayerAnimationId.Attack_Normal_01_01;
+            ConfigureAnimationMovement(animationId);
+            Context.Animation.PlayOneShot(animationId, OnAttackAnimationEnded);
         }
 
         /// <summary>
@@ -33,15 +35,6 @@ namespace Train.Gameplay.Player.States
         public override void Tick()
         {
             Context.Motor.MoveVerticalOnly();
-        }
-
-        /// <summary>
-        /// 在激活另一个顶层状态前恢复脚本移动。
-        /// </summary>
-        public override void Exit()
-        {
-            Context.Motor.SetMovementMode(Movement.PlayerMovementMode.Scripted);
-            base.Exit();
         }
 
         /// <summary>
@@ -54,5 +47,6 @@ namespace Train.Gameplay.Player.States
                 PlayerMachine.ChangeState(new LocomotionState(PlayerMachine, Context));
             }
         }
+
     }
 }

@@ -1,5 +1,5 @@
 using Train.Gameplay.Player.Core;
-using Train.Gameplay.Player.Movement;
+using Train.Gameplay.Player.Animation.Data;
 using Train.Gameplay.Player.States.Locomotion;
 using UnityEngine;
 
@@ -33,8 +33,11 @@ namespace Train.Gameplay.Player.States
             }
 
             Context.Input.ClearBufferedButtons();
-            Context.Motor.SetMovementMode(PlayerMovementMode.AnimationRootMotion);
-            Context.Animation.PlayDodge(_dodgeDirection, OnDodgeAnimationEnded);
+            var animationId = Vector3.Dot(Context.Motor.Forward, _dodgeDirection) < -0.1f
+                ? PlayerAnimationId.Evade_Back
+                : PlayerAnimationId.Evade_Front;
+            ConfigureAnimationMovement(animationId);
+            Context.Animation.PlayOneShot(animationId, OnDodgeAnimationEnded);
         }
 
         /// <summary>
@@ -42,15 +45,6 @@ namespace Train.Gameplay.Player.States
         /// </summary>
         public override void Tick()
         {
-        }
-
-        /// <summary>
-        /// 在激活另一个顶层状态前恢复脚本移动。
-        /// </summary>
-        public override void Exit()
-        {
-            Context.Motor.SetMovementMode(PlayerMovementMode.Scripted);
-            base.Exit();
         }
 
         /// <summary>
@@ -63,5 +57,6 @@ namespace Train.Gameplay.Player.States
                 PlayerMachine.ChangeState(new LocomotionState(PlayerMachine, Context));
             }
         }
+
     }
 }
