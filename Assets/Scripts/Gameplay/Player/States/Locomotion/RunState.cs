@@ -33,6 +33,11 @@ namespace Train.Gameplay.Player.States.Locomotion
         /// </summary>
         public override void Tick()
         {
+            if (_parent.TryStartTurnBack())
+            {
+                return;
+            }
+
             Context.Motor.MoveCameraRelative(Context.Input.Move, Context.Config.RunSpeed);
             _parent.RefreshLocomotionChild();
         }

@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Train.Gameplay.Player.Data.PlayerConfig
   _walkSpeed: 2.5
   _runSpeed: 5
+  _jumpHeight: 1.2
   _inputDeadZone: 0.1

@@ -9,5 +9,6 @@ namespace Train.Gameplay.Player.Animation.Data
         KeepInPlace,
         ScriptedMovement,
         RootMotion,
+        AuthoredMotion,
     }
 }

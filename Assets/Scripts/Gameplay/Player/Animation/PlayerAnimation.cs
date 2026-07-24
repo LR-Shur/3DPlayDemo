@@ -29,6 +29,14 @@ namespace Train.Gameplay.Player.Animation
         private AnimancerState _currentAnimationState;
 
         /// <summary>
+        /// 获取当前实际播放状态的归一化时间，供与动画同步的玩法位移采样。
+        /// </summary>
+        public float CurrentAnimationNormalizedTime =>
+            _currentAnimationState != null
+                ? _currentAnimationState.NormalizedTime
+                : _currentAnimationNormalizedTime;
+
+        /// <summary>
         /// 当 Inspector 中未指定时查找 Animancer 组件和默认动画目录。
         /// </summary>
         private void Awake()
@@ -141,7 +149,7 @@ namespace Train.Gameplay.Player.Animation
         /// <param name="id">需要查询的动画标识。</param>
         /// <param name="definition">查询成功时返回动画定义。</param>
         /// <returns>定义存在且可播放时返回 true。</returns>
-        private bool TryGetDefinition(PlayerAnimationId id, out PlayerAnimationDefinition definition)
+        public bool TryGetDefinition(PlayerAnimationId id, out PlayerAnimationDefinition definition)
         {
             if (_animancer != null && _catalog != null && _catalog.TryGet(id, out definition))
             {

@@ -5,7 +5,7 @@ namespace Train.Gameplay.Player.Movement
 {
     /// <summary>
     /// 通过 CharacterController 执行所有带碰撞检测的玩家移动。
-    /// 同时支持相机相对的脚本移动和由动画提供的 Root Motion。
+    /// 同时支持相机相对移动、Animator Root Motion 和动画时间驱动的可调位移曲线。
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
     public sealed class PlayerMotor : MonoBehaviour
@@ -29,6 +29,11 @@ namespace Train.Gameplay.Player.Movement
         /// 获取玩家当前的水平前方方向。
         /// </summary>
         public Vector3 Forward => transform.forward;
+
+        /// <summary>
+        /// 获取角色当前是否由 CharacterController 判定为站在地面上。
+        /// </summary>
+        public bool IsGrounded => EnsureCharacterController() && _characterController.isGrounded;
 
         /// <summary>
         /// 缓存必需的 CharacterController 引用。
@@ -81,7 +86,9 @@ namespace Train.Gameplay.Player.Movement
         {
             _movementMode = movementPolicy == PlayerAnimationMovementPolicy.RootMotion
                 ? PlayerMovementMode.AnimationRootMotion
-                : PlayerMovementMode.Scripted;
+                : movementPolicy == PlayerAnimationMovementPolicy.AuthoredMotion
+                    ? PlayerMovementMode.AuthoredMotion
+                    : PlayerMovementMode.Scripted;
             _rootMotionPositionScale = movementPolicy == PlayerAnimationMovementPolicy.RootMotion
                 ? Mathf.Max(0f, rootMotionPositionScale)
                 : 1f;
@@ -128,6 +135,22 @@ namespace Train.Gameplay.Player.Movement
         }
 
         /// <summary>
+        /// 立即将玩家逻辑根节点转向指定的水平世界方向。
+        /// 用于翻滚等进入状态时必须锁定朝向、不能继续平滑转身的动作。
+        /// </summary>
+        /// <param name="worldDirection">需要面对的世界空间水平向量。</param>
+        public void FaceDirectionImmediately(Vector3 worldDirection)
+        {
+            worldDirection.y = 0f;
+            if (worldDirection.sqrMagnitude <= 0.0001f)
+            {
+                return;
+            }
+
+            transform.rotation = Quaternion.LookRotation(worldDirection.normalized, Vector3.up);
+        }
+
+        /// <summary>
         /// 在动画 Root Motion 状态激活时，通过 CharacterController 应用动画位移。
         /// </summary>
         /// <param name="deltaPosition">Animator 在当前帧报告的位移。</param>
@@ -140,6 +163,42 @@ namespace Train.Gameplay.Player.Movement
 
             deltaPosition.y = 0f;
             Move(deltaPosition * _rootMotionPositionScale);
+        }
+
+        /// <summary>
+        /// 在数据驱动位移状态激活时，沿锁定方向执行本帧动画曲线产生的位移。
+        /// 最终仍交给 CharacterController，因此不会绕过墙体、台阶和地面碰撞。
+        /// </summary>
+        /// <param name="worldDirection">状态进入时锁定的水平世界方向。</param>
+        /// <param name="distanceDelta">本帧相对上一帧新增的位移距离。</param>
+        public void ApplyAuthoredMotion(Vector3 worldDirection, float distanceDelta)
+        {
+            if (_movementMode != PlayerMovementMode.AuthoredMotion)
+            {
+                return;
+            }
+
+            worldDirection.y = 0f;
+            var horizontalDisplacement = worldDirection.sqrMagnitude > 0.0001f
+                ? worldDirection.normalized * distanceDelta
+                : Vector3.zero;
+            Move(horizontalDisplacement);
+        }
+
+        /// <summary>
+        /// 在角色位于地面时施加一次向上的初速度，使角色以配置高度起跳。
+        /// </summary>
+        /// <param name="jumpHeight">期望达到的最高跳跃高度。</param>
+        /// <returns>成功起跳时返回 true；空中再次请求时返回 false。</returns>
+        public bool TryJump(float jumpHeight)
+        {
+            if (!EnsureCharacterController() || !_characterController.isGrounded || jumpHeight <= 0f)
+            {
+                return false;
+            }
+
+            _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * _gravity);
+            return true;
         }
 
         /// <summary>
@@ -231,5 +290,6 @@ namespace Train.Gameplay.Player.Movement
     {
         Scripted,
         AnimationRootMotion,
+        AuthoredMotion,
     }
 }

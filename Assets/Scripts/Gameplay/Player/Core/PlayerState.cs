@@ -24,7 +24,7 @@ namespace Train.Gameplay.Player.Core
 
         /// <summary>
         /// 读取动画目录定义的位移策略，并将其配置给玩家移动组件。
-        /// 所有玩家状态统一经由此方法决定动画位移，不在各状态中写死 Root Motion 规则。
+        /// 所有玩家状态统一经由此方法决定动画位移，不在各状态中写死位移来源。
         /// </summary>
         /// <param name="animationId">即将播放的动画标识。</param>
         protected void ConfigureAnimationMovement(PlayerAnimationId animationId)

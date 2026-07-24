@@ -11,6 +11,7 @@ namespace Train.Gameplay.Player.Data
     {
         [SerializeField, Min(0f)] private float _walkSpeed = 2.5f;
         [SerializeField, Min(0f)] private float _runSpeed = 5f;
+        [SerializeField, Min(0f)] private float _jumpHeight = 1.2f;
         [SerializeField, Range(0f, 1f)] private float _inputDeadZone = 0.1f;
 
         /// <summary>
@@ -22,6 +23,11 @@ namespace Train.Gameplay.Player.Data
         /// 获取奔跑状态使用的移动速度。
         /// </summary>
         public float RunSpeed => _runSpeed;
+
+        /// <summary>
+        /// 获取角色从地面起跳时达到的最高高度。
+        /// </summary>
+        public float JumpHeight => _jumpHeight;
 
         /// <summary>
         /// 获取用于判断是否存在移动输入的死区阈值。
