@@ -31,6 +31,11 @@ namespace Train.Gameplay.Player.Movement
         public Vector3 Forward => transform.forward;
 
         /// <summary>
+        /// 获取玩家逻辑根节点当前的世界旋转。
+        /// </summary>
+        public Quaternion FacingRotation => transform.rotation;
+
+        /// <summary>
         /// 获取角色当前是否由 CharacterController 判定为站在地面上。
         /// </summary>
         public bool IsGrounded => EnsureCharacterController() && _characterController.isGrounded;
@@ -225,7 +230,9 @@ namespace Train.Gameplay.Player.Movement
                 return;
             }
 
-            var targetRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
+            var targetRotation = Quaternion.LookRotation(
+                movementDirection.normalized,
+                Vector3.up);
             transform.rotation = Quaternion.RotateTowards(
                 transform.rotation,
                 targetRotation,
@@ -281,6 +288,7 @@ namespace Train.Gameplay.Player.Movement
             enabled = false;
             return false;
         }
+
     }
 
     /// <summary>

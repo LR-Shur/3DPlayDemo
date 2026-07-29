@@ -15,9 +15,7 @@ MonoBehaviour:
   _definitions:
   - _id: 74
     _category: 5
-    _clip: {fileID: 7400000, guid: c8ed5e05dff47a74a8127cec8faf605e, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: f9f43b747e2d2184d93019b294642b66, type: 2}
     _stateKind: 12
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -28,16 +26,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 38
     _category: 1
-    _clip: {fileID: 7400000, guid: f3dfafe6bfe2034418b4a00af8fd3914, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: e1213065fcd0013479e95ec1805a1a15, type: 2}
     _stateKind: 7
     _movementPolicy: 3
     _rootMotionPositionScale: 1
@@ -66,16 +70,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 39
     _category: 1
-    _clip: {fileID: 7400000, guid: 60c03dfa9cd056a4d915f000c51fdd14, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 571133f290e18c444bd154e7c78b878d, type: 2}
     _stateKind: 7
     _movementPolicy: 3
     _rootMotionPositionScale: 1
@@ -104,16 +114,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 40
     _category: 1
-    _clip: {fileID: 7400000, guid: 7cb2060bc54bbd84eb0199141985b508, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: e2d521f67c45ad542b4c1c2c614d5686, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -124,16 +140,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 41
     _category: 1
-    _clip: {fileID: 7400000, guid: 8a83373c083bfda429168cc2f2ef85f1, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 310c948482bd5344589090ad1ccc5d46, type: 2}
     _stateKind: 7
     _movementPolicy: 3
     _rootMotionPositionScale: 1
@@ -162,16 +184,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 42
     _category: 1
-    _clip: {fileID: 7400000, guid: 94633aee93e0e6f4faafce3722069005, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 272eea69a6079454b9b33085deb19927, type: 2}
     _stateKind: 7
     _movementPolicy: 3
     _rootMotionPositionScale: 1
@@ -200,16 +228,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 28
     _category: 1
-    _clip: {fileID: 7400000, guid: 9bc765482d9a2a6479d69e97a2b2eb15, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 8c9c2b7eaa926f141aabb9e4ad320dae, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -220,16 +254,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 29
     _category: 1
-    _clip: {fileID: 7400000, guid: c40cb61ef4d773f458280e8633b54750, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: f3ccd04e9b876bc46b247cee4a42e70b, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -240,16 +280,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 30
     _category: 1
-    _clip: {fileID: 7400000, guid: 2a3db006bdac36d4b9aee9b03cca9175, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 897585765e996eb43aa193253025fba9, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -260,16 +306,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 31
     _category: 1
-    _clip: {fileID: 7400000, guid: 2cb2fc3b7dd74a4468d981713c3d2fbe, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 953f493a3cc348c448cc5adc02ba00c0, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -280,16 +332,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 32
     _category: 1
-    _clip: {fileID: 7400000, guid: 2eb69b22c5050294ab977e7a52d54e1a, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 3193db3f82f5cf140a4118019fae0f07, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -300,16 +358,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 33
     _category: 1
-    _clip: {fileID: 7400000, guid: 4fa2dc77468b9ff4eb86ec3ebae69072, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: a501efe5e039ff840a76d71f06205eab, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -320,16 +384,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 34
     _category: 1
-    _clip: {fileID: 7400000, guid: 689f9b1c6103fb340899d30ba8db2273, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 0464c53a6a0dea143a77d75c01c64229, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -340,16 +410,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 35
     _category: 1
-    _clip: {fileID: 7400000, guid: 22d92e52b1fcfa748af454ca43a74f9a, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 691367f191d11be40bbd6fb8e8730419, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -360,16 +436,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 36
     _category: 1
-    _clip: {fileID: 7400000, guid: 5637909e19f5f88499dde303865b0db8, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 3a30c01d2939225419e359468732aef8, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -380,16 +462,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 37
     _category: 1
-    _clip: {fileID: 7400000, guid: f94cfdedd9fad96409a80db1c4131738, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: ad7f7e65d78649d4ba94bfcad78ebbd8, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -400,16 +488,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 43
     _category: 1
-    _clip: {fileID: 7400000, guid: 2bb4483da3bf9e54196f97bf2c19654a, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 7afa4aecec9979641b397f436ec328f7, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -420,16 +514,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 0.65
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0.65
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 3
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 44
     _category: 1
-    _clip: {fileID: 7400000, guid: 692ab428254d3dd4f9ab997b25451ace, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 8f1811f4123efa544b0f6045f0037613, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -440,16 +540,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 0.12
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0.08
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 3
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 49
     _category: 1
-    _clip: {fileID: 7400000, guid: d4704cd14051ec34f9302c990676597a, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: c7e84bba69d104849b6d3bd047144ed6, type: 2}
     _stateKind: 7
     _movementPolicy: 3
     _rootMotionPositionScale: 1
@@ -478,16 +584,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 50
     _category: 1
-    _clip: {fileID: 7400000, guid: ba6059f74e262694aa9381da7663c22e, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 05f63d124df99eb4ea77b762daf4fbbc, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -498,16 +610,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 51
     _category: 1
-    _clip: {fileID: 7400000, guid: b63ef2436570ab846a16a4360e63a958, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 7239aa4d49776904db5797f14af22d30, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -518,16 +636,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 0.12
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0.08
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 3
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 47
     _category: 1
-    _clip: {fileID: 7400000, guid: a2e119b17687c1e4a9d3eee51336a970, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: b5ac7ddece8ca2346a0ff9130f0e5320, type: 2}
     _stateKind: 7
     _movementPolicy: 3
     _rootMotionPositionScale: 1
@@ -556,16 +680,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 48
     _category: 1
-    _clip: {fileID: 7400000, guid: af162d1a57781a5458179c2cf2bfb5a3, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: e069b9a37d0f014408ed24a01c23a019, type: 2}
     _stateKind: 7
     _movementPolicy: 3
     _rootMotionPositionScale: 1
@@ -594,16 +724,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 0.55
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0.55
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 3
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 45
     _category: 1
-    _clip: {fileID: 7400000, guid: 96eb7697bae83c44ab7ad85924f461ae, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 78eeeb986a248ae41912605dc8c0810f, type: 2}
     _stateKind: 7
     _movementPolicy: 3
     _rootMotionPositionScale: 1
@@ -632,16 +768,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 46
     _category: 1
-    _clip: {fileID: 7400000, guid: a573b66d3b5c35e43ba058af32a2b454, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 7a609c031f37d2e4e9cfd8c1573a320b, type: 2}
     _stateKind: 7
     _movementPolicy: 3
     _rootMotionPositionScale: 1
@@ -670,16 +812,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 11
     _category: 1
-    _clip: {fileID: 7400000, guid: cb84273f5f44fa04180f06840f5c580e, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 991e38c1189d0e44796f2baa79e73293, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -690,16 +838,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 12
     _category: 1
-    _clip: {fileID: 7400000, guid: daf9761688c6d6745833101446c411cd, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 5acb95f467d93234ca90b7d100cd54fd, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -710,16 +864,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 13
     _category: 1
-    _clip: {fileID: 7400000, guid: de4bee36b8d3cee4586828c0b8d714da, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 49f79b6e6da25ac4eb691d2f544bb74c, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -730,16 +890,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 14
     _category: 1
-    _clip: {fileID: 7400000, guid: 57219322ab075de4cbf8296ccb5dc9d8, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 7aeb8048a1302a64a9f06cc677a30c76, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -750,16 +916,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 15
     _category: 1
-    _clip: {fileID: 7400000, guid: 002d877d17df00d4bb74d5b14777d645, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: b174dd82e55db1a49ba5a162f6a1834e, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -770,16 +942,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 16
     _category: 1
-    _clip: {fileID: 7400000, guid: 05eeab4e970cf504fbd4714e0dce89be, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: a02215c9b99f4fe4aa91b844b741af67, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -790,16 +968,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 17
     _category: 1
-    _clip: {fileID: 7400000, guid: 2fcf99190e85cf347862e0063bd1a4fa, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: c026a039f26987e4f9bb25fd55ba87db, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -810,16 +994,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 18
     _category: 1
-    _clip: {fileID: 7400000, guid: ae08a73db6f0e314dba51921e9c9be5e, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 3e087b3d7ade74c4b930f59e8a0c2e6d, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -830,16 +1020,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 19
     _category: 1
-    _clip: {fileID: 7400000, guid: a2ed1e26ff16ac34eaaeea5c3d0e33c5, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: f88b00839cce43741b0addff85dae753, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -850,16 +1046,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 20
     _category: 1
-    _clip: {fileID: 7400000, guid: fd0c1d984890ce948974d3696c0124be, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 1f27207a18e7bae40adce7298b6b60f8, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -870,16 +1072,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 21
     _category: 1
-    _clip: {fileID: 7400000, guid: e420e83c433805f49ad75079fbceaea2, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 9f075aa7179ac4042b0d6eb6a3e5d00c, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -890,16 +1098,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 22
     _category: 1
-    _clip: {fileID: 7400000, guid: 0a34797077f324f4985bbfed31489708, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 7f5eccce3c34ff740a36466c63b99aaf, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -910,16 +1124,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 23
     _category: 1
-    _clip: {fileID: 7400000, guid: 0fa6ce639c9ccad448373387f8477344, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 59a50e09f47d4b445a4ab4401014b4a0, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -930,16 +1150,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 24
     _category: 1
-    _clip: {fileID: 7400000, guid: 97142f7e9bd26ab4e89ca94c4b2f366c, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 9cee6eaec53f20a4396a9b25e71f4780, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -950,16 +1176,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 25
     _category: 1
-    _clip: {fileID: 7400000, guid: 458fd20e289ffcb4d8720f529fb0c0e0, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 70cca201f330c7b40bf3b5110a033805, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -970,16 +1202,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 26
     _category: 1
-    _clip: {fileID: 7400000, guid: acc8c046bbff38444a18521c65ea2d91, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 59c9f7bc49a87f24c90faf1e82b248ef, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -990,16 +1228,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 27
     _category: 1
-    _clip: {fileID: 7400000, guid: bf385c2674a162e43a0253de7ece74c3, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 5dbe5cd7cfeeab9409191d7296577147, type: 2}
     _stateKind: 6
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1010,16 +1254,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 57
     _category: 1
-    _clip: {fileID: 7400000, guid: d76868f3524496f4e9254941d5f2cadd, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 3b6bf035054f12a4c99b5e9206b9de0a, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1030,16 +1280,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 0.58
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0.58
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 3
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 58
     _category: 1
-    _clip: {fileID: 7400000, guid: 341c71807ffb81949b2ab63c58ec087c, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 195939bb45df15f47a3c3e2296965c3a, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1050,16 +1306,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 0.12
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0.08
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 3
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 55
     _category: 1
-    _clip: {fileID: 7400000, guid: de5d8875d90098d4b93ef213ff198cbb, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 948762ad479604842b594a69b6c67c45, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1070,16 +1332,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 0.58
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0.58
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 3
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 56
     _category: 1
-    _clip: {fileID: 7400000, guid: 07a6d306f6a2c0e46b88f5a5002a0b3f, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 217534fc8d1e11e41902adc21acda0fe, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1090,16 +1358,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 0.12
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0.08
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 3
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 54
     _category: 1
-    _clip: {fileID: 7400000, guid: f533c882e0677954a9b4b4dd9cd42a00, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: eaf05ba405ebc744e91a28df9f2ca4f9, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1110,20 +1384,26 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 52
     _category: 1
-    _clip: {fileID: 7400000, guid: e739eb48aabeb43479e93606a6faf91e, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: bde972e02bc998b4aaec960823a21eb1, type: 2}
     _stateKind: 7
     _movementPolicy: 3
     _rootMotionPositionScale: 1
-    _authoredMotionDistance: 0.9
+    _authoredMotionDistance: 2
     _authoredMotionCurve:
       serializedVersion: 2
       m_Curve:
@@ -1148,16 +1428,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 0.62
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0.62
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 3
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 53
     _category: 1
-    _clip: {fileID: 7400000, guid: ea96578e7f2a9b346ad7a27d1a0bcdfc, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 45ded2dcdf701244db84a1ee9be7cffe, type: 2}
     _stateKind: 7
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1168,16 +1454,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 0.12
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0.08
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 3
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 10
     _category: 1
-    _clip: {fileID: 7400000, guid: 232c0dd1a910db84ca9e06ecd9ab865b, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 278da290a42c5d64e86d5072fccbb79a, type: 2}
     _stateKind: 5
     _movementPolicy: 3
     _rootMotionPositionScale: 1
@@ -1242,16 +1534,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 0.42
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0.42
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 1
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 9
     _category: 1
-    _clip: {fileID: 7400000, guid: 466f624bbaa21c341bbed732fe2238ab, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: b1a508c6ec12d43409c0fdf81a0630be, type: 2}
     _stateKind: 5
     _movementPolicy: 3
     _rootMotionPositionScale: 1
@@ -1316,16 +1614,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 0.42
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0.42
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 1
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 73
     _category: 4
-    _clip: {fileID: 7400000, guid: 8f809a2b3e34bbe4c8b8b96af801bf49, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 2221395845431284aa35665d2babbba7, type: 2}
     _stateKind: 11
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1336,16 +1640,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 0
     _category: 0
-    _clip: {fileID: 7400000, guid: a1b6eacb7b03d2f4bb4c4f98e68b6490, type: 2}
-    _loop: 1
-    _fadeDuration: 0.15
+    _transition: {fileID: 11400000, guid: 1d90af6c24737c449a00768cc0aba443, type: 2}
     _stateKind: 0
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1356,16 +1666,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 1
   - _id: 1
     _category: 0
-    _clip: {fileID: 7400000, guid: 247aa9989a9eaa34b98d9bc6fe063d7a, type: 2}
-    _loop: 1
-    _fadeDuration: 0.15
+    _transition: {fileID: 11400000, guid: 42c8706324d42e741b6a8655cf93d99c, type: 2}
     _stateKind: 0
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1376,16 +1692,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 1
   - _id: 6
     _category: 0
-    _clip: {fileID: 7400000, guid: eb401607c90aa754ebd587bdfa04cd7b, type: 2}
-    _loop: 1
-    _fadeDuration: 0.15
+    _transition: {fileID: 11400000, guid: ff5132557ae7a60478868276e524f5b9, type: 2}
     _stateKind: 2
     _movementPolicy: 1
     _rootMotionPositionScale: 1
@@ -1396,16 +1718,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 1
   - _id: 7
     _category: 0
-    _clip: {fileID: 7400000, guid: 9d5c0abeec42c6f4f803b0ad64c6030b, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 81874fa0b52edc44a96af84b5a5865fa, type: 2}
     _stateKind: 3
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1416,16 +1744,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 1
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 8
     _category: 0
-    _clip: {fileID: 7400000, guid: f917fa91d28fd8c4897903e36a16fe3a, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: e6c83277cee3119468d570ebb8b5766b, type: 2}
     _stateKind: 4
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1436,16 +1770,436 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 1.7143759
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.020833332
+        value: 0.03571616
+        inSlope: 1.7143759
+        outSlope: 7.2120934
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.041666664
+        value: 0.1859681
+        inSlope: 7.2120934
+        outSlope: 12.23007
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.0625
+        value: 0.44076127
+        inSlope: 12.23007
+        outSlope: 7.2430305
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.08333333
+        value: 0.5916577
+        inSlope: 7.2430305
+        outSlope: 5.803962
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.104166664
+        value: 0.7125736
+        inSlope: 5.803962
+        outSlope: 5.803024
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.125
+        value: 0.8334699
+        inSlope: 5.803024
+        outSlope: 4.0220013
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.14583333
+        value: 0.9172616
+        inSlope: 4.0220013
+        outSlope: 0.7689974
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.16666666
+        value: 0.9332824
+        inSlope: 0.7689974
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.18749999
+        value: 0.9332824
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.20833333
+        value: 0.9332824
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.25
+        value: 0.9332824
+        inSlope: 0
+        outSlope: 0.19778547
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.31249997
+        value: 0.94564396
+        inSlope: 0.19778547
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.3333333
+        value: 0.94564396
+        inSlope: 0
+        outSlope: 0.52336097
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.35416666
+        value: 0.9565473
+        inSlope: 0.52336097
+        outSlope: 1.7860124
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.37499997
+        value: 0.9937559
+        inSlope: 1.7860124
+        outSlope: 0.29971734
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.39583334
+        value: 1
+        inSlope: 0.29971734
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.41666666
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.4375
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.4583333
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.47916666
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5208333
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5416667
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5625
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5833333
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.6041666
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.62499994
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.6458333
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.6666666
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.68749994
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.7083333
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.7291666
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.74999994
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.77083325
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.7916667
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.8125
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.8333333
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.8541667
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.875
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.8958333
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.9166666
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.9375
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.9583333
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.9791666
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0.15
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 1
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 2
     _category: 0
-    _clip: {fileID: 7400000, guid: d3ae9d8013f985b41860ed0a614d7a70, type: 2}
-    _loop: 1
-    _fadeDuration: 0.15
+    _transition: {fileID: 11400000, guid: 0d193fe244cab944abae9cbc4a8c1307, type: 2}
     _stateKind: 2
     _movementPolicy: 1
     _rootMotionPositionScale: 1
@@ -1456,16 +2210,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 1
   - _id: 5
     _category: 0
-    _clip: {fileID: 7400000, guid: fd033a09753ec014d83e6dc68651ae45, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 30936a80bf9778c40a04443f25a09a62, type: 2}
     _stateKind: 3
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1476,16 +2236,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 1
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 3
     _category: 0
-    _clip: {fileID: 7400000, guid: a2caa28b8b913dc49805107f52ed5f36, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: a81ad9a7e804e5447a6c37c77d0f87c3, type: 2}
     _stateKind: 1
     _movementPolicy: 1
     _rootMotionPositionScale: 1
@@ -1496,16 +2262,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 1
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 4
     _category: 0
-    _clip: {fileID: 7400000, guid: b689c086334a794418510e8208a45709, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: ae45c69153922b94085cb0dd5571ab3d, type: 2}
     _stateKind: 3
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1516,16 +2288,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 0
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 1
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 65
     _category: 2
-    _clip: {fileID: 7400000, guid: afeefd183f66e7c4a983254c89674912, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 41d3c37d7f1c71b478c45d964eacb54c, type: 2}
     _stateKind: 9
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1536,16 +2314,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 64
     _category: 2
-    _clip: {fileID: 7400000, guid: dd821e34dbdaef84dbef1b9e6a6e168e, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 80826228eaf52c0448f228daa5c28482, type: 2}
     _stateKind: 8
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1556,16 +2340,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 63
     _category: 2
-    _clip: {fileID: 7400000, guid: d9fecd9a2c6cf94409306ddc1864686d, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: e601e27a41e09324baa14c8826358da7, type: 2}
     _stateKind: 8
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1576,16 +2366,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 62
     _category: 2
-    _clip: {fileID: 7400000, guid: 9f7ada452274ac645abec0d5d6c73933, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 0828d74673ef8354c9d2e7e0aa394fe9, type: 2}
     _stateKind: 8
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1596,16 +2392,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 61
     _category: 2
-    _clip: {fileID: 7400000, guid: 13b75d6f30f284446830edffc60279e6, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 16d8df23d89e4de4495f215c5fc02f0e, type: 2}
     _stateKind: 8
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1616,16 +2418,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 60
     _category: 2
-    _clip: {fileID: 7400000, guid: cee8f7ac25437d649919f9b8d3bf56e9, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 9062d6588f0887d47b858cc449503575, type: 2}
     _stateKind: 8
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1636,16 +2444,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 59
     _category: 2
-    _clip: {fileID: 7400000, guid: 24236a407f2d96d49b05a0f0d911c3af, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 918da688a30ea174b95c095da826813d, type: 2}
     _stateKind: 8
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1656,16 +2470,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 68
     _category: 3
-    _clip: {fileID: 7400000, guid: 6837a633b7f061844b7fe7cf89d03170, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 2eb8761df7366214cb824f34c2d5ed1f, type: 2}
     _stateKind: 10
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1676,16 +2496,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 69
     _category: 3
-    _clip: {fileID: 7400000, guid: 03b64e4c3dfd62f4892139c583bb2221, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 4eab4cd06e77129489a0fedde2d1a2d2, type: 2}
     _stateKind: 10
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1696,16 +2522,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 71
     _category: 3
-    _clip: {fileID: 7400000, guid: 6c452a045a9eff14f88c80355b184ca1, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 3f6513ed910b0d54f81bceacf651541a, type: 2}
     _stateKind: 10
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1716,16 +2548,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 72
     _category: 3
-    _clip: {fileID: 7400000, guid: 66070d49e53da1b4593b450e1154a172, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 2c7c25e6cd54d1140bff205e353f2e6b, type: 2}
     _stateKind: 10
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1736,16 +2574,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 70
     _category: 3
-    _clip: {fileID: 7400000, guid: a1d77b7d7fc108e4a9f91602b50e7ab4, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: e71093d84d2896a4299e45305de4153c, type: 2}
     _stateKind: 10
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1756,16 +2600,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 66
     _category: 3
-    _clip: {fileID: 7400000, guid: 04cbec2cdb70c1647ad2dff96558d56c, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: ee909b124aa0fad49a6a6d423498f13f, type: 2}
     _stateKind: 10
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1776,16 +2626,22 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
   - _id: 67
     _category: 3
-    _clip: {fileID: 7400000, guid: 4de20dc48a3569f4d810f0d942b46cc3, type: 2}
-    _loop: 0
-    _fadeDuration: 0.1
+    _transition: {fileID: 11400000, guid: 532b635d75888664f8a140224f317fba, type: 2}
     _stateKind: 10
     _movementPolicy: 0
     _rootMotionPositionScale: 1
@@ -1796,8 +2652,23 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    _movementCancelStartNormalizedTime: 1
+    _authoredTurnCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _cancelStartNormalizedTime: 1
+    _cancelEndNormalizedTime: 1
+    _cancelTargets: 0
     _hasActionTimingConfigured: 1
+    _hasCancelRuleConfigured: 1
     _useRootMotion: 0
     _hasMovementPolicyConfigured: 1
-    _canBeInterrupted: 0
+  _contextualTransitions:
+  - _from: 8
+    _to: 2
+    _transition: {fileID: 11400000, guid: 643ac7b2552f4bb6b7cf5af295d7b78a, type: 2}
+  - _from: 8
+    _to: 6
+    _transition: {fileID: 11400000, guid: a18afa1636b74529a1e09f62ccf63d69, type: 2}

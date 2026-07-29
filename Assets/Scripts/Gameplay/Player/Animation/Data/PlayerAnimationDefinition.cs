@@ -1,29 +1,33 @@
+using Animancer;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Train.Gameplay.Player.Animation.Data
 {
     /// <summary>
-    /// 保存一个角色动画的资源引用和播放规则。
-    /// 它是数据对象，不包含任何 Animancer 或状态机逻辑。
+    /// 保存一个角色动画的玩法元数据，以及真正负责播放配置的 Animancer TransitionAsset。
+    /// 淡入、速度、起始时间、事件和具体动画类型均由 TransitionAsset 管理，本类只保留状态机需要的规则。
     /// </summary>
     [System.Serializable]
     public sealed class PlayerAnimationDefinition
     {
         [SerializeField] private PlayerAnimationId _id;
         [SerializeField] private PlayerAnimationCategory _category;
-        [SerializeField] private AnimationClip _clip;
-        [SerializeField] private bool _loop;
-        [SerializeField, Min(0f)] private float _fadeDuration = 0.15f;
+        [SerializeField] private TransitionAssetBase _transition;
         [SerializeField] private PlayerAnimationStateKind _stateKind;
         [SerializeField] private PlayerAnimationMovementPolicy _movementPolicy;
         [SerializeField, Min(0f)] private float _rootMotionPositionScale = 1f;
         [SerializeField, Min(0f)] private float _authoredMotionDistance;
         [SerializeField] private AnimationCurve _authoredMotionCurve;
-        [SerializeField, Range(0f, 1f)] private float _movementCancelStartNormalizedTime = 1f;
+        [SerializeField] private AnimationCurve _authoredTurnCurve;
+        [FormerlySerializedAs("_movementCancelStartNormalizedTime")]
+        [SerializeField, Range(0f, 1f)] private float _cancelStartNormalizedTime = 1f;
+        [SerializeField, Range(0f, 1f)] private float _cancelEndNormalizedTime = 1f;
+        [SerializeField] private PlayerAnimationCancelTarget _cancelTargets;
         [SerializeField, HideInInspector] private bool _hasActionTimingConfigured;
+        [SerializeField, HideInInspector] private bool _hasCancelRuleConfigured;
         [SerializeField, HideInInspector] private bool _useRootMotion;
         [SerializeField, HideInInspector] private bool _hasMovementPolicyConfigured;
-        [SerializeField] private bool _canBeInterrupted;
 
         /// <summary>
         /// 获取玩法代码用于请求该动画的稳定标识。
@@ -36,19 +40,30 @@ namespace Train.Gameplay.Player.Animation.Data
         public PlayerAnimationCategory Category => _category;
 
         /// <summary>
-        /// 获取实际由 Animancer 播放的动画剪辑。
+        /// 获取实际交给 Animancer 播放的 TransitionAsset。
+        /// 字段使用基类类型，因此将来可以直接替换为 Clip、Mixer 或自定义 TransitionAsset。
         /// </summary>
-        public AnimationClip Clip => _clip;
+        public TransitionAssetBase Transition => _transition;
 
         /// <summary>
-        /// 获取该动画是否应持续循环。
+        /// 获取 TransitionAsset 中用于调试和编辑器验证的主动画剪辑。
+        /// Mixer 等复合 Transition 没有唯一剪辑时可能返回空值。
         /// </summary>
-        public bool Loop => _loop;
+        public AnimationClip PrimaryClip =>
+            _transition != null &&
+            _transition.GetTransition() is ClipTransition clipTransition
+                ? clipTransition.Clip
+                : null;
 
         /// <summary>
-        /// 获取切换到该动画时使用的淡入时间。
+        /// 获取 TransitionAsset 当前是否会循环播放。
         /// </summary>
-        public float FadeDuration => _fadeDuration;
+        public bool Loop => _transition != null && _transition.IsLooping;
+
+        /// <summary>
+        /// 获取 TransitionAsset 中配置的淡入时间。
+        /// </summary>
+        public float FadeDuration => _transition != null ? _transition.FadeDuration : 0f;
 
         /// <summary>
         /// 获取负责处理该动画的玩家状态类别。
@@ -82,27 +97,41 @@ namespace Train.Gameplay.Player.Animation.Data
         public AnimationCurve AuthoredMotionCurve => _authoredMotionCurve;
 
         /// <summary>
-        /// 获取允许移动输入提前结束当前动作的最早归一化动画进度。
-        /// 数值为一表示只能等待动画自然结束。
+        /// 获取由 TurnBack 原始骨架根旋转提取出的累计转向曲线。
+        /// 横轴和纵轴均为零到一，只有需要脚本驱动朝向的一百八十度转身动画会配置。
         /// </summary>
-        public float MovementCancelStartNormalizedTime => _movementCancelStartNormalizedTime;
+        public AnimationCurve AuthoredTurnCurve => _authoredTurnCurve;
 
         /// <summary>
-        /// 获取该定义是否已写入动作取消时机数据。
-        /// 用于目录生成器在升级旧动画目录时填入默认值，同时保留后续手动调参。
+        /// 获取取消窗口开始的归一化动画进度。
+        /// </summary>
+        public float CancelStartNormalizedTime => _cancelStartNormalizedTime;
+
+        /// <summary>
+        /// 获取取消窗口结束的归一化动画进度。
+        /// </summary>
+        public float CancelEndNormalizedTime => _cancelEndNormalizedTime;
+
+        /// <summary>
+        /// 获取取消窗口内允许接管当前动画的行为集合。
+        /// </summary>
+        public PlayerAnimationCancelTarget CancelTargets => _cancelTargets;
+
+        /// <summary>
+        /// 获取该定义是否已经写入动作取消时机数据。
         /// </summary>
         public bool HasActionTimingConfigured => _hasActionTimingConfigured;
 
         /// <summary>
-        /// 获取该定义是否已写入新版位移策略数据。
-        /// 用于让目录生成工具迁移旧数据时应用默认值，而不会覆盖后续手动调参。
+        /// 获取该定义是否已经写入统一取消规则。
+        /// 旧目录迁移时会使用默认规则，新目录则保留 Inspector 中的手动调参。
         /// </summary>
-        public bool HasMovementPolicyConfigured => _hasMovementPolicyConfigured;
+        public bool HasCancelRuleConfigured => _hasCancelRuleConfigured;
 
         /// <summary>
-        /// 获取该动画在当前版本中是否允许被其他行为打断。
+        /// 获取该定义是否已经写入新版位移策略数据。
         /// </summary>
-        public bool CanBeInterrupted => _canBeInterrupted;
+        public bool HasMovementPolicyConfigured => _hasMovementPolicyConfigured;
 
         /// <summary>
         /// 初始化由编辑器自动收录的动画定义。
@@ -110,32 +139,50 @@ namespace Train.Gameplay.Player.Animation.Data
         public PlayerAnimationDefinition(
             PlayerAnimationId id,
             PlayerAnimationCategory category,
-            AnimationClip clip,
-            bool loop,
-            float fadeDuration,
+            TransitionAssetBase transition,
             PlayerAnimationStateKind stateKind,
             PlayerAnimationMovementPolicy movementPolicy,
             float rootMotionPositionScale,
             float authoredMotionDistance,
             AnimationCurve authoredMotionCurve,
-            float movementCancelStartNormalizedTime,
-            bool canBeInterrupted)
+            AnimationCurve authoredTurnCurve,
+            float cancelStartNormalizedTime,
+            float cancelEndNormalizedTime,
+            PlayerAnimationCancelTarget cancelTargets)
         {
             _id = id;
             _category = category;
-            _clip = clip;
-            _loop = loop;
-            _fadeDuration = fadeDuration;
+            _transition = transition;
             _stateKind = stateKind;
             _movementPolicy = movementPolicy;
             _rootMotionPositionScale = rootMotionPositionScale;
             _authoredMotionDistance = authoredMotionDistance;
             _authoredMotionCurve = authoredMotionCurve;
-            _movementCancelStartNormalizedTime = Mathf.Clamp01(movementCancelStartNormalizedTime);
+            _authoredTurnCurve = authoredTurnCurve;
+            _cancelStartNormalizedTime = Mathf.Clamp01(cancelStartNormalizedTime);
+            _cancelEndNormalizedTime = Mathf.Max(
+                _cancelStartNormalizedTime,
+                Mathf.Clamp01(cancelEndNormalizedTime));
+            _cancelTargets = cancelTargets;
             _hasActionTimingConfigured = true;
+            _hasCancelRuleConfigured = true;
             _useRootMotion = movementPolicy == PlayerAnimationMovementPolicy.RootMotion;
             _hasMovementPolicyConfigured = true;
-            _canBeInterrupted = canBeInterrupted;
+        }
+
+        /// <summary>
+        /// 判断指定行为能否在当前动画进度接管播放。
+        /// </summary>
+        /// <param name="target">希望切换到的行为类型。</param>
+        /// <param name="normalizedTime">当前动画归一化播放进度。</param>
+        /// <returns>目标被允许且当前进度位于取消窗口内时返回 true。</returns>
+        public bool CanCancelTo(
+            PlayerAnimationCancelTarget target,
+            float normalizedTime)
+        {
+            return (_cancelTargets & target) != 0 &&
+                   normalizedTime >= _cancelStartNormalizedTime &&
+                   normalizedTime <= _cancelEndNormalizedTime;
         }
 
         /// <summary>
@@ -152,6 +199,25 @@ namespace Train.Gameplay.Player.Animation.Data
                 ? _authoredMotionCurve.Evaluate(clampedTime)
                 : clampedTime;
             return Mathf.Clamp01(normalizedDistance) * Mathf.Max(0f, _authoredMotionDistance);
+        }
+
+        /// <summary>
+        /// 根据 TurnBack 当前归一化进度计算 Player 逻辑根应完成的转向比例。
+        /// 曲线缺失时使用平滑插值作为安全回退，避免角色停留在未完成朝向。
+        /// </summary>
+        /// <param name="normalizedTime">TurnBack 当前零到一的动画进度。</param>
+        /// <returns>绝对值表示完成比例，正负号表示源动画选择的转身方向。</returns>
+        public float EvaluateAuthoredTurnProgress(float normalizedTime)
+        {
+            var clampedTime = Mathf.Clamp01(normalizedTime);
+            var progress = _authoredTurnCurve != null &&
+                           _authoredTurnCurve.length > 0
+                ? _authoredTurnCurve.Evaluate(clampedTime)
+                : Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    Mathf.Clamp01(clampedTime / 0.60f));
+            return Mathf.Clamp(progress, -1f, 1f);
         }
     }
 }

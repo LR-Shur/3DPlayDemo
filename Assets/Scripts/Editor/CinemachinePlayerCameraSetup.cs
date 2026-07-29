@@ -92,15 +92,15 @@ namespace Train.EditorTools
         private static Transform GetOrCreateCameraTarget(Transform playerTransform)
         {
             var cameraTarget = playerTransform.Find(CameraTargetName);
-            if (cameraTarget != null)
+            if (cameraTarget == null)
             {
-                return cameraTarget;
+                var targetObject = new GameObject(CameraTargetName);
+                cameraTarget = targetObject.transform;
+                cameraTarget.SetParent(playerTransform, false);
             }
 
-            var targetObject = new GameObject(CameraTargetName);
-            cameraTarget = targetObject.transform;
-            cameraTarget.SetParent(playerTransform, false);
             cameraTarget.localPosition = Vector3.up * TargetHeight;
+            cameraTarget.localRotation = Quaternion.identity;
             return cameraTarget;
         }
 

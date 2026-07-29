@@ -5,7 +5,7 @@ namespace Train.Gameplay.Player.Input
 {
     /// <summary>
     /// 读取 Player 动作映射，并向玩家状态提供便于游戏逻辑使用的输入值。
-    /// 每个玩家会创建独立的运行时动作资源，避免多个预制体实例共享输入状态。
+    /// 当前项目为单本地玩家，直接启用输入资源中的 Player 动作映射。
     /// 此类不包含移动或动画规则。
     /// </summary>
     public sealed class PlayerInputReader : MonoBehaviour
@@ -13,7 +13,6 @@ namespace Train.Gameplay.Player.Input
         [SerializeField] private InputActionAsset _actionsAsset;
         [SerializeField] private string _actionMapName = "Player";
 
-        private InputActionAsset _runtimeActionsAsset;
         private InputActionMap _playerMap;
         private InputAction _moveAction;
         private InputAction _lookAction;
@@ -68,9 +67,7 @@ namespace Train.Gameplay.Player.Input
                 return;
             }
 
-            _runtimeActionsAsset = InputActionAsset.FromJson(_actionsAsset.ToJson());
-            _runtimeActionsAsset.name = $"{_actionsAsset.name}（运行时副本）";
-            _playerMap = _runtimeActionsAsset.FindActionMap(_actionMapName, true);
+            _playerMap = _actionsAsset.FindActionMap(_actionMapName, true);
             _moveAction = _playerMap.FindAction("Move", true);
             _lookAction = _playerMap.FindAction("Look", true);
             _sprintAction = _playerMap.FindAction("Sprint", true);
@@ -125,17 +122,6 @@ namespace Train.Gameplay.Player.Input
             _nextAction.performed -= OnNextPerformed;
             _playerMap.Disable();
             ClearBufferedButtons();
-        }
-
-        /// <summary>
-        /// 销毁当前玩家独占的运行时输入资源副本，避免退出场景后残留动作状态。
-        /// </summary>
-        private void OnDestroy()
-        {
-            if (_runtimeActionsAsset != null)
-            {
-                Destroy(_runtimeActionsAsset);
-            }
         }
 
         /// <summary>

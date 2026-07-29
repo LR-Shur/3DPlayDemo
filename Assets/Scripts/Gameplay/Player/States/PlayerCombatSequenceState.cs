@@ -77,9 +77,8 @@ namespace Train.Gameplay.Player.States
                 Context.Motor.MoveVerticalOnly();
             }
 
-            if (CanCancelCurrentAnimation(normalizedTime))
+            if (TryCancelCurrentAnimation(normalizedTime))
             {
-                ReturnToLocomotion();
                 return;
             }
 
@@ -154,21 +153,38 @@ namespace Train.Gameplay.Player.States
         }
 
         /// <summary>
-        /// 判断玩家是否已在当前动作允许的窗口内输入移动，从而提前交还控制权。
-        /// 这样冲刺攻击、滑铲和突进收势都不会等待原动画的冗长尾帧。
+        /// 根据当前动作的统一取消窗口处理翻滚或移动接管。
+        /// 翻滚优先于持续移动，避免玩家明确按下翻滚时被移动取消抢先处理。
         /// </summary>
         /// <param name="normalizedTime">当前动作的归一化播放进度。</param>
-        /// <returns>达到取消窗口且存在有效移动输入时返回 true。</returns>
-        private bool CanCancelCurrentAnimation(float normalizedTime)
+        /// <returns>已经切换到新的顶层状态时返回 true。</returns>
+        private bool TryCancelCurrentAnimation(float normalizedTime)
         {
-            if (_currentDefinition == null ||
-                normalizedTime < _currentDefinition.MovementCancelStartNormalizedTime)
+            if (_currentDefinition == null)
             {
                 return false;
             }
 
-            return Context.Input.Move.sqrMagnitude >
-                   Context.Config.InputDeadZone * Context.Config.InputDeadZone;
+            if (_currentDefinition.CanCancelTo(
+                    PlayerAnimationCancelTarget.Dodge,
+                    normalizedTime) &&
+                Context.Input.ConsumeDodgePressed())
+            {
+                PlayerMachine.ChangeState(new DodgeState(PlayerMachine, Context));
+                return true;
+            }
+
+            if (_currentDefinition.CanCancelTo(
+                    PlayerAnimationCancelTarget.Movement,
+                    normalizedTime) &&
+                Context.Input.Move.sqrMagnitude >
+                Context.Config.InputDeadZone * Context.Config.InputDeadZone)
+            {
+                ReturnToLocomotion();
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

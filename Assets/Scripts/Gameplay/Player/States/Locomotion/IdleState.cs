@@ -34,7 +34,10 @@ namespace Train.Gameplay.Player.States.Locomotion
         public override void Tick()
         {
             Context.Motor.MoveCameraRelative(Context.Input.Move, 0f);
-            _parent.RefreshLocomotionChild();
+            if (_parent.HasMovementInput())
+            {
+                _parent.EnterMovementFromRest();
+            }
         }
     }
 }

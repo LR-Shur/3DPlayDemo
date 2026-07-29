@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Animancer;
 using Train.Gameplay.Player.Animation.Data;
 using UnityEditor;
 using UnityEngine;
@@ -15,22 +16,73 @@ namespace Train.EditorTools
     public static class EllenAnimationCatalogGenerator
     {
         private const string SourceRoot = "Assets/Arts/Player/Ellen/AnimationFBX";
+        private const string TransitionRoot = "Assets/Arts/Player/Ellen/AnimationGenerated/Transitions";
+        private const string TransitionEventRoot =
+            "Assets/Arts/Player/Ellen/AnimationGenerated/Transitions/_Events";
+        private const string ContextualTransitionRoot =
+            "Assets/Arts/Player/Ellen/AnimationGenerated/Transitions/Locomotion";
         private const string CatalogPath = "Assets/Resources/Player/EllenAnimationCatalog.asset";
         private const string CommonPrefix = "Avatar_Female_Size02_Ellen_Ani_";
+        private const float DefaultTurnMovementStartNormalizedTime = 0.52f;
+        private const float DefaultTurnCompleteNormalizedTime = 0.60f;
 
         /// <summary>
-        /// 在编辑器启动或脚本重载后自动补齐缺失的 Ellen 动画目录资源。
+        /// 在编辑器启动或脚本重载后自动补齐缺失的 Ellen 动画目录与 TransitionAsset。
+        /// 资源数量不足时会继续迁移，避免上次生成中断后留下半套数据。
         /// </summary>
         [InitializeOnLoadMethod]
         private static void CreateCatalogWhenMissing()
         {
             EditorApplication.delayCall += () =>
             {
-                if (AssetDatabase.LoadAssetAtPath<PlayerAnimationCatalog>(CatalogPath) == null)
+                if (AssetDatabase.LoadAssetAtPath<PlayerAnimationCatalog>(CatalogPath) == null ||
+                    CountGeneratedTransitions() < CountSourceAnimations() ||
+                    !HasRequiredContextualTransitions())
                 {
                     GenerateCatalog();
                 }
             };
+        }
+
+        /// <summary>
+        /// 统计原始 FBX 动画数量，用于判断 TransitionAsset 迁移是否完整。
+        /// </summary>
+        /// <returns>Ellen 动画源目录中的 FBX 文件总数。</returns>
+        private static int CountSourceAnimations()
+        {
+            return Directory.Exists(SourceRoot)
+                ? Directory.GetFiles(SourceRoot, "*.fbx", SearchOption.AllDirectories).Length
+                : 0;
+        }
+
+        /// <summary>
+        /// 统计已经生成的 TransitionAsset 数量。
+        /// </summary>
+        /// <returns>Transition 输出目录中的资源文件总数。</returns>
+        private static int CountGeneratedTransitions()
+        {
+            return Directory.Exists(TransitionRoot)
+                ? Directory.GetFiles(TransitionRoot, "*.asset", SearchOption.AllDirectories).Length
+                : 0;
+        }
+
+        /// <summary>
+        /// 检查转身进入步行和奔跑所需的来源相关 TransitionAsset 是否完整。
+        /// </summary>
+        /// <returns>两个必需资源均已生成时返回 true。</returns>
+        private static bool HasRequiredContextualTransitions()
+        {
+            var catalog = AssetDatabase.LoadAssetAtPath<PlayerAnimationCatalog>(
+                CatalogPath);
+            return catalog != null &&
+                   catalog.TryGetContextualTransition(
+                       PlayerAnimationId.TurnBack,
+                       PlayerAnimationId.Walk,
+                       out _) &&
+                   catalog.TryGetContextualTransition(
+                       PlayerAnimationId.TurnBack,
+                       PlayerAnimationId.Run,
+                       out _);
         }
 
         /// <summary>
@@ -77,8 +129,10 @@ namespace Train.EditorTools
                 var rootMotionPositionScale = 1f;
                 var authoredMotionDistance = GetDefaultAuthoredMotionDistance(id);
                 var authoredMotionCurve = CreateDefaultAuthoredMotionCurve(id);
-                var movementCancelStartNormalizedTime = GetDefaultMovementCancelStartNormalizedTime(id);
-                if (catalog.TryGet(id, out var existingDefinition) &&
+                var cancelStartNormalizedTime = GetDefaultCancelStartNormalizedTime(id);
+                var cancelEndNormalizedTime = 1f;
+                var cancelTargets = GetDefaultCancelTargets(id);
+                if (catalog.TryGetStoredDefinition(id, out var existingDefinition) &&
                     existingDefinition.HasMovementPolicyConfigured)
                 {
                     movementPolicy = existingDefinition.MovementPolicy;
@@ -94,10 +148,18 @@ namespace Train.EditorTools
                         authoredMotionCurve = existingDefinition.AuthoredMotionCurve;
                     }
 
-                    if (existingDefinition.HasActionTimingConfigured)
+                    if (existingDefinition.HasCancelRuleConfigured)
                     {
-                        movementCancelStartNormalizedTime =
-                            existingDefinition.MovementCancelStartNormalizedTime;
+                        cancelStartNormalizedTime =
+                            existingDefinition.CancelStartNormalizedTime;
+                        cancelEndNormalizedTime = existingDefinition.CancelEndNormalizedTime;
+                        cancelTargets = existingDefinition.CancelTargets;
+                    }
+                    else if (existingDefinition.HasActionTimingConfigured &&
+                             !RequiresCancelRuleMigration(id))
+                    {
+                        cancelStartNormalizedTime =
+                            existingDefinition.CancelStartNormalizedTime;
                     }
                 }
 
@@ -112,13 +174,22 @@ namespace Train.EditorTools
                     rootMotionPositionScale = 1f;
                 }
 
-                var playbackClip = EllenInPlaceAnimationGenerator.CreateOrUpdate(sourceClip, category, id);
+                var playbackClip = EllenInPlaceAnimationGenerator.CreateOrUpdate(
+                    sourceClip,
+                    category,
+                    id,
+                    loop,
+                    out var authoredTurnCurve);
+                var transition = CreateOrLoadTransition(
+                    playbackClip,
+                    category,
+                    id,
+                    loop ? 0.15f : 0.1f);
+                EnsureDefaultTransitionEvents(transition, id);
                 definitions.Add(new PlayerAnimationDefinition(
                     id,
                     category,
-                    playbackClip,
-                    loop,
-                    loop ? 0.15f : 0.1f,
+                    transition,
                     stateKind,
                     movementPolicy,
                     rootMotionPositionScale,
@@ -128,15 +199,269 @@ namespace Train.EditorTools
                     movementPolicy == PlayerAnimationMovementPolicy.AuthoredMotion
                         ? authoredMotionCurve
                         : null,
-                    movementCancelStartNormalizedTime,
-                    GetCanBeInterrupted(id)));
+                    authoredTurnCurve,
+                    cancelStartNormalizedTime,
+                    cancelEndNormalizedTime,
+                    cancelTargets));
             }
 
             catalog.ReplaceDefinitions(definitions.ToArray());
+            catalog.ReplaceContextualTransitions(
+                CreateContextualTransitions(definitions));
             EditorUtility.SetDirty(catalog);
             AssetDatabase.SaveAssets();
             Debug.Log($"Ellen 动画目录已生成，共收录 {definitions.Count} 个动画。" +
-                      "全部条目均引用自动生成的原地 .anim 副本；翻滚位移由动画定义中的距离曲线驱动，原始 FBX 保持不变。", catalog);
+                      "全部条目均通过独立 TransitionAsset 播放原地 .anim 副本；" +
+                      "已有 Transition 调参会被保留，原始 FBX 保持不变。", catalog);
+        }
+
+        /// <summary>
+        /// 创建转身进入移动循环所需的来源相关过渡规则。
+        /// 两条规则使用姿势匹配得到的步态相位，普通 Idle 进入 Walk 或 Run 不受影响。
+        /// </summary>
+        /// <param name="definitions">本次生成的完整动画定义集合。</param>
+        /// <returns>需要写入动画目录的来源相关过渡规则。</returns>
+        private static PlayerAnimationTransitionRule[] CreateContextualTransitions(
+            IReadOnlyCollection<PlayerAnimationDefinition> definitions)
+        {
+            var walkDefinition = definitions.First(
+                definition => definition.Id == PlayerAnimationId.Walk);
+            var runDefinition = definitions.First(
+                definition => definition.Id == PlayerAnimationId.Run);
+            return new[]
+            {
+                new PlayerAnimationTransitionRule(
+                    PlayerAnimationId.TurnBack,
+                    PlayerAnimationId.Walk,
+                    CreateOrLoadContextualTransition(
+                        PlayerAnimationId.TurnBack,
+                        walkDefinition,
+                        0.625f)),
+                new PlayerAnimationTransitionRule(
+                    PlayerAnimationId.TurnBack,
+                    PlayerAnimationId.Run,
+                    CreateOrLoadContextualTransition(
+                        PlayerAnimationId.TurnBack,
+                        runDefinition,
+                        0.61f)),
+            };
+        }
+
+        /// <summary>
+        /// 创建或读取一个来源相关的移动循环 TransitionAsset。
+        /// 已存在资源保持 Inspector 调参，新资源从目标定义复制淡入时间并写入匹配后的起始相位。
+        /// </summary>
+        /// <param name="from">过渡来源动画标识。</param>
+        /// <param name="targetDefinition">提供目标剪辑与默认淡入时间的动画定义。</param>
+        /// <param name="normalizedStartTime">姿势匹配得到的目标循环起始相位。</param>
+        /// <returns>可直接用于指定来源到目标组合的 TransitionAsset。</returns>
+        private static TransitionAssetBase CreateOrLoadContextualTransition(
+            PlayerAnimationId from,
+            PlayerAnimationDefinition targetDefinition,
+            float normalizedStartTime)
+        {
+            var assetPath =
+                $"{ContextualTransitionRoot}/{from}_To_{targetDefinition.Id}.asset";
+            var existingAsset =
+                AssetDatabase.LoadAssetAtPath<TransitionAssetBase>(assetPath);
+            if (existingAsset != null)
+            {
+                return existingAsset;
+            }
+
+            var transitionAsset = ScriptableObject.CreateInstance<TransitionAsset>();
+            transitionAsset.name = $"{from}_To_{targetDefinition.Id}";
+            transitionAsset.Transition = new ClipTransition
+            {
+                Clip = targetDefinition.PrimaryClip,
+                FadeDuration = targetDefinition.FadeDuration,
+                Speed = 1f,
+                NormalizedStartTime = normalizedStartTime,
+            };
+            AssetDatabase.CreateAsset(transitionAsset, assetPath);
+            return transitionAsset;
+        }
+
+        /// <summary>
+        /// 创建或读取指定动画的独立 TransitionAsset。
+        /// 已存在的资源不会被重新初始化，避免覆盖在 Inspector 中手动调节的淡入、速度、事件和起始时间。
+        /// </summary>
+        /// <param name="playbackClip">Transition 首次创建时绑定的原地动画剪辑。</param>
+        /// <param name="category">用于组织 Transition 资源目录的动画分类。</param>
+        /// <param name="id">用于生成稳定资源名称的动画标识。</param>
+        /// <param name="defaultFadeDuration">资源首次创建时使用的默认淡入时间。</param>
+        /// <returns>可由目录和 Animancer 直接使用的 TransitionAsset。</returns>
+        private static TransitionAssetBase CreateOrLoadTransition(
+            AnimationClip playbackClip,
+            PlayerAnimationCategory category,
+            PlayerAnimationId id,
+            float defaultFadeDuration)
+        {
+            var folderPath = $"{TransitionRoot}/{category}";
+            Directory.CreateDirectory(folderPath);
+            var assetPath = $"{folderPath}/{id}.asset";
+            var existingAsset = AssetDatabase.LoadAssetAtPath<TransitionAssetBase>(assetPath);
+            if (existingAsset != null)
+            {
+                return existingAsset;
+            }
+
+            var transitionAsset = ScriptableObject.CreateInstance<TransitionAsset>();
+            transitionAsset.name = id.ToString();
+            transitionAsset.Transition = new ClipTransition
+            {
+                Clip = playbackClip,
+                FadeDuration = defaultFadeDuration,
+                Speed = 1f,
+                NormalizedStartTime = 0f,
+            };
+            AssetDatabase.CreateAsset(transitionAsset, assetPath);
+            return transitionAsset;
+        }
+
+        /// <summary>
+        /// 为需要动画姿势关键点的 TransitionAsset 补齐默认命名事件。
+        /// 已经存在的同名事件不会被覆盖，动画师可以继续在资源中微调其时间。
+        /// </summary>
+        /// <param name="transitionAsset">需要检查的 TransitionAsset。</param>
+        /// <param name="id">该资源对应的动画标识。</param>
+        private static void EnsureDefaultTransitionEvents(
+            TransitionAssetBase transitionAsset,
+            PlayerAnimationId id)
+        {
+            if (id != PlayerAnimationId.TurnBack || transitionAsset == null)
+            {
+                return;
+            }
+
+            var serializedTransition = new SerializedObject(transitionAsset);
+            var normalizedTimes = serializedTransition.FindProperty(
+                "_Transition._Events._NormalizedTimes");
+            var callbacks = serializedTransition.FindProperty(
+                "_Transition._Events._Callbacks");
+            var names = serializedTransition.FindProperty(
+                "_Transition._Events._Names");
+            if (normalizedTimes == null || callbacks == null || names == null)
+            {
+                Debug.LogError(
+                    $"TransitionAsset {transitionAsset.name} 不包含可编辑的 Animancer 事件序列。",
+                    transitionAsset);
+                return;
+            }
+
+            EnsureNamedTransitionEvent(
+                normalizedTimes,
+                callbacks,
+                names,
+                CreateOrLoadEventNameAsset(
+                    PlayerAnimationEventNames.TurnMovementStart),
+                DefaultTurnMovementStartNormalizedTime);
+            EnsureNamedTransitionEvent(
+                normalizedTimes,
+                callbacks,
+                names,
+                CreateOrLoadEventNameAsset(
+                    PlayerAnimationEventNames.TurnComplete),
+                DefaultTurnCompleteNormalizedTime);
+            EnsureSerializedEndEvent(normalizedTimes, callbacks);
+            serializedTransition.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(transitionAsset);
+        }
+
+        /// <summary>
+        /// 确保 TransitionAsset 包含指定命名事件，已有事件时间保持不变。
+        /// 新事件会按归一化时间插入，保证 Animancer 依照动画顺序触发。
+        /// </summary>
+        /// <param name="normalizedTimes">TransitionAsset 的事件时间数组。</param>
+        /// <param name="callbacks">TransitionAsset 的事件回调数组。</param>
+        /// <param name="names">TransitionAsset 的事件名称数组。</param>
+        /// <param name="eventNameAsset">需要写入的稳定事件名称资源。</param>
+        /// <param name="defaultNormalizedTime">事件首次创建时使用的默认归一化时间。</param>
+        private static void EnsureNamedTransitionEvent(
+            SerializedProperty normalizedTimes,
+            SerializedProperty callbacks,
+            SerializedProperty names,
+            StringAsset eventNameAsset,
+            float defaultNormalizedTime)
+        {
+            for (var i = 0; i < names.arraySize; i++)
+            {
+                if (names.GetArrayElementAtIndex(i).objectReferenceValue == eventNameAsset)
+                {
+                    while (callbacks.arraySize <= i)
+                    {
+                        callbacks.InsertArrayElementAtIndex(callbacks.arraySize);
+                    }
+
+                    var existingCallback = callbacks.GetArrayElementAtIndex(i);
+                    if (existingCallback.managedReferenceValue == null)
+                    {
+                        existingCallback.managedReferenceValue = new Animancer.UnityEvent();
+                    }
+
+                    return;
+                }
+            }
+
+            var insertionIndex = normalizedTimes.arraySize;
+            for (var i = 0; i < normalizedTimes.arraySize; i++)
+            {
+                if (normalizedTimes.GetArrayElementAtIndex(i).floatValue >
+                    defaultNormalizedTime)
+                {
+                    insertionIndex = i;
+                    break;
+                }
+            }
+
+            normalizedTimes.InsertArrayElementAtIndex(insertionIndex);
+            callbacks.InsertArrayElementAtIndex(insertionIndex);
+            names.InsertArrayElementAtIndex(insertionIndex);
+            normalizedTimes.GetArrayElementAtIndex(insertionIndex).floatValue =
+                defaultNormalizedTime;
+            callbacks.GetArrayElementAtIndex(insertionIndex).managedReferenceValue =
+                new Animancer.UnityEvent();
+            names.GetArrayElementAtIndex(insertionIndex).objectReferenceValue = eventNameAsset;
+        }
+
+        /// <summary>
+        /// 确保 Animancer 序列在普通事件之后仍保留独立的结束事件时间。
+        /// 序列化格式会把最后一个时间解释为 End Event，因此普通事件不能占用最后一项。
+        /// </summary>
+        /// <param name="normalizedTimes">TransitionAsset 的事件时间数组。</param>
+        /// <param name="callbacks">TransitionAsset 的普通事件回调数组。</param>
+        private static void EnsureSerializedEndEvent(
+            SerializedProperty normalizedTimes,
+            SerializedProperty callbacks)
+        {
+            while (normalizedTimes.arraySize <= callbacks.arraySize)
+            {
+                var endIndex = normalizedTimes.arraySize;
+                normalizedTimes.InsertArrayElementAtIndex(endIndex);
+                normalizedTimes.GetArrayElementAtIndex(endIndex).floatValue = float.NaN;
+            }
+        }
+
+        /// <summary>
+        /// 创建或读取 Animancer 命名事件使用的共享 StringAsset。
+        /// TransitionAsset 通过该资源保存稳定事件名，运行时状态再绑定本次播放的回调。
+        /// </summary>
+        /// <param name="eventName">需要创建或读取的事件名称。</param>
+        /// <returns>可写入 Animancer 事件名称数组的 StringAsset。</returns>
+        private static StringAsset CreateOrLoadEventNameAsset(string eventName)
+        {
+            Directory.CreateDirectory(TransitionEventRoot);
+            var assetPath = $"{TransitionEventRoot}/{eventName}.asset";
+            var eventNameAsset = AssetDatabase.LoadAssetAtPath<StringAsset>(assetPath);
+            if (eventNameAsset != null)
+            {
+                return eventNameAsset;
+            }
+
+            eventNameAsset = ScriptableObject.CreateInstance<StringAsset>();
+            eventNameAsset.name = eventName;
+            AssetDatabase.CreateAsset(eventNameAsset, assetPath);
+            return eventNameAsset;
         }
 
         /// <summary>
@@ -348,24 +673,31 @@ namespace Train.EditorTools
         /// </summary>
         /// <param name="id">待配置的动画标识。</param>
         /// <returns>零到一的最早移动取消进度。</returns>
-        private static float GetDefaultMovementCancelStartNormalizedTime(PlayerAnimationId id)
+        private static float GetDefaultCancelStartNormalizedTime(PlayerAnimationId id)
         {
             return id switch
             {
+                PlayerAnimationId.Walk_Start or
+                PlayerAnimationId.Walk_Start_End or
+                PlayerAnimationId.Walk_End or
+                PlayerAnimationId.Run_End => 0f,
+
+                PlayerAnimationId.TurnBack => 0.15f,
+
                 PlayerAnimationId.Evade_Front or
                 PlayerAnimationId.Evade_Back => 0.42f,
 
                 PlayerAnimationId.Attack_Dash_Slash_01 => 0.55f,
-                PlayerAnimationId.Attack_Dash_End_01 => 0.12f,
+                PlayerAnimationId.Attack_Dash_End_01 => 0.08f,
 
                 PlayerAnimationId.Attack_Rush => 0.62f,
-                PlayerAnimationId.Attack_Rush_End => 0.12f,
+                PlayerAnimationId.Attack_Rush_End => 0.08f,
 
                 PlayerAnimationId.Attack_ParryAid_L or
                 PlayerAnimationId.Attack_ParryAid_H => 0.58f,
                 PlayerAnimationId.Attack_ParryAid_L_End or
                 PlayerAnimationId.Attack_ParryAid_H_End or
-                PlayerAnimationId.Attack_Counter_End => 0.12f,
+                PlayerAnimationId.Attack_Counter_End => 0.08f,
 
                 PlayerAnimationId.Attack_Counter => 0.65f,
                 _ => 1f,
@@ -373,15 +705,60 @@ namespace Train.EditorTools
         }
 
         /// <summary>
-        /// 返回动画是否允许被移动输入提前打断。
-        /// 当前仅移动循环动作可被输入随时切换；其余动作由具体状态或取消窗口控制。
+        /// 返回动画在取消窗口内允许切换到的行为集合。
+        /// 移动收势可立即回到移动；战斗收势同时允许移动或翻滚接管。
         /// </summary>
         /// <param name="id">待配置的动画标识。</param>
-        /// <returns>动画允许常规中断时返回 true。</returns>
-        private static bool GetCanBeInterrupted(PlayerAnimationId id)
+        /// <returns>允许接管当前动画的行为位标记。</returns>
+        private static PlayerAnimationCancelTarget GetDefaultCancelTargets(PlayerAnimationId id)
         {
-            return id is PlayerAnimationId.Idle or PlayerAnimationId.Idle_AFK or
-                PlayerAnimationId.Walk or PlayerAnimationId.Run;
+            if (id is PlayerAnimationId.Walk_Start or
+                PlayerAnimationId.Walk_Start_End or
+                PlayerAnimationId.Walk_End or
+                PlayerAnimationId.Run_End or
+                PlayerAnimationId.TurnBack or
+                PlayerAnimationId.Evade_Front or
+                PlayerAnimationId.Evade_Back)
+            {
+                return PlayerAnimationCancelTarget.Movement;
+            }
+
+            if (id is PlayerAnimationId.Attack_Dash_Slash_01 or
+                PlayerAnimationId.Attack_Dash_End_01 or
+                PlayerAnimationId.Attack_Rush or
+                PlayerAnimationId.Attack_Rush_End or
+                PlayerAnimationId.Attack_ParryAid_L or
+                PlayerAnimationId.Attack_ParryAid_H or
+                PlayerAnimationId.Attack_ParryAid_L_End or
+                PlayerAnimationId.Attack_ParryAid_H_End or
+                PlayerAnimationId.Attack_Counter or
+                PlayerAnimationId.Attack_Counter_End)
+            {
+                return PlayerAnimationCancelTarget.Movement |
+                       PlayerAnimationCancelTarget.Dodge;
+            }
+
+            return PlayerAnimationCancelTarget.None;
+        }
+
+        /// <summary>
+        /// 判断旧目录条目是否必须升级为新版默认取消规则。
+        /// 这些动作正是旧版容易产生长后摇或转向锁定的入口，首次升级时不能继续沿用旧数值。
+        /// </summary>
+        /// <param name="id">待检查的动画标识。</param>
+        /// <returns>应该采用新版默认取消起点时返回 true。</returns>
+        private static bool RequiresCancelRuleMigration(PlayerAnimationId id)
+        {
+            return id is PlayerAnimationId.Walk_Start or
+                PlayerAnimationId.Walk_Start_End or
+                PlayerAnimationId.Walk_End or
+                PlayerAnimationId.Run_End or
+                PlayerAnimationId.TurnBack or
+                PlayerAnimationId.Attack_Dash_End_01 or
+                PlayerAnimationId.Attack_Rush_End or
+                PlayerAnimationId.Attack_ParryAid_L_End or
+                PlayerAnimationId.Attack_ParryAid_H_End or
+                PlayerAnimationId.Attack_Counter_End;
         }
 
         /// <summary>

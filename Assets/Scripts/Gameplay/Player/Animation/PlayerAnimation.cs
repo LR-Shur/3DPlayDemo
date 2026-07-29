@@ -19,6 +19,8 @@ namespace Train.Gameplay.Player.Animation
         private PlayerAnimationId _currentAnimationId;
         [SerializeField, Tooltip("当前实际交给 Animancer 播放的动画片段。")]
         private AnimationClip _currentAnimationClip;
+        [SerializeField, Tooltip("当前实际交给 Animancer 播放的 TransitionAsset。")]
+        private TransitionAssetBase _currentTransitionAsset;
         [SerializeField, Tooltip("当前动画已播放到的归一化进度；循环动画会持续递增。")]
         private float _currentAnimationNormalizedTime;
         [SerializeField, Tooltip("当前动画采用的水平位移策略。")]
@@ -72,7 +74,13 @@ namespace Train.Gameplay.Player.Animation
                 Debug.LogWarning($"动画 {id} 未配置为循环动画。", this);
             }
 
-            PlayDefinition(definition, null);
+            var transition = _catalog.TryGetContextualTransition(
+                _currentAnimationId,
+                id,
+                out var contextualTransition)
+                ? contextualTransition
+                : definition.Transition;
+            PlayDefinition(definition, null, null, transition);
         }
 
         /// <summary>
@@ -81,6 +89,41 @@ namespace Train.Gameplay.Player.Animation
         /// <param name="id">需要播放的动画标识。</param>
         /// <param name="onEnded">动画片段播放结束后调用的回调。</param>
         public void PlayOneShot(PlayerAnimationId id, Action onEnded)
+        {
+            PlayOneShot(id, onEnded, null, null);
+        }
+
+        /// <summary>
+        /// 播放目录中配置的一次性动画，并为 TransitionAsset 中的命名事件绑定本次播放专属回调。
+        /// 命名事件不存在时仍会正常播放并执行结束回调，同时输出警告帮助定位漏配资源。
+        /// </summary>
+        /// <param name="id">需要播放的动画标识。</param>
+        /// <param name="onEnded">动画片段播放结束后调用的回调。</param>
+        /// <param name="eventName">TransitionAsset 中需要监听的命名事件。</param>
+        /// <param name="onNamedEvent">动画经过命名事件时调用的回调。</param>
+        public void PlayOneShot(
+            PlayerAnimationId id,
+            Action onEnded,
+            string eventName,
+            Action onNamedEvent)
+        {
+            PlayOneShot(
+                id,
+                onEnded,
+                new PlayerAnimationEventBinding(eventName, onNamedEvent));
+        }
+
+        /// <summary>
+        /// 播放目录中配置的一次性动画，并绑定任意数量的 TransitionAsset 命名事件。
+        /// 事件时间完全保存在动画资源中，同一个状态不需要写死动画进度。
+        /// </summary>
+        /// <param name="id">需要播放的动画标识。</param>
+        /// <param name="onEnded">动画片段播放结束后调用的回调。</param>
+        /// <param name="eventBindings">本次播放需要监听的命名事件集合。</param>
+        public void PlayOneShot(
+            PlayerAnimationId id,
+            Action onEnded,
+            params PlayerAnimationEventBinding[] eventBindings)
         {
             if (!TryGetDefinition(id, out var definition))
             {
@@ -93,7 +136,7 @@ namespace Train.Gameplay.Player.Animation
                 Debug.LogWarning($"动画 {id} 被配置为循环动画，不能作为一次性动作播放。", this);
             }
 
-            PlayDefinition(definition, onEnded);
+            PlayDefinition(definition, onEnded, eventBindings);
         }
 
         /// <summary>
@@ -126,11 +169,21 @@ namespace Train.Gameplay.Player.Animation
         /// </summary>
         /// <param name="definition">已通过目录查询的动画定义。</param>
         /// <param name="onEnded">一次性动画结束时调用的回调。</param>
-        private void PlayDefinition(PlayerAnimationDefinition definition, Action onEnded)
+        /// <param name="eventBindings">需要绑定到 TransitionAsset 的本次播放专属事件集合。</param>
+        /// <param name="transitionOverride">当前来源到目标组合需要使用的专属过渡资源。</param>
+        private void PlayDefinition(
+            PlayerAnimationDefinition definition,
+            Action onEnded,
+            PlayerAnimationEventBinding[] eventBindings = null,
+            TransitionAssetBase transitionOverride = null)
         {
-            var state = _animancer.Play(definition.Clip, definition.FadeDuration, FadeMode.FromStart);
+            var transition = transitionOverride != null
+                ? transitionOverride
+                : definition.Transition;
+            var state = _animancer.Play(transition);
             _currentAnimationId = definition.Id;
-            _currentAnimationClip = definition.Clip;
+            _currentAnimationClip = state.Clip;
+            _currentTransitionAsset = transition;
             _currentAnimationNormalizedTime = 0f;
             _currentMovementPolicy = definition.MovementPolicy;
             _currentRootMotionPositionScale = definition.RootMotionPositionScale;
@@ -140,7 +193,35 @@ namespace Train.Gameplay.Player.Animation
                 Debug.LogWarning($"动画 {definition.Id} 被标记为循环，但 FBX 导入设置未启用循环。", this);
             }
 
-            state.Events(this).OnEnd = definition.Loop ? null : onEnded;
+            var events = state.Events(this);
+            events.OnEnd = definition.Loop ? null : onEnded;
+            if (eventBindings == null)
+            {
+                return;
+            }
+
+            foreach (var eventBinding in eventBindings)
+            {
+                if (string.IsNullOrWhiteSpace(eventBinding.EventName) ||
+                    eventBinding.Callback == null)
+                {
+                    continue;
+                }
+
+                var eventReference = StringReference.Get(eventBinding.EventName);
+                if (events.IndexOf(eventReference) >= 0)
+                {
+                    events.SetCallback(eventReference, eventBinding.Callback);
+                }
+                else
+                {
+                    Debug.LogWarning(
+                        $"动画 {definition.Id} 的 TransitionAsset 缺少命名事件 " +
+                        $"{eventBinding.EventName}，" +
+                        "状态将等待动画自然结束作为安全回退。",
+                        definition.Transition);
+                }
+            }
         }
 
         /// <summary>

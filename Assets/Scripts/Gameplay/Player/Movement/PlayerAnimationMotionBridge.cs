@@ -16,7 +16,6 @@ namespace Train.Gameplay.Player.Movement
         [Header("运行时根运动调试（播放时查看）")]
         [SerializeField, Tooltip("Animator 在上一帧产生的世界空间根运动位移。")]
         private Vector3 _lastDeltaPosition;
-
         private bool _hasReportedMissingReference;
 
         /// <summary>

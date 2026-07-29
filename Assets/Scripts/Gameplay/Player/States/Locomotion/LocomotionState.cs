@@ -1,37 +1,36 @@
+using Train.Gameplay.Player.Animation.Data;
 using Train.Gameplay.Player.Core;
 using Train.Gameplay.Player.States;
-using Train.Gameplay.Player.Animation.Data;
-using UnityEngine;
 
 namespace Train.Gameplay.Player.States.Locomotion
 {
     /// <summary>
-    /// 表示顶层自由移动阶段，并持有待机、步行和奔跑子状态。
-    /// 此阶段也是唯一接受新翻滚和攻击请求的阶段。
+    /// 表示顶层自由移动阶段，并管理待机、起步、持续移动和收步子状态。
+    /// 本状态不会请求 TurnBack，改变输入方向时始终由代码移动立即更新角色朝向。
     /// </summary>
     public sealed class LocomotionState : PlayerState
     {
-        private const float TurnBackDotThreshold = -0.7f;
-
         /// <summary>
         /// 初始化自由移动父状态。
         /// </summary>
+        /// <param name="machine">所属玩家状态机。</param>
+        /// <param name="context">玩家共享上下文。</param>
         public LocomotionState(PlayerStateMachine machine, PlayerContext context)
             : base(machine, context)
         {
         }
 
         /// <summary>
-        /// 选择合适的初始移动子状态。
-        /// 具体子状态会依据其动画定义配置对应的位移策略。
+        /// 根据进入自由移动状态时的最新输入选择待机或持续移动。
+        /// 从攻击、翻滚等顶层状态返回时直接恢复移动循环，避免重复播放起步动画。
         /// </summary>
         public override void Enter()
         {
-            RefreshLocomotionChild();
+            ResolveLatestLocomotion();
         }
 
         /// <summary>
-        /// 在更新当前移动子状态前检查顶层行为请求。
+        /// 优先处理能够离开自由移动阶段的顶层输入，然后更新当前移动子状态。
         /// </summary>
         public override void Tick()
         {
@@ -107,26 +106,22 @@ namespace Train.Gameplay.Player.States.Locomotion
         }
 
         /// <summary>
-        /// 重新评估输入强度和冲刺状态，以选择待机、步行或奔跑。
+        /// 由步行或奔跑循环重新评估停止、步行和奔跑切换。
+        /// 停止时播放对应收步动画，步行与奔跑之间则直接交接。
         /// </summary>
-        public void RefreshLocomotionChild()
+        public void RefreshMovingLoop()
         {
-            if (ChildState is LocomotionTransitionState)
-            {
-                return;
-            }
-
             if (!HasMovementInput())
             {
+                if (ChildState is RunState)
+                {
+                    EnterRunStop();
+                    return;
+                }
+
                 if (ChildState is WalkState)
                 {
-                    BeginTransition(PlayerAnimationId.Walk_End, LocomotionTransitionType.Stop);
-                    return;
-                }
-
-                if (ChildState is RunState)
-                {
-                    BeginTransition(PlayerAnimationId.Run_End, LocomotionTransitionType.Stop);
+                    EnterWalkStop(PlayerAnimationId.Walk_End);
                     return;
                 }
 
@@ -134,157 +129,27 @@ namespace Train.Gameplay.Player.States.Locomotion
                 return;
             }
 
-            if (ChildState is IdleState)
-            {
-                BeginTransition(PlayerAnimationId.Walk_Start, LocomotionTransitionType.Start);
-                return;
-            }
-
-            if (Context.Input.IsSprintHeld)
-            {
-                if (!(ChildState is RunState))
-                {
-                    SetChildState(new RunState(PlayerMachine, Context, this));
-                }
-
-                return;
-            }
-
-            if (!(ChildState is WalkState))
-            {
-                if (ChildState is RunState)
-                {
-                    BeginTransition(PlayerAnimationId.Run_End, LocomotionTransitionType.Stop);
-                }
-                else
-                {
-                    SetChildState(new WalkState(PlayerMachine, Context, this));
-                }
-            }
+            EnterMovingLoop();
         }
 
         /// <summary>
-        /// 在步行或奔跑子状态开始实际移动前检查本次输入是否需要播放转身动画。
+        /// 根据最新输入选择待机、步行或奔跑循环。
         /// </summary>
-        /// <returns>已开始转身过渡时返回 true，调用方应停止本帧普通移动。</returns>
-        public bool TryStartTurnBack()
+        public void ResolveLatestLocomotion()
         {
             if (!HasMovementInput())
             {
-                return false;
-            }
-
-            var inputDirection = Context.Motor.GetCameraRelativeDirection(Context.Input.Move);
-            if (inputDirection.sqrMagnitude <= 0.0001f ||
-                Vector3.Dot(Context.Motor.Forward, inputDirection) > TurnBackDotThreshold)
-            {
-                return false;
-            }
-
-            BeginTransition(PlayerAnimationId.TurnBack, LocomotionTransitionType.Turn);
-            return true;
-        }
-
-        /// <summary>
-        /// 在移动过渡动画结束时依据最新输入选择正确的后续移动子状态。
-        /// </summary>
-        /// <param name="transitionState">触发回调的过渡子状态。</param>
-        /// <param name="transitionType">已完成的过渡类别。</param>
-        public void CompleteTransition(
-            LocomotionTransitionState transitionState,
-            LocomotionTransitionType transitionType)
-        {
-            if (!ReferenceEquals(ChildState, transitionState))
-            {
-                return;
-            }
-
-            if (transitionType == LocomotionTransitionType.Turn)
-            {
-                Context.Motor.FaceDirectionImmediately(
-                    Context.Motor.GetCameraRelativeDirection(Context.Input.Move));
-            }
-
-            if (!HasMovementInput())
-            {
-                if (transitionType == LocomotionTransitionType.Start)
-                {
-                    BeginTransition(PlayerAnimationId.Walk_Start_End, LocomotionTransitionType.Stop);
-                    return;
-                }
-
                 EnterIdle();
                 return;
             }
 
-            if (Context.Input.IsSprintHeld)
-            {
-                SetChildState(new RunState(PlayerMachine, Context, this));
-                return;
-            }
-
-            SetChildState(new WalkState(PlayerMachine, Context, this));
+            EnterMovingLoop();
         }
 
         /// <summary>
-        /// 根据最新移动输入抢占正在播放的起步或停步动画。
-        /// 这样短按移动键后再次按下时不会继续等待旧的过渡动画自然结束。
+        /// 进入待机子状态。
         /// </summary>
-        /// <param name="transitionState">当前正在播放的移动过渡子状态。</param>
-        /// <param name="transitionType">当前过渡动画的逻辑用途。</param>
-        /// <returns>已替换当前子状态时返回 true，调用方应停止本帧旧状态逻辑。</returns>
-        public bool TryHandleTransitionInput(
-            LocomotionTransitionState transitionState,
-            LocomotionTransitionType transitionType)
-        {
-            if (!ReferenceEquals(ChildState, transitionState))
-            {
-                return true;
-            }
-
-            var hasMovementInput = HasMovementInput();
-            if (transitionType == LocomotionTransitionType.Start && !hasMovementInput)
-            {
-                BeginTransition(PlayerAnimationId.Walk_Start_End, LocomotionTransitionType.Stop);
-                return true;
-            }
-
-            if (transitionType == LocomotionTransitionType.Stop && hasMovementInput)
-            {
-                EnterMovingLoop();
-                return true;
-            }
-
-            if (transitionType == LocomotionTransitionType.Turn && !hasMovementInput)
-            {
-                EnterIdle();
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// 切换到指定的一次性移动过渡动画子状态。
-        /// </summary>
-        /// <param name="animationId">需要播放的移动过渡动画。</param>
-        /// <param name="transitionType">该过渡的逻辑用途。</param>
-        private void BeginTransition(
-            PlayerAnimationId animationId,
-            LocomotionTransitionType transitionType)
-        {
-            SetChildState(new LocomotionTransitionState(
-                PlayerMachine,
-                Context,
-                this,
-                animationId,
-                transitionType));
-        }
-
-        /// <summary>
-        /// 切换到待机子状态，避免重复创建同类型状态。
-        /// </summary>
-        private void EnterIdle()
+        public void EnterIdle()
         {
             if (!(ChildState is IdleState))
             {
@@ -293,24 +158,106 @@ namespace Train.Gameplay.Player.States.Locomotion
         }
 
         /// <summary>
-        /// 根据当前冲刺输入直接进入步行或奔跑循环，用于抢占已经失效的停步过渡。
+        /// 从待机或一次收步重新按下移动键时进入步行起步状态。
+        /// 冲刺键已按住时直接进入奔跑，避免先闪过一帧步行起步。
         /// </summary>
-        private void EnterMovingLoop()
+        public void EnterMovementFromRest()
         {
             if (Context.Input.IsSprintHeld)
             {
-                SetChildState(new RunState(PlayerMachine, Context, this));
+                EnterRun();
                 return;
             }
 
-            SetChildState(new WalkState(PlayerMachine, Context, this));
+            EnterWalkStart();
+        }
+
+        /// <summary>
+        /// 进入步行起步子状态。
+        /// </summary>
+        public void EnterWalkStart()
+        {
+            if (!(ChildState is WalkStartState))
+            {
+                SetChildState(new WalkStartState(PlayerMachine, Context, this));
+            }
+        }
+
+        /// <summary>
+        /// 使用指定动画进入步行收步子状态。
+        /// </summary>
+        /// <param name="animationId">需要播放的步行收步动画。</param>
+        public void EnterWalkStop(PlayerAnimationId animationId)
+        {
+            SetChildState(new WalkStopState(
+                PlayerMachine,
+                Context,
+                this,
+                animationId));
+        }
+
+        /// <summary>
+        /// 进入奔跑收步子状态。
+        /// </summary>
+        public void EnterRunStop()
+        {
+            if (!(ChildState is RunStopState))
+            {
+                SetChildState(new RunStopState(PlayerMachine, Context, this));
+            }
+        }
+
+        /// <summary>
+        /// 进入步行循环子状态。
+        /// </summary>
+        public void EnterWalk()
+        {
+            if (!(ChildState is WalkState))
+            {
+                SetChildState(new WalkState(PlayerMachine, Context, this));
+            }
+        }
+
+        /// <summary>
+        /// 进入奔跑循环子状态。
+        /// </summary>
+        public void EnterRun()
+        {
+            if (!(ChildState is RunState))
+            {
+                SetChildState(new RunState(PlayerMachine, Context, this));
+            }
+        }
+
+        /// <summary>
+        /// 根据冲刺键选择步行或奔跑循环。
+        /// </summary>
+        public void EnterMovingLoop()
+        {
+            if (Context.Input.IsSprintHeld)
+            {
+                EnterRun();
+                return;
+            }
+
+            EnterWalk();
+        }
+
+        /// <summary>
+        /// 判断指定状态是否仍是当前移动子状态，防止旧动画结束回调覆盖新输入。
+        /// </summary>
+        /// <param name="state">需要检查的子状态实例。</param>
+        /// <returns>该实例仍处于激活状态时返回 true。</returns>
+        public bool IsCurrentChild(PlayerState state)
+        {
+            return ReferenceEquals(ChildState, state);
         }
 
         /// <summary>
         /// 判断当前输入是否超过配置的移动死区。
         /// </summary>
         /// <returns>存在有效移动输入时返回 true。</returns>
-        private bool HasMovementInput()
+        public bool HasMovementInput()
         {
             return Context.Input.Move.sqrMagnitude >
                    Context.Config.InputDeadZone * Context.Config.InputDeadZone;

@@ -13,7 +13,7 @@ namespace Train.EditorTools
 {
     /// <summary>
     /// 在真实播放模式下检查 Ellen 玩家预制体的逻辑根、表现根和蒙皮根骨骼是否发生水平分离。
-    /// 验证会主动播放 Walk，并在一段步行动画内测量各层节点的水平漂移。
+    /// 验证会主动播放 Walk 或 Run，并在一个移动周期内测量层级漂移和腿部实际摆动。
     /// </summary>
     [InitializeOnLoad]
     public static class PlayerPrefabRuntimeValidator
@@ -23,16 +23,21 @@ namespace Train.EditorTools
         private const string VisualRootName = "PlayerVisualRoot";
         private const string ModelRootName = "TPOSS";
         private const string SkinRootPath = "Avatar_Female_Size02_Ellen/Bip001";
+        private const string LeftThighPath =
+            "Avatar_Female_Size02_Ellen/Bip001/Bip001 Pelvis/Bip001 L Thigh";
         private const string PlayerConfigPath = "Assets/Settings/PlayerConfig.asset";
 
         private static Transform _playerRoot;
         private static Transform _visualRoot;
         private static Transform _modelRoot;
         private static Transform _skinRoot;
+        private static Transform _leftThigh;
         private static Vector3 _baselinePlayerPosition;
         private static Vector3 _baselineVisualPosition;
         private static Vector3 _baselineModelPosition;
         private static Vector3 _baselineSkinPosition;
+        private static Quaternion _baselineLeftThighRotation;
+        private static float _maximumLeftThighRotation;
         private static double _baselineTime;
         private static double _finishTime;
         private static bool _hasBaseline;
@@ -48,6 +53,7 @@ namespace Train.EditorTools
         private enum ValidationMode
         {
             WalkInPlace,
+            RunInPlace,
             DodgeMotion,
         }
 
@@ -69,6 +75,15 @@ namespace Train.EditorTools
         public static void ValidatePlayerPrefab()
         {
             RequestValidation(ValidationMode.WalkInPlace);
+        }
+
+        /// <summary>
+        /// 进入播放模式并自动执行 Run 原地性、腿部摆动和预制体层级同步验证。
+        /// </summary>
+        [MenuItem("Train/Player/验证 Ellen 跑步动画")]
+        public static void ValidateRunAnimation()
+        {
+            RequestValidation(ValidationMode.RunInPlace);
         }
 
         /// <summary>
@@ -126,11 +141,17 @@ namespace Train.EditorTools
         /// </summary>
         private static void BeginValidation()
         {
+            _validationMode = (ValidationMode)SessionState.GetInt(
+                ValidationModeKey,
+                (int)ValidationMode.WalkInPlace);
             var playerObject = GameObject.FindWithTag("Player");
             _playerRoot = playerObject != null ? playerObject.transform : null;
             _visualRoot = _playerRoot != null ? _playerRoot.Find(VisualRootName) : null;
             _modelRoot = _visualRoot != null ? _visualRoot.Find(ModelRootName) : null;
             _skinRoot = _modelRoot != null ? _modelRoot.Find(SkinRootPath) : null;
+            _leftThigh = _modelRoot != null
+                ? _modelRoot.Find(LeftThighPath)
+                : null;
 
             var animation = _modelRoot != null ? _modelRoot.GetComponent<PlayerAnimation>() : null;
             var motor = _playerRoot != null ? _playerRoot.GetComponent<PlayerMotor>() : null;
@@ -139,6 +160,8 @@ namespace Train.EditorTools
                 _visualRoot == null ||
                 _modelRoot == null ||
                 _skinRoot == null ||
+                (_validationMode != ValidationMode.DodgeMotion &&
+                 _leftThigh == null) ||
                 animation == null ||
                 motor == null ||
                 catalog == null ||
@@ -149,13 +172,10 @@ namespace Train.EditorTools
             }
 
             _validationAnimationDefinition = animationDefinition;
-            _validationMode = (ValidationMode)SessionState.GetInt(
-                ValidationModeKey,
-                (int)ValidationMode.WalkInPlace);
-            if (_validationMode == ValidationMode.WalkInPlace)
+            if (_validationMode != ValidationMode.DodgeMotion)
             {
                 motor.ConfigureAnimationMovement(PlayerAnimationMovementPolicy.ScriptedMovement, 1f);
-                animation.PlayLoop(PlayerAnimationId.Walk);
+                animation.PlayLoop(GetValidationAnimationId());
             }
             else
             {
@@ -178,16 +198,22 @@ namespace Train.EditorTools
             }
 
             var currentTime = Time.timeAsDouble;
-            if (_validationMode == ValidationMode.WalkInPlace)
+            if (_validationMode != ValidationMode.DodgeMotion)
             {
                 _baselineTime = currentTime + Math.Max(0.15d, animationDefinition.FadeDuration + 0.03d);
-                _finishTime = _baselineTime + Math.Max(0.2d, animationDefinition.Clip.length * 0.45d);
+                var clipLength = animationDefinition.PrimaryClip != null
+                    ? animationDefinition.PrimaryClip.length
+                    : animationDefinition.Transition.MaximumDuration;
+                _finishTime = _baselineTime + Math.Max(0.2d, clipLength * 0.45d);
                 _hasBaseline = false;
             }
             else
             {
                 _baselineTime = currentTime;
-                _finishTime = currentTime + Math.Max(0.3d, animationDefinition.Clip.length + 0.2d);
+                var clipLength = animationDefinition.PrimaryClip != null
+                    ? animationDefinition.PrimaryClip.length
+                    : animationDefinition.Transition.MaximumDuration;
+                _finishTime = currentTime + Math.Max(0.3d, clipLength + 0.2d);
             }
 
             _isSampling = true;
@@ -198,8 +224,18 @@ namespace Train.EditorTools
         /// </summary>
         private static void UpdateValidation()
         {
-            if (!_isSampling || !EditorApplication.isPlaying)
+            if (!EditorApplication.isPlaying)
             {
+                return;
+            }
+
+            if (!_isSampling)
+            {
+                if (SessionState.GetBool(ValidationRequestedKey, false))
+                {
+                    BeginValidation();
+                }
+
                 return;
             }
 
@@ -208,6 +244,15 @@ namespace Train.EditorTools
             if (!_hasBaseline && currentTime >= _baselineTime)
             {
                 CaptureBaseline();
+            }
+
+            if (_hasBaseline && _leftThigh != null)
+            {
+                _maximumLeftThighRotation = Mathf.Max(
+                    _maximumLeftThighRotation,
+                    Quaternion.Angle(
+                        _baselineLeftThighRotation,
+                        _leftThigh.localRotation));
             }
 
             if (!_hasBaseline || currentTime < _finishTime)
@@ -219,17 +264,25 @@ namespace Train.EditorTools
             var visualDrift = GetHorizontalDistance(_baselineVisualPosition, _visualRoot.position);
             var modelDrift = GetHorizontalDistance(_baselineModelPosition, _modelRoot.position);
             var skinDrift = GetHorizontalDistance(_baselineSkinPosition, _skinRoot.position);
-            if (_validationMode == ValidationMode.WalkInPlace)
+            if (_validationMode != ValidationMode.DodgeMotion)
             {
-                var walkPassed = playerDrift <= 0.05f &&
-                                 visualDrift <= 0.05f &&
-                                 modelDrift <= 0.05f &&
-                                 skinDrift <= 0.35f;
+                var animationName =
+                    _validationMode == ValidationMode.RunInPlace
+                        ? "Run"
+                        : "Walk";
+                var locomotionPassed = playerDrift <= 0.05f &&
+                                        visualDrift <= 0.05f &&
+                                        modelDrift <= 0.05f &&
+                                        skinDrift <= 0.35f &&
+                                        _maximumLeftThighRotation >= 10f;
                 FinishValidation(
-                    walkPassed,
-                    $"Walk 水平漂移：逻辑根={playerDrift:F3}m，表现根={visualDrift:F3}m，" +
-                    $"TPOSS={modelDrift:F3}m，Bip001={skinDrift:F3}m。" +
-                    (walkPassed ? "验证通过，模型未与逻辑根分离。" : "验证未通过，请继续检查原地动画生成结果。"));
+                    locomotionPassed,
+                    $"{animationName} 水平漂移：逻辑根={playerDrift:F3}m，表现根={visualDrift:F3}m，" +
+                    $"TPOSS={modelDrift:F3}m，Bip001={skinDrift:F3}m，" +
+                    $"左大腿最大摆动={_maximumLeftThighRotation:F1}°。" +
+                    (locomotionPassed
+                        ? $"验证通过，模型未分离且 {animationName} 步态正在播放。"
+                        : "验证未通过，请继续检查原地动画或腿部曲线。"));
                 return;
             }
 
@@ -277,15 +330,18 @@ namespace Train.EditorTools
         /// <summary>
         /// 根据当前请求返回需要播放和检查的动画标识。
         /// </summary>
-        /// <returns>原地验证使用 Walk，翻滚位移验证使用前翻滚。</returns>
+        /// <returns>原地验证使用 Walk 或 Run，翻滚位移验证使用前翻滚。</returns>
         private static PlayerAnimationId GetValidationAnimationId()
         {
             var validationMode = (ValidationMode)SessionState.GetInt(
                 ValidationModeKey,
                 (int)ValidationMode.WalkInPlace);
-            return validationMode == ValidationMode.WalkInPlace
-                ? PlayerAnimationId.Walk
-                : PlayerAnimationId.Evade_Front;
+            return validationMode switch
+            {
+                ValidationMode.WalkInPlace => PlayerAnimationId.Walk,
+                ValidationMode.RunInPlace => PlayerAnimationId.Run,
+                _ => PlayerAnimationId.Evade_Front,
+            };
         }
 
         /// <summary>
@@ -297,6 +353,12 @@ namespace Train.EditorTools
             _baselineVisualPosition = _visualRoot.position;
             _baselineModelPosition = _modelRoot.position;
             _baselineSkinPosition = _skinRoot.position;
+            if (_leftThigh != null)
+            {
+                _baselineLeftThighRotation = _leftThigh.localRotation;
+            }
+
+            _maximumLeftThighRotation = 0f;
             _hasBaseline = true;
         }
 
@@ -324,6 +386,7 @@ namespace Train.EditorTools
             _hasBaseline = false;
             _validationAnimationDefinition = null;
             _validationStateMachine = null;
+            _leftThigh = null;
             _lastStateMachineTickFrame = -1;
             SessionState.SetBool(ValidationRequestedKey, false);
 

@@ -58,7 +58,9 @@ namespace Train.Gameplay.Player.States
             var normalizedTime = Context.Animation.CurrentAnimationNormalizedTime;
             ApplyAuthoredMotionUntil(normalizedTime);
             if (_animationDefinition != null &&
-                normalizedTime >= _animationDefinition.MovementCancelStartNormalizedTime &&
+                _animationDefinition.CanCancelTo(
+                    PlayerAnimationCancelTarget.Movement,
+                    normalizedTime) &&
                 Context.Input.Move.sqrMagnitude > Context.Config.InputDeadZone * Context.Config.InputDeadZone)
             {
                 PlayerMachine.ChangeState(new LocomotionState(PlayerMachine, Context));

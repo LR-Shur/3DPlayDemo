@@ -10,7 +10,7 @@ namespace Train.EditorTools
 {
     /// <summary>
     /// 统一 Ellen 原始 FBX 的根节点导入设置，并提供源动画曲线诊断。
-    /// 当前运行时统一播放生成的原地副本；该工具保留用于检查第三方资源的根运动数据。
+    /// 当前运行时统一播放生成的原地副本；转向旋转由原地副本生成器烘焙为 Player 朝向曲线。
     /// </summary>
     public static class EllenRootMotionImportConfigurator
     {
@@ -49,7 +49,11 @@ namespace Train.EditorTools
                 for (var index = 0; index < clips.Length; index++)
                 {
                     var clip = clips[index];
-                    if (!TryGetMovementPolicy(catalog, clip.name, out _))
+                    if (!TryGetAnimationDefinition(
+                            catalog,
+                            clip.name,
+                            out _,
+                            out _))
                     {
                         continue;
                     }
@@ -87,9 +91,10 @@ namespace Train.EditorTools
                 }
             }
 
+            EllenAnimationCatalogGenerator.GenerateCatalog();
             Debug.Log($"已按动画目录同步 Root Motion 导入设置，成功重新导入 {changedCount} 个 Ellen 动画 FBX，失败 {failedPaths.Count} 个。" +
                       $"所有动画已使用实际蒙皮骨架节点 {RootMotionNodeName}（路径 {RootMotionNodePath}）作为 Root Motion Node；" +
-                      "运行时动画目录会使用生成的原地副本，避免第三方双骨架资源产生可见前滑。");
+                      "运行时动画目录会重新生成原地副本，TurnBack 的骨架根旋转会转为脚本朝向曲线。");
 
             if (failedPaths.Count > 0)
             {
@@ -105,6 +110,7 @@ namespace Train.EditorTools
         {
             ReportClipSetting("Combat/Avatar_Female_Size02_Ellen_Ani_Attack_Normal_01_01.fbx");
             ReportClipSetting("Combat/Avatar_Female_Size02_Ellen_Ani_Evade_Front.fbx");
+            ReportClipSetting("Locomotion/Avatar_Female_Size02_Ellen_Ani_TurnBack.fbx");
             ReportClipSetting("Locomotion/Avatar_Female_Size02_Ellen_Ani_Walk.fbx");
         }
 
@@ -122,9 +128,14 @@ namespace Train.EditorTools
             }
 
             var clip = importer.clipAnimations[0];
+            var animationClip = AssetDatabase.LoadAllAssetsAtPath(path)
+                .OfType<AnimationClip>()
+                .FirstOrDefault(candidate => candidate.name == clip.name);
             Debug.Log($"{clip.name}：水平根位移={(clip.lockRootPositionXZ ? "仍留在骨骼姿势中" : "已提取为 Animator.deltaPosition")}，" +
                       $"高度锁定={clip.lockRootHeightY}，旋转锁定={clip.lockRootRotation}，" +
-                      $"Root Motion Node={importer.motionNodeName}。");
+                      $"Root Motion Node={importer.motionNodeName}，" +
+                      $"hasRootCurves={animationClip != null && animationClip.hasRootCurves}，" +
+                      $"hasMotionCurves={animationClip != null && animationClip.hasMotionCurves}。");
 
             ReportRootPositionCurves(path, clip.name);
         }
@@ -188,24 +199,28 @@ namespace Train.EditorTools
         }
 
         /// <summary>
-        /// 根据动画剪辑名取得动画目录中配置的位移策略。
+        /// 根据动画剪辑名取得动画标识与目录中配置的位移策略。
         /// </summary>
         /// <param name="catalog">包含全部 Ellen 动画定义的目录资源。</param>
         /// <param name="clipName">FBX 内动画剪辑名。</param>
+        /// <param name="animationId">查询成功时返回对应的动画标识。</param>
         /// <param name="movementPolicy">查询成功时返回对应位移策略。</param>
         /// <returns>剪辑名可映射到已配置动画定义时返回 true。</returns>
-        private static bool TryGetMovementPolicy(
+        private static bool TryGetAnimationDefinition(
             PlayerAnimationCatalog catalog,
             string clipName,
+            out PlayerAnimationId animationId,
             out PlayerAnimationMovementPolicy movementPolicy)
         {
             var idName = clipName.Replace(CommonPrefix, string.Empty);
-            if (Enum.TryParse(idName, out PlayerAnimationId id) && catalog.TryGet(id, out var definition))
+            if (Enum.TryParse(idName, out animationId) &&
+                catalog.TryGet(animationId, out var definition))
             {
                 movementPolicy = definition.MovementPolicy;
                 return true;
             }
 
+            animationId = default;
             movementPolicy = PlayerAnimationMovementPolicy.KeepInPlace;
             return false;
         }

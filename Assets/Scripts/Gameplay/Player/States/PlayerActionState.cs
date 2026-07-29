@@ -62,7 +62,9 @@ namespace Train.Gameplay.Player.States
         {
             Context.Motor.MoveVerticalOnly();
             if (_animationDefinition != null &&
-                _animationDefinition.CanBeInterrupted &&
+                _animationDefinition.CanCancelTo(
+                    PlayerAnimationCancelTarget.Movement,
+                    Context.Animation.CurrentAnimationNormalizedTime) &&
                 Context.Input.Move.sqrMagnitude > Context.Config.InputDeadZone * Context.Config.InputDeadZone)
             {
                 ReturnToLocomotion();
