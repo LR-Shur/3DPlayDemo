@@ -1,8 +1,14 @@
 # 3DPlayDemo 开发会话记录
 
-> 最后更新：2026-08-10
+> 最后更新：2026-08-10（Luban 编译修复与会话同步）
 >
-> 用途：记录项目当前进度、架构决策、验证结果和下一步计划，方便在另一台机器继续开发。
+> 用途：这是项目的“最后一次会话记录”。换环境或继续开发前，先阅读本文件，再查看 `git log` 和工作区状态。
+
+## 0. 会话记录维护规则
+
+- 每次完成一轮开发后更新本文件，覆盖当前提交、验证结果、遗留问题和下一步计划。
+- 新环境拉取仓库后，优先阅读本文件，再打开 Unity；不要把旧聊天记录当成代码现状。
+- 只记录已经落地或已经验证的事实；未提交的本地改动必须单独列出。
 
 ## 1. 项目一句话
 
@@ -195,13 +201,40 @@ Tools/Train/Content/Build World Pickups
 
 然后打开 `Assets/Scenes/Boot.unity` 点 Play。
 
-## 11. 2026-08-10 同步状态
+## 11. 本次会话增量：Luban 编译与中文表格修复
+
+### 报错原因
+
+Unity 报告 `Luban`、`ByteBuf` 类型不存在。Luban 包已经嵌入并导入成功，但 `Train.Composition` 的程序集定义没有显式引用 `Luban.Runtime`，导致生成的表代码无法解析运行时类型。
+
+### 已完成修改
+
+- 在 `Assets/Scripts/Composition/Train.Composition.asmdef` 增加 `Luban.Runtime` 程序集引用。
+- `Assets/Config/Luban/Data` 下 6 张 CSV 统一保存为 UTF-8 BOM，解决 Windows Excel 按系统代码页打开时的中文乱码。
+- `Tools/GenerateLubanConfig.ps1` 增强路径兼容性；已实际运行并成功生成 C# 表代码和 `.bytes` 数据。
+- `Tools/README.md` 增加 CSV 编码约定：以后所有包含中文的 Luban 表都保存为 UTF-8 BOM。
+- Unity 重新导入并编译后，没有出现修复之后的新 `Luban/ByteBuf` 编译错误；旧错误只存在于 Editor.log 的历史编译段。
+
+### GitHub 状态
+
+- 仓库：`https://github.com/LR-Shur/3DPlayDemo.git`
+- 当前分支：`agent/player-state-machine`
+- 当前提交：`1272b0e fix Luban assembly reference and UTF-8 tables`
+- 现有 PR：`https://github.com/LR-Shur/3DPlayDemo/pull/1`
+- 本次只提交了 Luban 修复、CSV 编码、文档和 Unity `.meta`；没有提交 `.unitypackage` 或大体积城市素材。
+
+### 有意保留的本地未提交文件
+
+- `Assets/Arts/UI/Fonts/NotoSansCJKsc-Regular SDF.asset`：已有本地字体改动，不属于本次 Luban 修复。
+- `Assets/Scripts/Infrastructure/Config.meta`：空目录遗留的未跟踪 `.meta`，没有纳入提交。
+
+## 12. 2026-08-10 最终同步状态
 
 - 已将当前工程推送到 GitHub：`https://github.com/LR-Shur/3DPlayDemo.git`
 - 当前分支：`agent/player-state-machine`
-- 当前提交：`db2da39 整合商业化UI、任务角色对话系统与运行验收`
-- 已同步 `README.md`、本会话记录和架构/测试文档。
+- 当前提交：`1272b0e fix Luban assembly reference and UTF-8 tables`
+- 已同步 Luban 配置流水线、UTF-8 CSV、会话记录和架构/测试文档。
 - 为避免仓库体积过大，未使用且未被场景引用的 `Assets/Arts/KawaiiCity/` 与 `Assets/Arts/KawaiiCity_URP/` 已加入忽略规则；本地素材仍保留，没有删除本机文件。
-- 本次按要求没有重新运行 Unity 测试；文档中记录的最近一次结果仍为 EditMode 201/201、PlayMode 7/7。
+- 本次没有重新运行完整 Unity 测试；文档中记录的最近一次结果仍为 EditMode 201/201、PlayMode 7/7。本次额外运行了 Luban 生成脚本并成功完成校验、代码生成和二进制生成。
 
-从其他机器继续时，先切换到 `agent/player-state-machine` 分支，再按第 10 节执行内容构建菜单。下一阶段优先级建议为：存档/读档、角色选择真正换模、NPC 场景化，然后再补音效/特效和养成系统。
+从其他机器继续时，先切换到 `agent/player-state-machine` 分支，阅读本文件第 11 节，再按第 10 节执行内容构建菜单。下一阶段优先级建议为：先确认 Unity 无编译错误，再做存档/读档、角色选择真正换模、NPC 场景化，然后补音效/特效和养成系统。

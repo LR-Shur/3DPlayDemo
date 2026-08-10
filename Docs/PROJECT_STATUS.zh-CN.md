@@ -10,13 +10,14 @@
 - 背包、武器/头盔/盔甲/手套/鞋子、5 个饰品槽、套装属性和拾取交互已完成。
 - 任务、角色名册、对话图、世界对话终端、商业化多页面 UI 已完成。
 - YooAsset 统一资源加载、启动组合根、EventBus、Service/Server 分层和中文注释审计已完成。
+- Luban 配置流水线已接入；`Train.Composition` 已显式引用 `Luban.Runtime`，6 张中文 CSV 已统一为 UTF-8 BOM。
 - 最近一次记录的测试结果：EditMode 201/201，PlayMode 7/7。此次同步遵照要求未重跑测试。
 
 ## GitHub 同步
 
 - 仓库：[LR-Shur/3DPlayDemo](https://github.com/LR-Shur/3DPlayDemo)
 - 分支：`agent/player-state-machine`
-- 提交：`db2da39`
+- 提交：`1272b0e`
 - 会话记录：[`SESSION_RECORD.zh-CN.md`](SESSION_RECORD.zh-CN.md)
 
 为了控制仓库体积，未被关卡引用的 KawaiiCity 城市素材目录已加入 `.gitignore`，但仍保留在开发机上；重新需要时可从本地素材导入。
