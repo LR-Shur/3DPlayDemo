@@ -245,10 +245,18 @@ namespace Train.GameFlow.Runtime
             CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            SetLocalCombatEnabled(enabled);
             if (enabled)
             {
+                // 进入战斗时同时打开玩家和敌人；玩家控制仍由关卡结果阶段决定。
+                SetPlayerCombatEnabled(true);
+                SetEnemyCombatEnabled(true);
                 _combatStartedAt = Time.time;
+            }
+            else
+            {
+                // Combat -> Cleared/Failed 时只停止敌人 AI。
+                // 通关后玩家仍应能在场景中移动、拾取和探索。
+                SetEnemyCombatEnabled(false);
             }
 
             return Task.CompletedTask;
@@ -272,6 +280,8 @@ namespace Train.GameFlow.Runtime
             }
             else if (outcome == LevelOutcome.Failed)
             {
+                // 失败结果进入后锁定玩家，等待重试或退出流程。
+                SetPlayerCombatEnabled(false);
                 _events.Publish(
                     new LevelFailedEvent(
                         _definition.LevelId,
@@ -452,6 +462,16 @@ namespace Train.GameFlow.Runtime
 
         private void SetLocalCombatEnabled(bool enabled)
         {
+            SetPlayerCombatEnabled(enabled);
+            SetEnemyCombatEnabled(enabled);
+        }
+
+        /// <summary>
+        /// 独立控制玩家输入与玩家战斗组件。
+        /// 通关后不调用此方法的关闭分支，以便玩家继续探索场景。
+        /// </summary>
+        private void SetPlayerCombatEnabled(bool enabled)
+        {
             if (_playerInput != null)
             {
                 _playerInput.enabled = enabled;
@@ -466,7 +486,13 @@ namespace Train.GameFlow.Runtime
 
                 _playerCombat.enabled = enabled;
             }
+        }
 
+        /// <summary>
+        /// 独立控制敌人 AI；已死亡敌人不会被重新启用。
+        /// </summary>
+        private void SetEnemyCombatEnabled(bool enabled)
+        {
             foreach (var controller in _enemyControllers)
             {
                 if (controller != null)

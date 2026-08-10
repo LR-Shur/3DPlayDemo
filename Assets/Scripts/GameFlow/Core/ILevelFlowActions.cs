@@ -15,7 +15,10 @@ namespace Train.GameFlow.Core
         /// <summary>播放或等待关卡开场流程。</summary>
         Task PlayIntroAsync(CancellationToken cancellationToken);
 
-        /// <summary>启用或禁用本关战斗输入与敌人逻辑。</summary>
+        /// <summary>
+        /// 启用或禁用本关敌人战斗逻辑。
+        /// 关卡适配器可以在结果阶段保留玩家探索输入。
+        /// </summary>
         Task SetCombatEnabledAsync(
             bool enabled,
             CancellationToken cancellationToken);

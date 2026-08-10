@@ -4,7 +4,8 @@
   "references": [
     "Train.Architecture",
     "Train.GameFlow.Core",
-    "Train.Gameplay"
+    "Train.Gameplay",
+    "Train.Gameplay.Common"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
