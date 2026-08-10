@@ -46,7 +46,9 @@ namespace Train.WorldInteraction.Runtime
         private void Awake()
         {
             _input ??= GetComponent<PlayerInputReader>();
-            _events = GameBootstrap.EnsureExists().Context.Events;
+            // 交互提示属于当前场景，优先使用场景事件中心；
+            // 场景尚未完成初始化时再回退到进程级事件中心。
+            _events = SceneBootstrap.ResolveEvents(this);
         }
 
         /// <summary>
@@ -103,40 +105,32 @@ namespace Train.WorldInteraction.Runtime
                 _interactionLayers,
                 QueryTriggerInteraction.Collide);
 
-            for (var index = 0; index < count; index++)
+            if (count >= _overlaps.Length)
             {
-                var overlap = _overlaps[index];
-                _overlaps[index] = null;
-                if (overlap == null)
-                {
-                    continue;
-                }
-
-                var interactable = FindInteractable(overlap);
-                if (interactable == null ||
-                    string.IsNullOrWhiteSpace(interactable.InteractionId) ||
-                    !_seen.Add(interactable.InteractionId))
-                {
-                    continue;
-                }
-
-                var distance = Vector3.Distance(
+                // NonAlloc 查询在容量耗尽时会静默截断结果；
+                // 这在城市场景的碰撞体较多时会漏掉终端或拾取物。
+                // 仅在饱和帧回退到完整查询，正常帧仍保持无分配路径。
+                var completeOverlaps = Physics.OverlapSphere(
                     center,
-                    GetInteractionPosition(interactable, overlap.transform));
-                var candidate = new InteractionCandidate(
-                    interactable,
-                    GetInteractionPriority(interactable),
-                    distance);
+                    _interactionRange,
+                    _interactionLayers,
+                    QueryTriggerInteraction.Collide);
+                for (var index = 0; index < completeOverlaps.Length; index++)
+                {
+                    ProcessOverlap(center, completeOverlaps[index]);
+                }
+            }
+            else
+            {
+                for (var index = 0; index < count; index++)
+                {
+                    ProcessOverlap(center, _overlaps[index]);
+                }
+            }
 
-                if (_tracked.ContainsKey(interactable.InteractionId))
-                {
-                    _focus.Update(candidate);
-                }
-                else
-                {
-                    _tracked.Add(interactable.InteractionId, interactable);
-                    _focus.Enter(candidate);
-                }
+            for (var index = 0; index < _overlaps.Length; index++)
+            {
+                _overlaps[index] = null;
             }
 
             _exitBuffer.Clear();
@@ -152,6 +146,43 @@ namespace Train.WorldInteraction.Runtime
             {
                 _focus.Exit(interactionId);
                 _tracked.Remove(interactionId);
+            }
+        }
+
+        /// <summary>
+        /// 将一个物理碰撞体转换为交互候选并提交给焦点模型。
+        /// </summary>
+        private void ProcessOverlap(Vector3 center, Collider overlap)
+        {
+            if (overlap == null)
+            {
+                return;
+            }
+
+            var interactable = FindInteractable(overlap);
+            if (interactable == null ||
+                string.IsNullOrWhiteSpace(interactable.InteractionId) ||
+                !_seen.Add(interactable.InteractionId))
+            {
+                return;
+            }
+
+            var distance = Vector3.Distance(
+                center,
+                GetInteractionPosition(interactable, overlap.transform));
+            var candidate = new InteractionCandidate(
+                interactable,
+                GetInteractionPriority(interactable),
+                distance);
+
+            if (_tracked.ContainsKey(interactable.InteractionId))
+            {
+                _focus.Update(candidate);
+            }
+            else
+            {
+                _tracked.Add(interactable.InteractionId, interactable);
+                _focus.Enter(candidate);
             }
         }
 
