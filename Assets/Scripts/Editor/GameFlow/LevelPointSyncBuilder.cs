@@ -127,16 +127,37 @@ namespace Train.EditorTools.GameFlow
             var spawns = serialized.FindProperty("_enemySpawns");
             var points = FindEnemyPoints(scene);
             spawns.arraySize = points.Count;
+            var usedIds = new HashSet<string>(StringComparer.Ordinal);
             for (var index = 0; index < points.Count; index++)
             {
                 var point = points[index];
                 var spawn = spawns.GetArrayElementAtIndex(index);
+                var prefabLocation = ResolvePrefabLocation(point);
+                var spawnId = point.SpawnId;
+                if (string.IsNullOrWhiteSpace(spawnId) ||
+                    !usedIds.Add(spawnId))
+                {
+                    spawnId = $"{point.ArchetypeId}_{index + 1:00}";
+                    point.Configure(
+                        spawnId,
+                        point.ArchetypeId,
+                        point.EnemyPrefab,
+                        point.PrefabLocation);
+                    EditorUtility.SetDirty(point);
+                    usedIds.Add(spawnId);
+                }
+
                 spawn.FindPropertyRelative("_spawnId").stringValue =
-                    point.SpawnId;
+                    spawnId;
                 spawn.FindPropertyRelative("_archetypeId").stringValue =
-                    point.ArchetypeId;
+                    point.ArchetypeId == "enemy" &&
+                    prefabLocation.IndexOf(
+                        "KayKitKnight",
+                        StringComparison.OrdinalIgnoreCase) >= 0
+                        ? "kaykit_knight"
+                        : point.ArchetypeId;
                 spawn.FindPropertyRelative("_prefabLocation").stringValue =
-                    ResolvePrefabLocation(point);
+                    prefabLocation;
                 spawn.FindPropertyRelative("_position").vector3Value =
                     point.transform.position;
                 spawn.FindPropertyRelative("_eulerAngles").vector3Value =

@@ -13,8 +13,10 @@ using Train.GameFlow.Data;
 using Train.Gameplay.Combat;
 using Train.Gameplay.Combat.Application.Events;
 using Train.Gameplay.Combat.Factions;
+using Train.Gameplay.Camera;
 using Train.Gameplay.Enemy.Core;
 using Train.Gameplay.Player.Application.Events;
+using Train.Gameplay.Player.Core;
 using Train.Gameplay.Player.Input;
 using UnityEngine;
 
@@ -38,6 +40,11 @@ namespace Train.GameFlow.Runtime
         [SerializeField] private PlayerInputReader _playerInput;
         [SerializeField] private PlayerCombat _playerCombat;
         [SerializeField] private Health _playerHealth;
+        [SerializeField] private Transform _playerSpawnPoint;
+        [SerializeField] private string _playerPrefabLocation =
+            AssetLocations.PlayerPrefab;
+        [SerializeField] private string _cameraPrefabLocation =
+            AssetLocations.PlayerCameraPrefab;
         [SerializeField] private bool _autoStart;
 
         [Header("Runtime diagnostics")]
@@ -62,6 +69,8 @@ namespace Train.GameFlow.Runtime
         private bool _resultRequested;
         private float _combatStartedAt;
         private ILevelSessionRegistry _sessionRegistry;
+        private IInstanceLease _playerLease;
+        private IInstanceLease _cameraLease;
 
         /// <summary>获取当前关卡配置。</summary>
         public LevelDefinition Definition => _definition;
@@ -96,6 +105,7 @@ namespace Train.GameFlow.Runtime
             _lifetime = new CancellationTokenSource();
             _events = SceneBootstrap.ResolveEvents(this);
             _spawnedActorsRoot ??= transform.Find("SpawnedActors");
+            _playerSpawnPoint ??= ResolvePlayerSpawnPoint();
             ResolvePlayer();
             SetLocalCombatEnabled(false);
             if (GameBootstrap.Instance.Context.Services.TryResolve(
@@ -107,7 +117,9 @@ namespace Train.GameFlow.Runtime
 
         private void Start()
         {
-            if (_autoStart)
+            // 场景只放置 LevelRuntimeRoot、没有预先放 Player 时，
+            // 必须自动启动一次安装流程，否则没有输入读取器可以按 Start。
+            if (_autoStart || _playerInput == null)
             {
                 StartLevel();
             }
@@ -171,8 +183,6 @@ namespace Train.GameFlow.Runtime
             }
 
             await ResolveDefinitionAsync(cancellationToken);
-            ResolvePlayer();
-            ValidatePlayer();
             EnsureEventSubscriptions();
 
             var assets = GameBootstrap.Instance.Context.Assets;
@@ -183,6 +193,11 @@ namespace Train.GameFlow.Runtime
             }
 
             await assets.InitializeAsync(cancellationToken);
+
+            await EnsurePlayerAsync(assets, cancellationToken);
+            ValidatePlayer();
+            SetLocalCombatEnabled(false);
+            await EnsurePlayerCameraAsync(assets, cancellationToken);
 
             var pendingLeases = new List<IInstanceLease>();
             var pendingActors = new List<(Health Health, EnemyIdentity Identity, EnemyController Controller)>();
@@ -422,6 +437,99 @@ namespace Train.GameFlow.Runtime
             _playerHealth ??= player.GetComponent<Health>();
             _playerInput ??= player.GetComponent<PlayerInputReader>();
             _playerCombat ??= player.GetComponent<PlayerCombat>();
+        }
+
+        /// <summary>
+        /// 确保场景存在可玩的玩家：优先复用场景中的 Player，否则通过 YooAsset 实例化。
+        /// </summary>
+        private async Task EnsurePlayerAsync(
+            IAssetService assets,
+            CancellationToken cancellationToken)
+        {
+            ResolvePlayer();
+            var spawnPoint = ResolvePlayerSpawnPoint();
+            if (_playerHealth == null ||
+                _playerInput == null ||
+                _playerCombat == null)
+            {
+                var location = string.IsNullOrWhiteSpace(_playerPrefabLocation)
+                    ? AssetLocations.PlayerPrefab
+                    : _playerPrefabLocation;
+                _playerLease = await assets.InstantiateAsync(
+                    location,
+                    position: spawnPoint != null
+                        ? spawnPoint.position
+                        : transform.position,
+                    rotation: spawnPoint != null
+                        ? spawnPoint.rotation
+                        : transform.rotation,
+                    cancellationToken: cancellationToken);
+
+                var player = _playerLease.Instance;
+                player.name = "Player";
+                player.tag = "Player";
+                ResolvePlayer();
+            }
+
+            if (_playerHealth == null)
+            {
+                return;
+            }
+
+            _playerHealth.transform.root.SetPositionAndRotation(
+                spawnPoint != null ? spawnPoint.position : transform.position,
+                spawnPoint != null ? spawnPoint.rotation : transform.rotation);
+            _playerHealth.GetComponent<PlayerRespawnController>()
+                ?.ConfigureSpawnPoint(spawnPoint);
+        }
+
+        /// <summary>确保主相机拥有绑定到当前玩家的 Cinemachine 虚拟相机。</summary>
+        private async Task EnsurePlayerCameraAsync(
+            IAssetService assets,
+            CancellationToken cancellationToken)
+        {
+            PlayerCameraRuntimeBinder.EnsureMainCamera();
+            var playerRoot = _playerHealth.transform.root;
+            var target = playerRoot.Find("PlayerCameraTarget") ?? playerRoot;
+            var virtualCamera =
+                PlayerCameraRuntimeBinder.FindVirtualCamera(gameObject.scene);
+
+            if (virtualCamera == null)
+            {
+                var location = string.IsNullOrWhiteSpace(_cameraPrefabLocation)
+                    ? AssetLocations.PlayerCameraPrefab
+                    : _cameraPrefabLocation;
+                _cameraLease = await assets.InstantiateAsync(
+                    location,
+                    cancellationToken: cancellationToken);
+                virtualCamera = _cameraLease.Instance.GetComponent(
+                    "CinemachineCamera");
+            }
+
+            if (!PlayerCameraRuntimeBinder.TryBind(
+                    virtualCamera,
+                    target,
+                    _playerInput))
+            {
+                throw new InvalidOperationException(
+                    "Player camera prefab requires a CinemachineCamera component.");
+            }
+        }
+
+        /// <summary>读取 LevelRuntimeRoot/Spawns 下的玩家出生点。</summary>
+        private Transform ResolvePlayerSpawnPoint()
+        {
+            if (_playerSpawnPoint != null)
+            {
+                return _playerSpawnPoint;
+            }
+
+            var point = GetComponentInChildren<PlayerSpawnPoint>(true);
+            _playerSpawnPoint = point != null
+                ? point.transform
+                : transform.Find("Spawns/PlayerSpawn") ??
+                  transform.Find("Spawns/PlayerSpawnPoint");
+            return _playerSpawnPoint;
         }
 
         private void ValidatePlayer()
@@ -676,6 +784,10 @@ namespace Train.GameFlow.Runtime
             _enemyLeases.Clear();
             _ownedDefinitionLease?.Dispose();
             _ownedDefinitionLease = null;
+            _cameraLease?.Dispose();
+            _cameraLease = null;
+            _playerLease?.Dispose();
+            _playerLease = null;
             _sessionRegistry?.Detach(this);
             _sessionRegistry = null;
         }

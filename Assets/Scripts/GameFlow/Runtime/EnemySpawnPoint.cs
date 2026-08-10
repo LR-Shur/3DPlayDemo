@@ -51,5 +51,6 @@ namespace Train.GameFlow.Runtime
                 transform.position,
                 transform.position + transform.forward * 1.2f);
         }
+
     }
 }

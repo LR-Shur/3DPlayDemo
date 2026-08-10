@@ -32,6 +32,19 @@ namespace Train.Gameplay.Player.Core
 
         public bool IsRespawning => _respawnRoutine != null;
 
+        /// <summary>
+        /// 运行时绑定关卡出生点，并立即更新后续复活位置。
+        /// </summary>
+        public void ConfigureSpawnPoint(Transform spawnPoint)
+        {
+            _spawnPoint = spawnPoint;
+            if (_spawnPoint != null)
+            {
+                _spawnPosition = _spawnPoint.position;
+                _spawnRotation = _spawnPoint.rotation;
+            }
+        }
+
         private void Awake()
         {
             _health = GetComponent<Health>();

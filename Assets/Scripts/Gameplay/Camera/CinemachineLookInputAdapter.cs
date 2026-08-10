@@ -1,6 +1,7 @@
 using Train.Gameplay.Player.Input;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Train.Gameplay.Camera
 {
@@ -85,6 +86,12 @@ namespace Train.Gameplay.Camera
             }
         }
 
+        /// <summary>运行时玩家由 YooAsset 生成后，绑定新的输入读取器。</summary>
+        public void BindInput(PlayerInputReader input)
+        {
+            _input = input;
+        }
+
         /// <summary>
         /// 锁定或释放系统鼠标光标。
         /// </summary>
@@ -93,6 +100,70 @@ namespace Train.Gameplay.Camera
         {
             Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = !locked;
+        }
+    }
+
+    /// <summary>
+    /// Cinemachine 运行时绑定器。GameFlow 只依赖 Component，不直接依赖相机包类型。
+    /// </summary>
+    public static class PlayerCameraRuntimeBinder
+    {
+        /// <summary>确保场景中存在带 CinemachineBrain 的主相机。</summary>
+        public static void EnsureMainCamera()
+        {
+            var mainCamera = UnityEngine.Camera.main ??
+                Object.FindFirstObjectByType<UnityEngine.Camera>(
+                    FindObjectsInactive.Include);
+            if (mainCamera == null)
+            {
+                var cameraObject = new GameObject("Main Camera");
+                cameraObject.tag = "MainCamera";
+                mainCamera = cameraObject.AddComponent<UnityEngine.Camera>();
+            }
+
+            if (mainCamera.GetComponent<CinemachineBrain>() == null)
+            {
+                mainCamera.gameObject.AddComponent<CinemachineBrain>();
+            }
+        }
+
+        /// <summary>查找指定场景中的 CinemachineCamera。</summary>
+        public static Component FindVirtualCamera(Scene scene)
+        {
+            foreach (var camera in Object.FindObjectsByType<CinemachineCamera>(
+                         FindObjectsInactive.Include,
+                         FindObjectsSortMode.None))
+            {
+                if (camera.gameObject.scene == scene)
+                {
+                    return camera;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>把虚拟相机绑定到玩家观察点和输入读取器。</summary>
+        public static bool TryBind(
+            Component cameraComponent,
+            Transform target,
+            PlayerInputReader input)
+        {
+            var camera = cameraComponent as CinemachineCamera;
+            if (camera == null || target == null)
+            {
+                return false;
+            }
+
+            var cameraTarget = camera.Target;
+            cameraTarget.TrackingTarget = target;
+            cameraTarget.LookAtTarget = target;
+            cameraTarget.CustomLookAtTarget = true;
+            camera.Target = cameraTarget;
+            camera.Priority = 100;
+
+            camera.GetComponent<CinemachineLookInputAdapter>()?.BindInput(input);
+            return true;
         }
     }
 }

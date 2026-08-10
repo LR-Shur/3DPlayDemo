@@ -18,6 +18,10 @@ namespace Train.Architecture.Assets
         public const string PlayerPrefab =
             "Assets/Prefabs/Player/Player_Ellen.prefab";
 
+        /// <summary>默认第三人称 Cinemachine 虚拟相机预制体地址。</summary>
+        public const string PlayerCameraPrefab =
+            "Assets/Prefabs/CM_PlayerCamera.prefab";
+
         /// <summary>默认人形骑士敌人预制体的完整资源路径。</summary>
         public const string KnightEnemyPrefab =
             "Assets/Prefabs/Enemies/Enemy_KayKitKnight.prefab";
