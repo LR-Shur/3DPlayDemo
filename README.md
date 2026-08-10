@@ -25,6 +25,7 @@
 
 - 架构与测试教学：[Docs/ArchitectureAndTesting.zh-CN.md](Docs/ArchitectureAndTesting.zh-CN.md)
 - 会话与进度记录：[Docs/SESSION_RECORD.zh-CN.md](Docs/SESSION_RECORD.zh-CN.md)
+- 当前项目状态：[Docs/PROJECT_STATUS.zh-CN.md](Docs/PROJECT_STATUS.zh-CN.md)
 
 ## 测试
 

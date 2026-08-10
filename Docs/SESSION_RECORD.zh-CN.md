@@ -1,6 +1,6 @@
 # 3DPlayDemo 开发会话记录
 
-> 最后更新：2026-08-06
+> 最后更新：2026-08-10
 >
 > 用途：记录项目当前进度、架构决策、验证结果和下一步计划，方便在另一台机器继续开发。
 
@@ -193,3 +193,14 @@ Tools/Train/Content/Build World Pickups
 ```
 
 然后打开 `Assets/Scenes/Boot.unity` 点 Play。
+
+## 11. 2026-08-10 同步状态
+
+- 已将当前工程推送到 GitHub：`https://github.com/LR-Shur/3DPlayDemo.git`
+- 当前分支：`agent/player-state-machine`
+- 当前提交：`db2da39 整合商业化UI、任务角色对话系统与运行验收`
+- 已同步 `README.md`、本会话记录和架构/测试文档。
+- 为避免仓库体积过大，未使用且未被场景引用的 `Assets/Arts/KawaiiCity/` 与 `Assets/Arts/KawaiiCity_URP/` 已加入忽略规则；本地素材仍保留，没有删除本机文件。
+- 本次按要求没有重新运行 Unity 测试；文档中记录的最近一次结果仍为 EditMode 201/201、PlayMode 7/7。
+
+从其他机器继续时，先切换到 `agent/player-state-machine` 分支，再按第 10 节执行内容构建菜单。下一阶段优先级建议为：存档/读档、角色选择真正换模、NPC 场景化，然后再补音效/特效和养成系统。
