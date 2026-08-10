@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Train.Architecture.Assets;
@@ -15,6 +15,7 @@ using Train.Equipment.Application;
 using Train.Equipment.Data;
 using Train.Equipment.Events;
 using Train.GameFlow.Application;
+using Train.Composition.Config;
 using Train.Inventory.Application;
 using Train.Inventory.Data;
 using Train.Inventory.Events;
@@ -125,6 +126,13 @@ namespace Train.Composition
 
             try
             {
+                if (!game.Context.Services.TryResolve<ILubanConfigService>(out _))
+                {
+                    var luban = new LubanConfigService();
+                    await luban.InitializeAsync(cancellationToken);
+                    game.Context.Services.Install<ILubanConfigService>(luban);
+                }
+
                 var assets = await WaitForAssetServiceAsync(
                     game,
                     cancellationToken);
@@ -469,3 +477,4 @@ namespace Train.Composition
         }
     }
 }
+

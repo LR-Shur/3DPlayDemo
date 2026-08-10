@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.code-philosophy.luban": "file:com.code-philosophy.luban",
     "com.coplaydev.unity-mcp": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main",
     "com.tuyoogame.yooasset": "3.0.5",
     "com.unity.ai.navigation": "2.0.13",

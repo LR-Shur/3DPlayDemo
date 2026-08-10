@@ -1,0 +1,9 @@
+##var,id,name,slot,quality,attack,defense,max_health,icon
+##type,string,string,EEquipmentSlot,int,int,int,int,string
+##,id,name,slot,quality,attack,defense,max_health,icon
+,thunder_blade,雷鸣刀,WEAPON,5,24,0,0,Assets/Arts/UI/Icons/GameIcons/lightning-saber.png
+,training_armor,训练外骨骼,ARMOR,3,0,18,60,Assets/Arts/UI/Icons/GameIcons/intricate-necklace.png
+,neon_boots,霓虹战靴,SHOES,4,3,6,25,Assets/Arts/UI/Icons/GameIcons/gem-chain.png
+,city_helmet,城市头盔,HELMET,3,0,10,35,Assets/Arts/UI/Icons/GameIcons/cyber-eye.png
+,shock_gloves,震荡手套,GLOVES,4,8,4,20,Assets/Arts/UI/Icons/GameIcons/electric.png
+,thunder_ring,雷鸣指环,ACCESSORY,5,12,2,15,Assets/Arts/UI/Icons/GameIcons/globe-ring.png

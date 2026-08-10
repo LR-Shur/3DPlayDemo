@@ -1,0 +1,81 @@
+<module name="game">
+    <enum name="EItemCategory" comment="物品分类">
+        <var name="MATERIAL" alias="材料" value="1"/>
+        <var name="CONSUMABLE" alias="消耗品" value="2"/>
+        <var name="EQUIPMENT" alias="装备" value="3"/>
+        <var name="QUEST" alias="任务物品" value="4"/>
+    </enum>
+
+    <enum name="EEquipmentSlot" comment="装备槽位">
+        <var name="WEAPON" alias="武器" value="1"/>
+        <var name="ARMOR" alias="盔甲" value="2"/>
+        <var name="SHOES" alias="鞋子" value="3"/>
+        <var name="HELMET" alias="头盔" value="4"/>
+        <var name="GLOVES" alias="手套" value="5"/>
+        <var name="ACCESSORY" alias="饰品" value="6"/>
+    </enum>
+
+    <bean name="Item" comment="背包物品基础配置">
+        <var name="id" type="string" comment="稳定物品 ID"/>
+        <var name="name" type="string" comment="显示名称"/>
+        <var name="category" type="EItemCategory"/>
+        <var name="quality" type="int"/>
+        <var name="max_stack" type="int"/>
+        <var name="icon" type="string"/>
+        <var name="description" type="string"/>
+    </bean>
+    <table name="TbItem" value="Item" input="items.csv" comment="物品表"/>
+
+    <bean name="Equipment" comment="装备属性配置">
+        <var name="id" type="string"/>
+        <var name="name" type="string"/>
+        <var name="slot" type="EEquipmentSlot"/>
+        <var name="quality" type="int"/>
+        <var name="attack" type="int"/>
+        <var name="defense" type="int"/>
+        <var name="max_health" type="int"/>
+        <var name="icon" type="string"/>
+    </bean>
+    <table name="TbEquipment" value="Equipment" input="equipment.csv" comment="装备表"/>
+
+    <bean name="EnemyArchetype" comment="敌人原型数值">
+        <var name="id" type="string"/>
+        <var name="name" type="string"/>
+        <var name="prefab_location" type="string"/>
+        <var name="max_health" type="int"/>
+        <var name="attack" type="int"/>
+        <var name="defense" type="int"/>
+        <var name="move_speed" type="float"/>
+    </bean>
+    <table name="TbEnemyArchetype" value="EnemyArchetype" input="enemy_archetypes.csv" comment="敌人原型表"/>
+
+    <bean name="Level" comment="关卡规则配置">
+        <var name="id" type="string"/>
+        <var name="display_name" type="string"/>
+        <var name="scene_location" type="string"/>
+        <var name="intro_seconds" type="float"/>
+        <var name="max_player_deaths" type="int"/>
+    </bean>
+    <table name="TbLevel" value="Level" input="levels.csv" comment="关卡表"/>
+
+    <bean name="LevelSpawn" comment="关卡敌人生成点">
+        <var name="id" type="string"/>
+        <var name="level_id" type="string"/>
+        <var name="spawn_id" type="string"/>
+        <var name="archetype_id" type="string"/>
+        <var name="prefab_location" type="string"/>
+        <var name="pos_x" type="float"/>
+        <var name="pos_y" type="float"/>
+        <var name="pos_z" type="float"/>
+        <var name="rot_y" type="float"/>
+    </bean>
+    <table name="TbLevelSpawn" value="LevelSpawn" input="level_spawns.csv" comment="关卡点位表"/>
+
+    <bean name="Reward" comment="关卡奖励">
+        <var name="id" type="string"/>
+        <var name="level_id" type="string"/>
+        <var name="item_id" type="string"/>
+        <var name="count" type="int"/>
+    </bean>
+    <table name="TbReward" value="Reward" input="rewards.csv" comment="奖励表"/>
+</module>

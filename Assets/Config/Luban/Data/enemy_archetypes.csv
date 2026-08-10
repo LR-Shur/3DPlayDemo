@@ -1,0 +1,5 @@
+##var,id,name,prefab_location,max_health,attack,defense,move_speed
+##type,string,string,string,int,int,int,float
+##,id,name,prefab_location,max_health,attack,defense,move_speed
+,kaykit_knight,训练骑士,Assets/Prefabs/Enemies/Enemy_KayKitKnight.prefab,160,18,4,2.6
+,training_dummy,训练假人,Assets/Prefabs/Combat/TrainingDummy_Rusk.prefab,500,0,12,0

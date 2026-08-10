@@ -1,0 +1,6 @@
+##var,id,level_id,item_id,count
+##type,string,string,string,int
+##,id,level_id,item_id,count
+,combat_001_reward_01,combat_001,training_chip,5
+,combat_001_reward_02,combat_001,upgrade_module,2
+,combat_001_reward_03,combat_001,city_token,40
