@@ -1,9 +1,7 @@
 {
-  "name": "Train.GameFlow.Core",
-  "rootNamespace": "Train.GameFlow.Core",
-  "references": [
-    "Train.Gameplay.Common"
-  ],
+  "name": "Train.Gameplay.Common",
+  "rootNamespace": "Train.Gameplay.Common",
+  "references": [],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

@@ -3,11 +3,22 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Train.GameFlow.Core;
+using Train.GameFlow.Core.States;
+using Train.Gameplay.Common.StateMachine;
 
 namespace Train.Tests.EditMode.GameFlow
 {
     public sealed class LevelFlowStateMachineTests
     {
+        [Test]
+        public void InheritsCommonAsyncStateMachineBase()
+        {
+            Assert.That(
+                typeof(LevelFlowStateMachine).BaseType,
+                Is.EqualTo(
+                    typeof(StateMachineBase<LevelFlowContext, ILevelFlowState>)));
+        }
+
         [Test]
         public async Task ClearRoute_RunsActionsInLifecycleOrder()
         {

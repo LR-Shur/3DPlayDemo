@@ -190,6 +190,11 @@ Preparing -> Intro -> Combat -> Cleared/Failed -> Exiting
 
 状态机的价值不是“代码更高级”，而是把合法跳转集中在一个地方。UI、输入和敌人生成只读取当前阶段，不需要各自猜测十几个布尔值的组合。
 
+实现上，`GameFlow.Core` 不再自己维护一套异步切换逻辑。`LevelFlowStateMachine` 继承
+`Train.Gameplay.Common.StateMachine.StateMachineBase<TContext, TState>`，关卡状态继承
+`AsyncStateBase<TContext>`；串行锁、重复状态请求、失败恢复和故障锁定都由通用基类统一处理。
+默认关卡跳转使用字典配置而不是 `switch/if` 分支。这样以后新增加载、结算或暂停流程时，只需注册状态和转换策略，不会把场景控制器耦合进状态机。
+
 如果只是一个没有阶段切换的静态房间，就没必要使用状态机。当前战斗关卡包含准备、战斗、胜负和退出，因此使用它是合理的。
 
 ## 7. 任务为什么使用 Fact 推进

@@ -3,6 +3,7 @@
   "rootNamespace": "Train.Gameplay",
   "references": [
     "Train.Architecture",
+    "Train.Gameplay.Common",
     "Train.Buffs.Core",
     "Train.Equipment",
     "Train.Equipment.Core",

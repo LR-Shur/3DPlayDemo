@@ -3,24 +3,26 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Train.GameFlow.Core.States;
+using Train.Gameplay.Common.StateMachine;
 
 namespace Train.GameFlow.Core
 {
     /// <summary>
-    /// 串行执行单次关卡会话中的所有阶段变化。
-    /// 相同阶段的重复请求会被忽略，其余不允许的跳转会抛出
-    /// <see cref="InvalidLevelTransitionException"/>。
+    /// 关卡流程状态机的领域外观。
+    /// 具体的串行切换、重复请求、异常恢复由 Gameplay.Common 的通用状态机负责，
+    /// 本类只保留关卡阶段映射、转换策略和领域事件。
     /// </summary>
     public sealed class LevelFlowStateMachine
+        : StateMachineBase<LevelFlowContext, ILevelFlowState>
     {
-        private readonly ILevelFlowActions _actions;
         private readonly ILevelTransitionPolicy _transitionPolicy;
         private readonly IReadOnlyDictionary<LevelPhase, ILevelFlowState> _states;
-        private readonly SemaphoreSlim _transitionGate = new SemaphoreSlim(1, 1);
-
-        private LevelPhase _currentPhase;
-        private LevelOutcome _outcome;
-        private bool _isFaulted;
+        private readonly IReadOnlyDictionary<LevelPhase, LevelOutcome> _outcomes =
+            new Dictionary<LevelPhase, LevelOutcome>
+            {
+                { LevelPhase.Cleared, LevelOutcome.Cleared },
+                { LevelPhase.Failed, LevelOutcome.Failed }
+            };
 
         /// <summary>
         /// 创建关卡流程状态机。
@@ -30,26 +32,23 @@ namespace Train.GameFlow.Core
         public LevelFlowStateMachine(
             ILevelFlowActions actions,
             ILevelTransitionPolicy transitionPolicy = null)
+            : base(new LevelFlowContext(
+                actions ?? throw new ArgumentNullException(nameof(actions))))
         {
-            _actions = actions ?? throw new ArgumentNullException(nameof(actions));
             _transitionPolicy =
                 transitionPolicy ?? DefaultLevelTransitionPolicy.Instance;
-            _states = CreateStates();
+            _states = CreateStates(Context);
         }
 
-        /// <summary>
-        /// 在一个阶段成功进入后触发。
-        /// </summary>
+        /// <summary>在一个阶段成功进入后触发。</summary>
         public event Action<LevelPhaseChanged> PhaseChanged;
 
         /// <summary>获取当前关卡阶段。</summary>
-        public LevelPhase CurrentPhase => _currentPhase;
+        public LevelPhase CurrentPhase =>
+            CurrentState?.Phase ?? LevelPhase.None;
 
         /// <summary>获取当前关卡结果。</summary>
-        public LevelOutcome Outcome => _outcome;
-
-        /// <summary>获取状态机是否因恢复失败而进入故障状态。</summary>
-        public bool IsFaulted => _isFaulted;
+        public LevelOutcome Outcome { get; private set; }
 
         /// <summary>从未开始状态进入准备阶段。</summary>
         public Task<LevelTransitionResult> StartAsync(
@@ -94,110 +93,73 @@ namespace Train.GameFlow.Core
         }
 
         /// <summary>
-        /// 按转换策略切换到指定阶段，并串行等待已有转换完成。
+        /// 按转换策略切换到指定阶段；通用基类负责锁、进入、退出和恢复。
         /// </summary>
-        /// <param name="targetPhase">目标关卡阶段。</param>
-        /// <param name="cancellationToken">用于取消等待或阶段动作的令牌。</param>
-        /// <returns>转换完成或同阶段忽略结果。</returns>
         public async Task<LevelTransitionResult> TransitionAsync(
             LevelPhase targetPhase,
             CancellationToken cancellationToken = default)
         {
-            await _transitionGate.WaitAsync(cancellationToken);
-            try
-            {
-                ThrowIfFaulted();
+            var targetState = ResolveState(targetPhase);
+            var result = await base.TransitionAsync(
+                targetState,
+                CanTransition,
+                cancellationToken);
 
-                var previousPhase = _currentPhase;
-                if (previousPhase == targetPhase)
-                {
-                    return LevelTransitionResult.IgnoredSamePhase;
-                }
-
-                if (!_transitionPolicy.CanTransition(previousPhase, targetPhase))
-                {
-                    throw new InvalidLevelTransitionException(
-                        previousPhase,
-                        targetPhase);
-                }
-
-                var previousState = GetState(previousPhase);
-                var targetState = GetState(targetPhase);
-
-                try
-                {
-                    if (previousState != null)
-                    {
-                        await previousState.ExitAsync(
-                            _actions,
-                            cancellationToken);
-                    }
-
-                    await targetState.EnterAsync(
-                        _actions,
-                        cancellationToken);
-                }
-                catch (Exception transitionException)
-                {
-                    await RestorePreviousStateAsync(
-                        previousState,
-                        previousPhase,
-                        transitionException);
-                    throw;
-                }
-
-                _currentPhase = targetPhase;
-                UpdateOutcome(targetPhase);
-
-                PhaseChanged?.Invoke(
-                    new LevelPhaseChanged(
-                        previousPhase,
-                        targetPhase,
-                        _outcome));
-
-                return LevelTransitionResult.Completed;
-            }
-            finally
-            {
-                _transitionGate.Release();
-            }
+            return result == AsyncStateTransitionResult.IgnoredSameState
+                ? LevelTransitionResult.IgnoredSamePhase
+                : LevelTransitionResult.Completed;
         }
 
-        private async Task RestorePreviousStateAsync(
+        /// <inheritdoc />
+        protected override Exception CreateInvalidTransitionException(
             ILevelFlowState previousState,
-            LevelPhase previousPhase,
-            Exception transitionException)
+            ILevelFlowState targetState)
         {
-            if (previousState == null)
-            {
-                return;
-            }
-
-            try
-            {
-                // 恢复过程有意忽略调用方已取消的令牌，
-                // 目的是尽可能把运行时恢复到转换前的稳定状态。
-                await previousState.EnterAsync(
-                    _actions,
-                    CancellationToken.None);
-            }
-            catch (Exception recoveryException)
-            {
-                _isFaulted = true;
-                throw new LevelFlowRecoveryException(
-                    previousPhase,
-                    transitionException,
-                    recoveryException);
-            }
+            return new InvalidLevelTransitionException(
+                previousState?.Phase ?? LevelPhase.None,
+                targetState.Phase);
         }
 
-        private ILevelFlowState GetState(LevelPhase phase)
+        /// <inheritdoc />
+        protected override Exception CreateRecoveryException(
+            ILevelFlowState previousState,
+            Exception transitionException,
+            Exception recoveryException)
         {
-            if (phase == LevelPhase.None)
+            return new LevelFlowRecoveryException(
+                previousState.Phase,
+                transitionException,
+                recoveryException);
+        }
+
+        /// <inheritdoc />
+        protected override void OnStateChanged(
+            ILevelFlowState previousState,
+            ILevelFlowState currentState)
+        {
+            if (_outcomes.TryGetValue(currentState.Phase, out var outcome))
             {
-                return null;
+                Outcome = outcome;
             }
 
+            PhaseChanged?.Invoke(
+                new LevelPhaseChanged(
+                    previousState?.Phase ?? LevelPhase.None,
+                    currentState.Phase,
+                    Outcome));
+        }
+
+        private bool CanTransition(
+            ILevelFlowState previousState,
+            ILevelFlowState targetState)
+        {
+            return _transitionPolicy.CanTransition(
+                previousState?.Phase ?? LevelPhase.None,
+                targetState.Phase);
+        }
+
+        private ILevelFlowState ResolveState(LevelPhase phase)
+        {
             if (_states.TryGetValue(phase, out var state))
             {
                 return state;
@@ -209,62 +171,29 @@ namespace Train.GameFlow.Core
                 "No state implementation is registered for this phase.");
         }
 
-        private void UpdateOutcome(LevelPhase phase)
-        {
-            switch (phase)
-            {
-                case LevelPhase.Cleared:
-                    _outcome = LevelOutcome.Cleared;
-                    break;
-
-                case LevelPhase.Failed:
-                    _outcome = LevelOutcome.Failed;
-                    break;
-            }
-        }
-
-        private void ThrowIfFaulted()
-        {
-            if (_isFaulted)
-            {
-                throw new InvalidOperationException(
-                    "The level flow is faulted because state recovery failed.");
-            }
-        }
-
         private static IReadOnlyDictionary<LevelPhase, ILevelFlowState>
-            CreateStates()
+            CreateStates(LevelFlowContext context)
         {
             return new Dictionary<LevelPhase, ILevelFlowState>
             {
-                {
-                    LevelPhase.Preparing,
-                    new PreparingLevelState()
-                },
-                {
-                    LevelPhase.Intro,
-                    new IntroLevelState()
-                },
-                {
-                    LevelPhase.Combat,
-                    new CombatLevelState()
-                },
+                { LevelPhase.Preparing, new PreparingLevelState(context) },
+                { LevelPhase.Intro, new IntroLevelState(context) },
+                { LevelPhase.Combat, new CombatLevelState(context) },
                 {
                     LevelPhase.Cleared,
                     new ResultLevelState(
+                        context,
                         LevelPhase.Cleared,
                         LevelOutcome.Cleared)
                 },
                 {
                     LevelPhase.Failed,
                     new ResultLevelState(
+                        context,
                         LevelPhase.Failed,
                         LevelOutcome.Failed)
                 },
-                {
-                    LevelPhase.Exiting,
-                    new ExitingLevelState()
-                }
+                { LevelPhase.Exiting, new ExitingLevelState(context) }
             };
         }
     }

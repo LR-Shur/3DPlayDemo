@@ -164,6 +164,7 @@ Assets/Tests
 - [x] 任务、角色名册、对话系统
 - [x] 商业化多页面 UI
 - [x] 中文注释审计与测试文档
+- [x] GameFlow 复用 Gameplay.Common 异步状态机基类，转换策略改为数据驱动
 
 建议下一步：
 

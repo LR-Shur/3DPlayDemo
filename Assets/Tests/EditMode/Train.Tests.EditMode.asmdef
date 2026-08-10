@@ -4,6 +4,7 @@
   "references": [
     "Train.Architecture",
     "Train.Gameplay",
+    "Train.Gameplay.Common",
     "Train.Infrastructure.Assets",
     "Train.GameFlow",
     "Train.GameFlow.Core",

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Train.GameFlow.Core
 {
     /// <summary>
@@ -6,6 +8,31 @@ namespace Train.GameFlow.Core
     /// </summary>
     public sealed class DefaultLevelTransitionPolicy : ILevelTransitionPolicy
     {
+        private readonly IReadOnlyDictionary<LevelPhase, HashSet<LevelPhase>>
+            _allowedTransitions =
+            new Dictionary<LevelPhase, HashSet<LevelPhase>>
+            {
+                { LevelPhase.None, new HashSet<LevelPhase> { LevelPhase.Preparing } },
+                { LevelPhase.Preparing, new HashSet<LevelPhase> { LevelPhase.Intro } },
+                { LevelPhase.Intro, new HashSet<LevelPhase> { LevelPhase.Combat } },
+                {
+                    LevelPhase.Combat,
+                    new HashSet<LevelPhase>
+                    {
+                        LevelPhase.Cleared,
+                        LevelPhase.Failed
+                    }
+                },
+                {
+                    LevelPhase.Cleared,
+                    new HashSet<LevelPhase> { LevelPhase.Exiting }
+                },
+                {
+                    LevelPhase.Failed,
+                    new HashSet<LevelPhase> { LevelPhase.Exiting }
+                }
+            };
+
         /// <summary>
         /// 获取无状态的默认关卡转换策略单例。
         /// </summary>
@@ -24,28 +51,8 @@ namespace Train.GameFlow.Core
         /// <returns>允许转换时返回 <see langword="true"/>。</returns>
         public bool CanTransition(LevelPhase from, LevelPhase to)
         {
-            switch (from)
-            {
-                case LevelPhase.None:
-                    return to == LevelPhase.Preparing;
-
-                case LevelPhase.Preparing:
-                    return to == LevelPhase.Intro;
-
-                case LevelPhase.Intro:
-                    return to == LevelPhase.Combat;
-
-                case LevelPhase.Combat:
-                    return to == LevelPhase.Cleared ||
-                           to == LevelPhase.Failed;
-
-                case LevelPhase.Cleared:
-                case LevelPhase.Failed:
-                    return to == LevelPhase.Exiting;
-
-                default:
-                    return false;
-            }
+            return _allowedTransitions.TryGetValue(from, out var targets) &&
+                   targets.Contains(to);
         }
     }
 }
