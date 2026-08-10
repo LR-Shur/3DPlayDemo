@@ -48,6 +48,7 @@ namespace Train.Tests.PlayMode.GameFlow
             }
 
             Assert.That(runtime, Is.Not.Null);
+            runtime.StartLevel();
             var timeoutAt = Time.realtimeSinceStartup + 10f;
             while (runtime.CurrentPhase != LevelPhase.Combat &&
                    Time.realtimeSinceStartup < timeoutAt)

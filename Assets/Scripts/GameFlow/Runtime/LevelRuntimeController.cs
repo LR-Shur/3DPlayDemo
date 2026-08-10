@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Train.Architecture.Assets;
 using Train.Architecture.Bootstrap;
 using Train.Architecture.Events;
+using Train.Architecture.Interaction;
 using Train.GameFlow.Application;
 using Train.GameFlow.Application.Events;
 using Train.GameFlow.Core;
@@ -29,13 +30,15 @@ namespace Train.GameFlow.Runtime
     public sealed class LevelRuntimeController :
         MonoBehaviour,
         ILevelFlowActions,
-        ILevelReadModel
+        ILevelReadModel,
+        ICombatInteractionGate
     {
         [SerializeField] private LevelDefinition _definition;
         [SerializeField] private Transform _spawnedActorsRoot;
         [SerializeField] private PlayerInputReader _playerInput;
         [SerializeField] private PlayerCombat _playerCombat;
         [SerializeField] private Health _playerHealth;
+        [SerializeField] private bool _autoStart;
 
         [Header("Runtime diagnostics")]
         [SerializeField] private string _currentPhaseName;
@@ -55,6 +58,7 @@ namespace Train.GameFlow.Runtime
         private LevelFlowStateMachine _flow;
         private Task _startupTask;
         private bool _prepared;
+        private bool _startRequested;
         private bool _resultRequested;
         private float _combatStartedAt;
         private ILevelSessionRegistry _sessionRegistry;
@@ -65,6 +69,9 @@ namespace Train.GameFlow.Runtime
         /// <summary>获取当前关卡阶段。</summary>
         public LevelPhase CurrentPhase =>
             _flow?.CurrentPhase ?? LevelPhase.None;
+
+        /// <summary>供通用交互层读取的战斗阶段标记。</summary>
+        public bool IsCombatActive => CurrentPhase == LevelPhase.Combat;
 
         /// <summary>获取当前关卡登记的敌人总数。</summary>
         public int EnemyCount => _enemyByHealth.Count;
@@ -99,8 +106,40 @@ namespace Train.GameFlow.Runtime
 
         private void Start()
         {
+            if (_autoStart)
+            {
+                StartLevel();
+            }
+        }
+
+        /// <summary>当前是否正在等待玩家发出开始指令。</summary>
+        public bool IsWaitingForStart => !_startRequested && _startupTask == null;
+
+        /// <summary>显式开始本关卡，供 UI 按钮、引导流程和自动化测试调用。</summary>
+        public void StartLevel()
+        {
+            if (_startupTask != null)
+            {
+                return;
+            }
+
+            _startRequested = true;
             _startupTask = RunStartupFlowAsync(_lifetime.Token);
             Observe(_startupTask);
+        }
+
+        /// <summary>在开始界面阶段读取独立 Start 动作，避免战斗提前生成。</summary>
+        private void Update()
+        {
+            if (!IsWaitingForStart ||
+                _playerInput == null ||
+                !_playerInput.HasStartPressed ||
+                !_playerInput.ConsumeStartPressed())
+            {
+                return;
+            }
+
+            StartLevel();
         }
 
         /// <summary>
@@ -474,7 +513,10 @@ namespace Train.GameFlow.Runtime
         {
             if (_playerInput != null)
             {
-                _playerInput.enabled = enabled;
+                // 保持输入读取器启用，只切换动作地图，避免关卡尚未开始时
+                // 无法读取“开始”指令，也避免启停组件造成输入回调竞态。
+                _playerInput.enabled = true;
+                _playerInput.SetExternalInputBlocked(!enabled);
             }
 
             if (_playerCombat != null)

@@ -1,4 +1,5 @@
 using Train.Architecture.Bootstrap;
+using Train.Architecture.Interaction;
 using Train.Dialogue.Application;
 using Train.WorldInteraction.Core;
 using UnityEngine;
@@ -24,6 +25,7 @@ namespace Train.WorldInteraction.Runtime
         [SerializeField] private Transform _interactionPoint;
 
         private IDialogueService _dialogue;
+        private ICombatInteractionGate _combatGate;
 
         /// <inheritdoc />
         public string InteractionId => _interactionId;
@@ -48,7 +50,8 @@ namespace Train.WorldInteraction.Runtime
             _dialogue != null &&
             !_dialogue.IsActive &&
             !string.IsNullOrWhiteSpace(_dialogueId) &&
-            _dialogue.TryGetDefinition(_dialogueId, out _);
+            _dialogue.TryGetDefinition(_dialogueId, out _) &&
+            !IsBlockedDuringCombat();
 
         /// <summary>
         /// 启动时尝试从全局组合根取得对话服务；
@@ -56,7 +59,9 @@ namespace Train.WorldInteraction.Runtime
         /// </summary>
         private void Start()
         {
+            _interactionPoint ??= transform.Find("InteractionPoint");
             TryResolveDialogue();
+            TryResolveCombatGate();
         }
 
         /// <summary>
@@ -67,6 +72,11 @@ namespace Train.WorldInteraction.Runtime
             if (_dialogue == null)
             {
                 TryResolveDialogue();
+            }
+
+            if (_combatGate == null)
+            {
+                TryResolveCombatGate();
             }
         }
 
@@ -123,6 +133,29 @@ namespace Train.WorldInteraction.Runtime
                     out var dialogue))
             {
                 _dialogue = dialogue;
+            }
+
+        }
+
+        /// <summary>战斗期间不开放对话，清场后恢复战后终端。</summary>
+        private bool IsBlockedDuringCombat()
+        {
+            return _combatGate != null && _combatGate.IsCombatActive;
+        }
+
+        /// <summary>通过接口扫描场景中的关卡控制器，保持交互层不依赖 GameFlow 程序集。</summary>
+        private void TryResolveCombatGate()
+        {
+            var behaviours = FindObjectsByType<MonoBehaviour>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+            for (var index = 0; index < behaviours.Length; index++)
+            {
+                if (behaviours[index] is ICombatInteractionGate gate)
+                {
+                    _combatGate = gate;
+                    return;
+                }
             }
         }
     }

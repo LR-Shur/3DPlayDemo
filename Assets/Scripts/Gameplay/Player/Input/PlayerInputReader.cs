@@ -23,6 +23,7 @@ namespace Train.Gameplay.Player.Input
         private InputAction _jumpAction;
         private InputAction _crouchAction;
         private InputAction _interactAction;
+        private InputAction _startAction;
         private InputAction _previousAction;
         private InputAction _nextAction;
         private bool _attackPressed;
@@ -31,6 +32,7 @@ namespace Train.Gameplay.Player.Input
         private bool _jumpPressed;
         private bool _crouchPressed;
         private bool _interactPressed;
+        private bool _startPressed;
         private bool _previousPressed;
         private bool _nextPressed;
         private bool _externalInputBlocked;
@@ -62,6 +64,9 @@ namespace Train.Gameplay.Player.Input
         /// </summary>
         public bool HasInteractPressed => _interactPressed;
 
+        /// <summary>获取是否存在尚未消费的关卡开始按键。</summary>
+        public bool HasStartPressed => _startPressed;
+
         /// <summary>
         /// 在启用输入前查找配置好的 Player 动作。
         /// </summary>
@@ -84,6 +89,8 @@ namespace Train.Gameplay.Player.Input
             _jumpAction = _playerMap.FindAction("Jump", true);
             _crouchAction = _playerMap.FindAction("Crouch", true);
             _interactAction = _playerMap.FindAction("Interact", true);
+            // 允许旧输入资产暂时没有 Start 动作，仍可由 UI 直接调用 StartLevel。
+            _startAction = _playerMap.FindAction("Start", false);
             _previousAction = _playerMap.FindAction("Previous", true);
             _nextAction = _playerMap.FindAction("Next", true);
         }
@@ -104,9 +111,17 @@ namespace Train.Gameplay.Player.Input
             _jumpAction.performed += OnJumpPerformed;
             _crouchAction.performed += OnCrouchPerformed;
             _interactAction.performed += OnInteractPerformed;
+            if (_startAction != null)
+            {
+                _startAction.performed += OnStartPerformed;
+            }
             _previousAction.performed += OnPreviousPerformed;
             _nextAction.performed += OnNextPerformed;
-            if (!_externalInputBlocked)
+            if (_externalInputBlocked)
+            {
+                _startAction?.Enable();
+            }
+            else
             {
                 _playerMap.Enable();
             }
@@ -128,9 +143,14 @@ namespace Train.Gameplay.Player.Input
             _jumpAction.performed -= OnJumpPerformed;
             _crouchAction.performed -= OnCrouchPerformed;
             _interactAction.performed -= OnInteractPerformed;
+            if (_startAction != null)
+            {
+                _startAction.performed -= OnStartPerformed;
+            }
             _previousAction.performed -= OnPreviousPerformed;
             _nextAction.performed -= OnNextPerformed;
             _playerMap.Disable();
+            _startAction?.Disable();
             ClearBufferedButtons();
         }
 
@@ -194,6 +214,14 @@ namespace Train.Gameplay.Player.Input
             return wasPressed;
         }
 
+        /// <summary>返回并清除一次关卡开始按键。</summary>
+        public bool ConsumeStartPressed()
+        {
+            var wasPressed = _startPressed;
+            _startPressed = false;
+            return wasPressed;
+        }
+
         /// <summary>
         /// 返回并清除已缓存的分支攻击按下事件。
         /// </summary>
@@ -225,6 +253,7 @@ namespace Train.Gameplay.Player.Input
             _jumpPressed = false;
             _crouchPressed = false;
             _interactPressed = false;
+            _startPressed = false;
             _previousPressed = false;
             _nextPressed = false;
         }
@@ -249,10 +278,12 @@ namespace Train.Gameplay.Player.Input
             if (blocked)
             {
                 _playerMap.Disable();
+                _startAction?.Enable();
                 ClearBufferedButtons();
             }
             else if (isActiveAndEnabled)
             {
+                _startAction?.Disable();
                 _playerMap.Enable();
             }
         }
@@ -303,6 +334,12 @@ namespace Train.Gameplay.Player.Input
         private void OnInteractPerformed(InputAction.CallbackContext context)
         {
             _interactPressed = true;
+        }
+
+        /// <summary>缓存关卡开始按键，供关卡流程在输入锁定阶段读取。</summary>
+        private void OnStartPerformed(InputAction.CallbackContext context)
+        {
+            _startPressed = true;
         }
 
         /// <summary>

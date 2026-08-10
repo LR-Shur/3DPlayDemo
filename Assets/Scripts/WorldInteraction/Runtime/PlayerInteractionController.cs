@@ -48,7 +48,8 @@ namespace Train.WorldInteraction.Runtime
             _input ??= GetComponent<PlayerInputReader>();
             // 交互提示属于当前场景，优先使用场景事件中心；
             // 场景尚未完成初始化时再回退到进程级事件中心。
-            _events = SceneBootstrap.ResolveEvents(this);
+            // UI 服务订阅的是全局事件总线，交互提示也必须发布到同一条总线。
+            _events = GameBootstrap.EnsureExists().Context.Events;
         }
 
         /// <summary>
@@ -71,10 +72,12 @@ namespace Train.WorldInteraction.Runtime
             }
 
             _focus.Refresh();
-            if (_input != null &&
-                _focus.HasFocus &&
-                _input.HasInteractPressed &&
-                _input.ConsumeInteractPressed())
+
+            // E 键只在这里消费，避免和玩家 LocomotionState 竞争同一个输入缓冲。
+            var interactPressed = _input != null &&
+                                  _input.HasInteractPressed &&
+                                  _input.ConsumeInteractPressed();
+            if (interactPressed && _focus.HasFocus)
             {
                 _focus.InteractFocused();
             }

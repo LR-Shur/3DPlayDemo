@@ -81,16 +81,6 @@ namespace Train.Gameplay.Player.States.Locomotion
                 return;
             }
 
-            if (Context.Input.ConsumeInteractPressed())
-            {
-                PlayerMachine.ChangeState(new PlayerActionState(
-                    PlayerMachine,
-                    Context,
-                    PlayerAnimationId.QuestStart,
-                    true));
-                return;
-            }
-
             if (Context.Input.ConsumeAttackPressed())
             {
                 PlayerMachine.ChangeState(Context.Input.IsSprintHeld
