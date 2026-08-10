@@ -123,6 +123,11 @@ namespace Train.Composition
                 gameObject.AddComponent<ProgressionRuntimeController>();
             }
 
+            if (gameObject.GetComponent<CombatFeedbackRuntimeController>() == null)
+            {
+                gameObject.AddComponent<CombatFeedbackRuntimeController>();
+            }
+
             if (_initializationTask != null)
             {
                 return;

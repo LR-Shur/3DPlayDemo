@@ -10,6 +10,9 @@ using Train.Equipment.Application;
 using Train.Equipment.Core;
 using Train.Equipment.Data;
 using Train.GameFlow.Application.Events;
+using Train.GameFlow.Runtime;
+using Train.Gameplay.Combat;
+using Train.Gameplay.Combat.Application.Events;
 using Train.Inventory.Application;
 using Train.WorldInteraction.Runtime;
 using UnityEngine;
@@ -54,6 +57,7 @@ namespace Train.Composition.Progression
         private void Update()
         {
             TryInitialize();
+            _overlay?.Tick();
         }
 
         private void TryInitialize()
@@ -127,6 +131,8 @@ namespace Train.Composition.Progression
             {
                 _overlay?.ShowLevelBanner(node);
             }
+
+            _overlay?.RefreshBossBar();
         }
 
         private void SpawnLoot(EnemyDefeatedEvent message)
@@ -238,6 +244,11 @@ namespace Train.Composition.Progression
         private readonly Button _nextButton;
         private readonly GameObject _shop;
         private readonly TMP_Text _shopStatus;
+        private readonly GameObject _bossBar;
+        private readonly Image _bossFill;
+        private readonly TMP_Text _bossLabel;
+        private Health _bossHealth;
+        private float _toastHideAt;
 
         private ProgressionOverlay(
             IEventBus events,
@@ -293,8 +304,32 @@ namespace Train.Composition.Progression
             SetRect(close.GetComponent<RectTransform>(), new Vector2(.32f, .18f), new Vector2(.68f, .28f), new Vector2(.5f, .23f), Vector2.zero, Vector2.zero);
             close.onClick.AddListener(HideShop);
 
+            _bossBar = CreatePanel(_root.transform, "[BossHealth]");
+            SetRect(_bossBar.GetComponent<RectTransform>(), new Vector2(.5f, 1f), new Vector2(.5f, 1f), new Vector2(.5f, 1f), new Vector2(0f, -116f), new Vector2(650f, 72f));
+            var bossBackground = _bossBar.GetComponent<Image>();
+            bossBackground.color = new Color32(24, 14, 34, 244);
+            _bossLabel = CreateLabel(_bossBar.transform, "BOSS // CORE FORGE", 18, TextAlignmentOptions.Top);
+            SetRect(_bossLabel.rectTransform, new Vector2(.04f, .50f), new Vector2(.96f, .96f), new Vector2(.5f, 1f), Vector2.zero, Vector2.zero);
+            var bossFillRoot = new GameObject("BossFill");
+            bossFillRoot.transform.SetParent(_bossBar.transform, false);
+            var bossFillRect = bossFillRoot.AddComponent<RectTransform>();
+            SetRect(bossFillRect, new Vector2(.04f, .16f), new Vector2(.96f, .43f), new Vector2(.5f, .5f), Vector2.zero, Vector2.zero);
+            var bossFillBackground = bossFillRoot.AddComponent<Image>();
+            bossFillBackground.color = new Color32(62, 33, 76, 255);
+            var fill = new GameObject("Current");
+            fill.transform.SetParent(bossFillRoot.transform, false);
+            var fillRect = fill.AddComponent<RectTransform>();
+            SetRect(fillRect, Vector2.zero, Vector2.one, new Vector2(0f, .5f), Vector2.zero, Vector2.zero);
+            _bossFill = fill.AddComponent<Image>();
+            _bossFill.color = new Color32(255, 112, 205, 255);
+            _bossFill.type = Image.Type.Filled;
+            _bossFill.fillMethod = Image.FillMethod.Horizontal;
+            _bossFill.fillOrigin = 0;
+
             _events.Subscribe<CurrencyChangedEvent>(message => RenderWallet(_progression.Snapshot));
+            _events.Subscribe<EntityDamagedEvent>(OnEntityDamaged);
             HideAllPanels();
+            _bossBar.SetActive(false);
         }
 
         public static ProgressionOverlay Create(IEventBus events, IProgressionService progression, IInventoryService inventory, IEquipmentService equipment, Action<RunNode> loadNext)
@@ -307,9 +342,29 @@ namespace Train.Composition.Progression
             _wallet.text = $"COINS {snapshot.Coins:0000}";
         }
 
+        public void Tick()
+        {
+            if (_toast.gameObject.activeSelf && Time.unscaledTime >= _toastHideAt)
+            {
+                _toast.text = string.Empty;
+                _toast.gameObject.SetActive(false);
+            }
+
+            if (_bossHealth == null)
+            {
+                RefreshBossBar();
+            }
+            else
+            {
+                RenderBossBar();
+            }
+        }
+
         public void ShowCombatToast(string title, string subtitle)
         {
             _toast.text = $"{title}   //   {subtitle}";
+            _toast.gameObject.SetActive(true);
+            _toastHideAt = Time.unscaledTime + 4f;
         }
 
         public void ShowLevelBanner(RunNode node)
@@ -325,6 +380,63 @@ namespace Train.Composition.Progression
             _completionSummary.text = $"{levelId}\nCLEAR TIME  {elapsed:0.0}s\n\n战利品已写入背包：{rewardItem} ×{rewardCount}\n\n下一节点：{(string.IsNullOrWhiteSpace(nextNode.LevelId) ? "RUN COMPLETE" : nextNode.DisplayName)}";
             _nextButton.interactable = !string.IsNullOrWhiteSpace(nextNode.ScenePath);
             RenderWallet(_progression.Snapshot);
+        }
+
+        public void RefreshBossBar()
+        {
+            if (_bossBar == null)
+            {
+                return;
+            }
+
+            _bossHealth = null;
+            var identities = UnityEngine.Object.FindObjectsByType<EnemyIdentity>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+            foreach (var identity in identities)
+            {
+                if (identity == null ||
+                    identity.ArchetypeId.IndexOf("boss", StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    continue;
+                }
+
+                var health = identity.GetComponentInParent<Health>();
+                if (health != null && health.IsAlive)
+                {
+                    _bossHealth = health;
+                    _bossLabel.text = $"BOSS // {identity.ArchetypeId.ToUpperInvariant()}";
+                    break;
+                }
+            }
+
+            _bossBar.SetActive(_bossHealth != null);
+            RenderBossBar();
+        }
+
+        private void OnEntityDamaged(EntityDamagedEvent message)
+        {
+            if (message.Health != _bossHealth)
+            {
+                return;
+            }
+
+            RenderBossBar();
+        }
+
+        private void RenderBossBar()
+        {
+            if (_bossFill == null || _bossHealth == null)
+            {
+                return;
+            }
+
+            _bossFill.fillAmount = Mathf.Clamp01(
+                _bossHealth.CurrentHealth / Mathf.Max(1f, _bossHealth.MaxHealth));
+            if (!_bossHealth.IsAlive)
+            {
+                _bossBar.SetActive(false);
+            }
         }
 
         public void HideAllPanels()
