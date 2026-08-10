@@ -4,3 +4,8 @@
 ,combat_001_reward_01,combat_001,training_chip,5
 ,combat_001_reward_02,combat_001,upgrade_module,2
 ,combat_001_reward_03,combat_001,city_token,40
+,combat_002_reward_01,combat_002,upgrade_module,4
+,combat_002_reward_02,combat_002,training_chip,12
+,combat_002_reward_03,combat_002,city_token,80
+,boss_001_reward_01,boss_001,upgrade_module,10
+,boss_001_reward_02,boss_001,thunder_ring,1

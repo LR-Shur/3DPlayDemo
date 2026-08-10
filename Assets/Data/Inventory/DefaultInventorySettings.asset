@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fb5785f624c22947b68cdf9dfeaf684, type: 3}
   m_Name: DefaultInventorySettings
   m_EditorClassIdentifier: Train.Inventory::Train.Inventory.Data.InventorySettings
-  _capacity: 24
+  _capacity: 36
   _items:
   - {fileID: 11400000, guid: 4e9ad5d4cdb9c384a92d6eead72ae5e6, type: 2}
   - {fileID: 11400000, guid: 676002a5e945824419e4947704f4e460, type: 2}

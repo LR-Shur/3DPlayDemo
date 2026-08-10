@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fa487d9e66730b4e8d37ae1a87a717a, type: 3}
+  m_Name: Level_Combat_002
+  m_EditorClassIdentifier: Train.GameFlow::Train.GameFlow.Data.LevelDefinition
+  _levelId: level.combat.002
+  _displayName: "\u7B2C 2 \u6218\u533A \xB7 \u65AD\u7535\u56DE\u5ECA"
+  _sceneLocation: Assets/Scenes/Playable/Level_Combat_002.unity
+  _introSeconds: 1.5
+  _maxPlayerDeaths: 2
+  _enemySpawns:
+  - _spawnId: scout_01
+    _archetypeId: scout_knight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_ScoutKnight.prefab
+    _position: {x: -35, y: 0, z: -45}
+    _eulerAngles: {x: 0, y: 160, z: 0}
+  - _spawnId: scout_02
+    _archetypeId: scout_knight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_ScoutKnight.prefab
+    _position: {x: -60, y: 0, z: -45}
+    _eulerAngles: {x: 0, y: 20, z: 0}
+  - _spawnId: elite_01
+    _archetypeId: elite_knight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_EliteKnight.prefab
+    _position: {x: -35, y: 0, z: -34}
+    _eulerAngles: {x: 0, y: 180, z: 0}
+  - _spawnId: elite_02
+    _archetypeId: elite_knight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_EliteKnight.prefab
+    _position: {x: -60, y: 0, z: -34}
+    _eulerAngles: {x: 0, y: 225, z: 0}
+  - _spawnId: scout_03
+    _archetypeId: scout_knight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_ScoutKnight.prefab
+    _position: {x: -47, y: 0, z: -52}
+    _eulerAngles: {x: 0, y: 45, z: 0}
+  - _spawnId: elite_03
+    _archetypeId: elite_knight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_EliteKnight.prefab
+    _position: {x: -47, y: 0, z: -40}
+    _eulerAngles: {x: 0, y: 180, z: 0}

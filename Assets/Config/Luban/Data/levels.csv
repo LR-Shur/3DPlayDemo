@@ -2,3 +2,5 @@
 ##type,string,string,string,float,int
 ##,id,display_name,scene_location,intro_seconds,max_player_deaths
 ,combat_001,第 1 训练区,Assets/Scenes/Playable/MainScenes.unity,1.2,3
+,combat_002,第 2 战区 · 断电回廊,Assets/Scenes/Playable/Level_Combat_002.unity,1.5,2
+,boss_001,核心熔炉 · Rusk 原型机,Assets/Scenes/Playable/Level_Boss_001.unity,2.2,2

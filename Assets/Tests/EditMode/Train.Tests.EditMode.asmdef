@@ -20,7 +20,8 @@
     "Train.Dialogue.Core",
     "Train.Dialogue",
     "Train.Characters.Core",
-    "Train.Characters"
+    "Train.Characters",
+    "Train.Composition"
   ],
   "includePlatforms": [
     "Editor"

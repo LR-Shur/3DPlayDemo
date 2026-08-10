@@ -24,6 +24,7 @@ using Train.Presentation.UI.Runtime;
 using Train.Quest.Application;
 using Train.Quest.Data;
 using Train.Quest.Events;
+using Train.Composition.Progression;
 using UnityEngine;
 
 namespace Train.Composition
@@ -109,6 +110,17 @@ namespace Train.Composition
                 services.Install<IInputModeService>(
                     new InputModeService(
                         GameBootstrap.Instance.Context.Events));
+            }
+
+            if (!services.TryResolve<IProgressionService>(out _))
+            {
+                services.Install<IProgressionService>(
+                    new ProgressionService(GameBootstrap.Instance.Context.Events));
+            }
+
+            if (gameObject.GetComponent<ProgressionRuntimeController>() == null)
+            {
+                gameObject.AddComponent<ProgressionRuntimeController>();
             }
 
             if (_initializationTask != null)

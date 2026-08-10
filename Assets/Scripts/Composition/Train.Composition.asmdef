@@ -15,7 +15,10 @@
     "Train.Presentation.UI",
     "Train.Quest",
     "Train.Quest.Core",
-    "Luban.Runtime"
+    "Train.WorldInteraction",
+    "Luban.Runtime",
+    "UnityEngine.UI",
+    "Unity.TextMeshPro"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

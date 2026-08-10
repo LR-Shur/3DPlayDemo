@@ -46,6 +46,10 @@ namespace Train.Architecture.Assets
         public const string GameUiRoot =
             "Assets/Prefabs/UI/Core/GameUIRoot.prefab";
 
+        /// <summary>世界物品掉落预制体。</summary>
+        public const string WorldItemPickupPrefab =
+            "Assets/Prefabs/World/WorldItemPickup.prefab";
+
         /// <summary>任务系统设置的完整资源路径。</summary>
         public const string QuestSettings =
             "Assets/Data/Quests/DefaultQuestSettings.asset";

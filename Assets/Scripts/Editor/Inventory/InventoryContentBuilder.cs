@@ -98,7 +98,7 @@ namespace Train.EditorTools.Inventory
             }
 
             var serialized = new SerializedObject(settings);
-            serialized.FindProperty("_capacity").intValue = 24;
+            serialized.FindProperty("_capacity").intValue = 36;
 
             var itemList = serialized.FindProperty("_items");
             itemList.arraySize = items.Count;
@@ -126,7 +126,7 @@ namespace Train.EditorTools.Inventory
 
             Debug.Log(
                 $"Inventory content built: {items.Count} items, " +
-                $"{seeds.Count} starting entries, capacity 24, " +
+                $"{seeds.Count} starting entries, capacity 36, " +
                 $"settings '{SettingsPath}'.");
         }
 
