@@ -248,4 +248,12 @@ Unity 报告 `Luban`、`ByteBuf` 类型不存在。Luban 包已经嵌入并导�
 - 为避免仓库体积过大，未使用且未被场景引用的 `Assets/Arts/KawaiiCity/` 与 `Assets/Arts/KawaiiCity_URP/` 已加入忽略规则；本地素材仍保留，没有删除本机文件。
 - 本次没有重新运行完整 Unity 测试；文档中记录的最近一次结果仍为 EditMode 201/201、PlayMode 7/7。本次额外运行了 Luban 生成脚本并成功完成校验、代码生成和二进制生成。
 
-从其他机器继续时，先切换到 `agent/player-state-machine` 分支，阅读本文件第 11 节，再按第 10 节执行内容构建菜单。下一阶段优先级建议为：先确认 Unity 无编译错误，再做存档/读档、角色选择真正换模、NPC 场景化，然后补音效/特效和养成系统。
+## 13. 2026-08-11 战斗表现打磨
+
+- 当前提交：`1bef0d3 polish: add combat feedback and boss presentation`。
+- 新增 `CombatFeedbackRuntimeController`：敌人受击显示元素颜色伤害数字，并生成短生命周期命中粒子；限制同时存在的数字数量，避免战斗刷屏。
+- `ProgressionOverlay` 新增 Boss 专属血条、Boss 名称和血量刷新；战斗提示 4 秒后自动收起。
+- 验证结果：EditMode 204/204，PlayMode 7/7；运行截图确认 Boss 血条和金币/仓库/装备布局正常；修正粒子初始化顺序后无新增 PlayerLoop 或粒子警告。
+- 本轮没有提交字体、角色预制体和全局 ProjectSettings 的本地改动。
+
+从其他机器继续时，先切换到 `agent/player-state-machine` 分支，阅读本节和 `PRODUCTION_ROADMAP.zh-CN.md`，再按第 10 节执行内容构建菜单。下一阶段优先级为存档/读档、装备词条、精英技能和 Boss 阶段机制。
