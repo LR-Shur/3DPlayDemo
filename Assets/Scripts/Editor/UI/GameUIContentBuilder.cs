@@ -424,13 +424,13 @@ namespace Train.EditorTools.UI
             var healthValue = CreateText(
                 "HealthValue",
                 playerPanel,
-                "100 / 100",
+                "HP 100 / 100",
                 font,
-                17f,
+                18f,
                 Secondary,
                 TextAlignmentOptions.Right,
                 new Vector2(-24f, -88f),
-                new Vector2(180f, 24f),
+                new Vector2(220f, 24f),
                 new Vector2(1f, 1f));
 
             var objectivePanel = CreateAnchored(

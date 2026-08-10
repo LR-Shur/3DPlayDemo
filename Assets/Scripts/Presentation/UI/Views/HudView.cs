@@ -93,9 +93,9 @@ namespace Train.Presentation.UI.Views
                 : "等待关卡数据";
             _healthFill.fillAmount = viewModel.Health01;
             _healthValue.text = viewModel.PlayerMaxHealth > 0f
-                ? $"{Mathf.CeilToInt(viewModel.PlayerHealth)} / " +
-                  $"{Mathf.CeilToInt(viewModel.PlayerMaxHealth)}"
-                : "-- / --";
+                ? $"HP {Mathf.Max(0f, viewModel.PlayerHealth):0.#} / " +
+                  $"{Mathf.Max(0f, viewModel.PlayerMaxHealth):0.#}"
+                : "HP -- / --";
 
             RenderBanner(viewModel.Banner);
         }
