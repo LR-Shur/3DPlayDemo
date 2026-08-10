@@ -449,7 +449,7 @@ namespace Train.Composition.Progression
         {
             _completion.SetActive(false);
             _shop.SetActive(true);
-            _shopStatus.text = "选择装备，购买后自动放入背包并穿戴。";
+            _shopStatus.text = $"COINS {_progression.Snapshot.Coins:0000}  // 选择装备，购买后自动放入背包并穿戴。";
             var oldRows = _shop.transform.Find("Rows");
             if (oldRows != null)
             {
@@ -470,6 +470,13 @@ namespace Train.Composition.Progression
                 var definition = _equipment.Catalog[i];
                 var cost = 120 + (int)definition.Rarity * 90;
                 var button = CreateButton(rows.transform, $"{definition.DisplayName}   C {cost}    [{definition.Rarity}]", 20);
+                button.GetComponent<Image>().color = GetShopButtonColor(definition.Rarity);
+                button.interactable = _progression.Snapshot.Coins >= cost;
+                var buttonLabel = button.GetComponentInChildren<TMP_Text>();
+                if (buttonLabel != null)
+                {
+                    buttonLabel.fontStyle = FontStyles.Bold;
+                }
                 button.onClick.AddListener(() => Buy(definition, cost));
             }
         }
@@ -490,7 +497,7 @@ namespace Train.Composition.Progression
             }
 
             _equipment.Equip(definition.ItemId, definition.GetDefaultSlot());
-            _shopStatus.text = $"已购买并装备：{definition.DisplayName}";
+            _shopStatus.text = $"已购买并装备：{definition.DisplayName}  // 余额 {_progression.Snapshot.Coins:0000}";
             RenderWallet(_progression.Snapshot);
         }
 
@@ -543,6 +550,18 @@ namespace Train.Composition.Progression
             var label = CreateLabel(buttonRoot.transform, text, size, TextAlignmentOptions.Center);
             SetRect(label.rectTransform, Vector2.zero, Vector2.one, new Vector2(.5f, .5f), Vector2.zero, Vector2.zero);
             return button;
+        }
+
+        private static Color GetShopButtonColor(EquipmentRarity rarity)
+        {
+            return rarity switch
+            {
+                EquipmentRarity.Rare => new Color32(28, 76, 120, 255),
+                EquipmentRarity.Elite => new Color32(73, 45, 112, 255),
+                EquipmentRarity.Epic => new Color32(112, 45, 91, 255),
+                EquipmentRarity.Legendary => new Color32(132, 74, 24, 255),
+                _ => new Color32(30, 67, 78, 255)
+            };
         }
 
         private static void SetRect(RectTransform rect, Vector2 min, Vector2 max, Vector2 pivot, Vector2 position, Vector2 size)
