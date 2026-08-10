@@ -1,4 +1,4 @@
-##var,id,name,category,quality,max_stack,icon,description
+﻿##var,id,name,category,quality,max_stack,icon,description
 ##type,string,string,EItemCategory,int,int,string,string
 ##,id,name,category,quality,max_stack,icon,description
 ,training_chip,训练芯片,MATERIAL,1,99,Assets/Arts/UI/Icons/GameIcons/cyber-eye.png,用于新手训练的基础材料

@@ -12,9 +12,10 @@
     "Train.Inventory.Core",
     "Train.Equipment",
     "Train.Equipment.Core",
-    "Train.Presentation.UI"
-    ,"Train.Quest",
-    "Train.Quest.Core"
+    "Train.Presentation.UI",
+    "Train.Quest",
+    "Train.Quest.Core",
+    "Luban.Runtime"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

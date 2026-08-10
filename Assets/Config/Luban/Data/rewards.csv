@@ -1,4 +1,4 @@
-##var,id,level_id,item_id,count
+﻿##var,id,level_id,item_id,count
 ##type,string,string,string,int
 ##,id,level_id,item_id,count
 ,combat_001_reward_01,combat_001,training_chip,5

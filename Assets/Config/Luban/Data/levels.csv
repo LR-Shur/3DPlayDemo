@@ -1,4 +1,4 @@
-##var,id,display_name,scene_location,intro_seconds,max_player_deaths
+﻿##var,id,display_name,scene_location,intro_seconds,max_player_deaths
 ##type,string,string,string,float,int
 ##,id,display_name,scene_location,intro_seconds,max_player_deaths
 ,combat_001,第 1 训练区,Assets/Scenes/Playable/MainScenes.unity,1.2,3

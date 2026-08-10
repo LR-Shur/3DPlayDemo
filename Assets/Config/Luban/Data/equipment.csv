@@ -1,4 +1,4 @@
-##var,id,name,slot,quality,attack,defense,max_health,icon
+﻿##var,id,name,slot,quality,attack,defense,max_health,icon
 ##type,string,string,EEquipmentSlot,int,int,int,int,string
 ##,id,name,slot,quality,attack,defense,max_health,icon
 ,thunder_blade,雷鸣刀,WEAPON,5,24,0,0,Assets/Arts/UI/Icons/GameIcons/lightning-saber.png

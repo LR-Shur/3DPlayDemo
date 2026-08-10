@@ -1,4 +1,4 @@
-##var,id,level_id,spawn_id,archetype_id,prefab_location,pos_x,pos_y,pos_z,rot_y
+﻿##var,id,level_id,spawn_id,archetype_id,prefab_location,pos_x,pos_y,pos_z,rot_y
 ##type,string,string,string,string,string,float,float,float,float
 ##,id,level_id,spawn_id,archetype_id,prefab_location,pos_x,pos_y,pos_z,rot_y
 ,combat_001_enemy_01,combat_001,enemy_01,kaykit_knight,Assets/Prefabs/Enemies/Enemy_KayKitKnight.prefab,14.87,-1.5,18.59,0

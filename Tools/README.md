@@ -2,6 +2,8 @@
 
 项目使用 Luban 作为静态游戏数据的单一来源。表格源文件位于 `Assets/Config/Luban/Data`，结构定义位于 `Assets/Config/Luban/Defines`。
 
+所有 CSV 必须保存为 UTF-8（带 BOM）。这样 Unity、Luban 和 Windows Excel 打开时都能正确显示中文；如果手动编辑后出现乱码，请在编辑器的“另存为”编码选项中选择“UTF-8 with BOM”。
+
 在项目根目录执行：
 
 ```powershell
