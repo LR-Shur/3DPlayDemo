@@ -1,0 +1,17 @@
+{
+  "name": "Train.Inventory",
+  "rootNamespace": "Train.Inventory",
+  "references": [
+    "Train.Architecture",
+    "Train.Inventory.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

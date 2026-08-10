@@ -58,6 +58,15 @@ namespace Train.Gameplay.Player.States
         }
 
         /// <summary>
+        /// 状态完成或被打断时关闭武器 Hitbox。
+        /// </summary>
+        public override void Exit()
+        {
+            Context.Combat?.EndAttack();
+            base.Exit();
+        }
+
+        /// <summary>
         /// 推进当前动作段的数据位移；没有数据位移的动作仍会持续应用重力。
         /// </summary>
         public override void Tick()
@@ -101,6 +110,15 @@ namespace Train.Gameplay.Player.States
             }
 
             _appliedMotionDistance = 0f;
+            if (_animationIds[_currentIndex].ToString().Contains("_End"))
+            {
+                Context.Combat?.EndAttack();
+            }
+            else
+            {
+                Context.Combat?.BeginAttack();
+            }
+
             ConfigureAnimationMovement(_animationIds[_currentIndex]);
             var playbackVersion = ++_playbackVersion;
             Context.Animation.PlayOneShot(

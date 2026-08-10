@@ -1,0 +1,22 @@
+{
+  "name": "Train.Quest",
+  "rootNamespace": "Train.Quest",
+  "references": [
+    "Train.Architecture",
+    "Train.Dialogue",
+    "Train.Dialogue.Core",
+    "Train.GameFlow",
+    "Train.Inventory",
+    "Train.Inventory.Core",
+    "Train.Quest.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

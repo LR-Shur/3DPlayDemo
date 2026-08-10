@@ -33,6 +33,7 @@ namespace Train.Gameplay.Player.Input
         private bool _interactPressed;
         private bool _previousPressed;
         private bool _nextPressed;
+        private bool _externalInputBlocked;
 
         /// <summary>
         /// 获取当前二维移动输入。
@@ -54,6 +55,12 @@ namespace Train.Gameplay.Player.Input
         /// 与一次性按下事件不同，该值用于让普通攻击状态判断玩家是否希望持续完成一轮连段。
         /// </summary>
         public bool IsAttackHeld => _attackAction != null && _attackAction.IsPressed();
+
+        /// <summary>
+        /// 获取是否存在尚未被消费的交互按下事件。
+        /// 世界交互控制器可先判断附近是否有目标；没有目标时把该输入留给玩家状态机。
+        /// </summary>
+        public bool HasInteractPressed => _interactPressed;
 
         /// <summary>
         /// 在启用输入前查找配置好的 Player 动作。
@@ -99,7 +106,10 @@ namespace Train.Gameplay.Player.Input
             _interactAction.performed += OnInteractPerformed;
             _previousAction.performed += OnPreviousPerformed;
             _nextAction.performed += OnNextPerformed;
-            _playerMap.Enable();
+            if (!_externalInputBlocked)
+            {
+                _playerMap.Enable();
+            }
         }
 
         /// <summary>
@@ -217,6 +227,34 @@ namespace Train.Gameplay.Player.Input
             _interactPressed = false;
             _previousPressed = false;
             _nextPressed = false;
+        }
+
+        /// <summary>
+        /// Blocks gameplay actions without changing this component's enabled
+        /// state. Level flow and modal UI can therefore gate input independently.
+        /// </summary>
+        public void SetExternalInputBlocked(bool blocked)
+        {
+            if (_externalInputBlocked == blocked)
+            {
+                return;
+            }
+
+            _externalInputBlocked = blocked;
+            if (_playerMap == null)
+            {
+                return;
+            }
+
+            if (blocked)
+            {
+                _playerMap.Disable();
+                ClearBufferedButtons();
+            }
+            else if (isActiveAndEnabled)
+            {
+                _playerMap.Enable();
+            }
         }
 
         /// <summary>

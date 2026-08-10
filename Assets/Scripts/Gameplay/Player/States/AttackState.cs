@@ -59,6 +59,15 @@ namespace Train.Gameplay.Player.States
         }
 
         /// <summary>
+        /// 无论正常结束还是被其他状态打断，都确保关闭武器 Hitbox。
+        /// </summary>
+        public override void Exit()
+        {
+            Context.Combat?.EndAttack();
+            base.Exit();
+        }
+
+        /// <summary>
         /// 缓存续段输入、处理重力，并在未续按时于释放窗口交还移动控制权。
         /// </summary>
         public override void Tick()
@@ -155,6 +164,7 @@ namespace Train.Gameplay.Player.States
         /// <param name="animationId">要播放的攻击动画标识。</param>
         private void PlayAnimation(PlayerAnimationId animationId)
         {
+            Context.Combat?.BeginAttack();
             ConfigureAnimationMovement(animationId);
             Context.Animation.PlayOneShot(animationId, OnAttackAnimationEnded);
         }

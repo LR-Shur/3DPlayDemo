@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8630793c3b3139f4986a23e2e17ce227, type: 3}
+  m_Name: DefaultQuestSettings
+  m_EditorClassIdentifier: Train.Quest::Train.Quest.Data.QuestSettings
+  _quests:
+  - {fileID: 11400000, guid: 36952852a53fd3c4598d9a5ba85e7bb0, type: 2}
+  - {fileID: 11400000, guid: a7fd2b5d85798284c9ff98a0f5d17ec9, type: 2}
+  - {fileID: 11400000, guid: 4a41db10394c96b428aced7cf9333c5d, type: 2}
+  - {fileID: 11400000, guid: 79021964cb95074449d95b38e9331418, type: 2}
+  - {fileID: 11400000, guid: 77de655b9e95496438cb034ddf0f1427, type: 2}

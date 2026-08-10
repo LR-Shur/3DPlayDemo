@@ -15,12 +15,14 @@ namespace Train.Gameplay.Player.Core
             Input.PlayerInputReader input,
             Movement.PlayerMotor motor,
             Animation.PlayerAnimation animation,
-            Data.PlayerConfig config)
+            Data.PlayerConfig config,
+            Train.Gameplay.Combat.PlayerCombat combat)
         {
             Input = input;
             Motor = motor;
             Animation = animation;
             Config = config;
+            Combat = combat;
         }
 
         /// <summary>
@@ -42,5 +44,10 @@ namespace Train.Gameplay.Player.Core
         /// 获取玩家移动和状态规则所使用的可调参数。
         /// </summary>
         public Data.PlayerConfig Config { get; }
+
+        /// <summary>
+        /// 获取玩家武器与伤害 Hitbox 的控制入口。
+        /// </summary>
+        public Train.Gameplay.Combat.PlayerCombat Combat { get; }
     }
 }

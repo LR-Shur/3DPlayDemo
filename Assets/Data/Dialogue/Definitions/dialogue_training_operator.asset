@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d3db3993b726a84fb0a10cf860ce7a5, type: 3}
+  m_Name: dialogue_training_operator
+  m_EditorClassIdentifier: Train.Dialogue::Train.Dialogue.Data.DialogueDefinition
+  _dialogueId: dialogue_training_operator
+  _title: "\u8BAD\u7EC3\u7EC8\u7AEF\u5F15\u5BFC"
+  _entryNodeId: training_intro
+  _nodes:
+  - _nodeId: training_intro
+    _kind: 0
+    _speakerId: character.training_operator
+    _text: "\u6218\u6597\u6A21\u62DF\u5DF2\u7ECF\u52A0\u8F7D\u3002\u653B\u51FB\u3001\u95EA\u907F\u548C\u62FE\u53D6\u6A21\u5757\u5747\u53EF\u6D4B\u8BD5\u3002"
+    _nextNodeId: ready_choice
+    _choices: []
+    _conditions: []
+    _commands: []
+  - _nodeId: ready_choice
+    _kind: 1
+    _speakerId: 
+    _text: "\u662F\u5426\u7ACB\u5373\u5F00\u59CB\u8BAD\u7EC3\uFF1F"
+    _nextNodeId: 
+    _choices:
+    - _choiceId: ready
+      _text: "\u5F00\u59CB\u8BAD\u7EC3\u3002"
+      _nextNodeId: ready_line
+      _conditions: []
+      _commands:
+      - _typeId: set_variable
+        _key: tutorial.combat_ready
+        _value: true
+    - _choiceId: not_ready
+      _text: "\u6211\u60F3\u5148\u770B\u770B\u88C5\u5907\u3002"
+      _nextNodeId: not_ready_line
+      _conditions: []
+      _commands: []
+    _conditions: []
+    _commands: []
+  - _nodeId: ready_line
+    _kind: 0
+    _speakerId: character.training_operator
+    _text: "\u786E\u8BA4\u3002\u6A21\u62DF\u654C\u4EBA\u5C06\u5728\u5012\u8BA1\u65F6\u7ED3\u675F\u540E\u751F\u6210\u3002"
+    _nextNodeId: end
+    _choices: []
+    _conditions: []
+    _commands: []
+  - _nodeId: not_ready_line
+    _kind: 0
+    _speakerId: character.training_operator
+    _text: "\u88C5\u5907\u7EC8\u7AEF\u4F4D\u4E8E\u53F3\u4FA7\uFF0C\u51C6\u5907\u597D\u540E\u53EF\u4EE5\u91CD\u65B0\u542F\u52A8\u672C\u5BF9\u8BDD\u3002"
+    _nextNodeId: end
+    _choices: []
+    _conditions: []
+    _commands: []
+  - _nodeId: end
+    _kind: 2
+    _speakerId: 
+    _text: 
+    _nextNodeId: 
+    _choices: []
+    _conditions: []
+    _commands: []

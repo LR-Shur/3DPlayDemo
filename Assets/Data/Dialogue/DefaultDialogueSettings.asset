@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b8a123d79d1391489a0962fa447a239, type: 3}
+  m_Name: DefaultDialogueSettings
+  m_EditorClassIdentifier: Train.Dialogue::Train.Dialogue.Data.DialogueSettings
+  _dialogues:
+  - {fileID: 11400000, guid: 40b2390d2a812064bb80f02747fdf5b2, type: 2}
+  - {fileID: 11400000, guid: 7e825985a16dadf4abe3f458f083b980, type: 2}
+  - {fileID: 11400000, guid: ae3370b58b9c69f499598c08aaf52145, type: 2}

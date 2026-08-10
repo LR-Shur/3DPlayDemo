@@ -43,7 +43,16 @@ GameObject:
   - component: {fileID: 2890051370992729868}
   - component: {fileID: 4328961303242517429}
   - component: {fileID: 7129857774086625811}
+  - component: {fileID: 7129857774086625812}
   - component: {fileID: 1419929510780135581}
+  - component: {fileID: 5989825482947273083}
+  - component: {fileID: 6561239987372270829}
+  - component: {fileID: 2440158018285876978}
+  - component: {fileID: 4225315690395214271}
+  - component: {fileID: 4174750116686404366}
+  - component: {fileID: 1465264146123567955}
+  - component: {fileID: 4851432042638076215}
+  - component: {fileID: 7048292515438289289}
   m_Layer: 0
   m_Name: Player_Ellen
   m_TagString: Player
@@ -85,6 +94,8 @@ MonoBehaviour:
   _animation: {fileID: 0}
   _config: {fileID: 11400000, guid: 4bb56810a9413fa4a8387170406c488f, type: 2}
   _cameraTransform: {fileID: 0}
+  _combat: {fileID: 5989825482947273083}
+  _currentStateName: 
 --- !u!114 &4328961303242517429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99,8 +110,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Train.Gameplay.Player.Input.PlayerInputReader
   _actionsAsset: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _actionMapName: Player
---- !u!143 &7129857774086625811
-CharacterController:
+--- !u!136 &7129857774086625811
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -114,16 +125,41 @@ CharacterController:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2
+  serializedVersion: 2
   m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.93, z: 0}
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
+--- !u!54 &7129857774086625812
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036335149473877864}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 1
+  m_Constraints: 112
+  m_CollisionDetection: 2
 --- !u!114 &1419929510780135581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,9 +172,229 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04d6e56cca481004b9a0a5d97cfe76ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Train.Gameplay.Player.Movement.PlayerMotor
-  _characterController: {fileID: 7129857774086625811}
-  _gravity: -25
+  _rigidbody: {fileID: 7129857774086625812}
+  _capsuleCollider: {fileID: 7129857774086625811}
+  _maximumGroundAngle: 55
   _cameraFacingTurnSpeed: 720
+--- !u!114 &5989825482947273083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036335149473877864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab4d47f8fb91b7646be1a4b73b8af402, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Train.Gameplay.Combat.PlayerCombat
+  _swordHitbox: {fileID: 3793957858019761839}
+  _faction: 1
+--- !u!114 &6561239987372270829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036335149473877864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08920d8cf94c927499877e494fc02efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Train.Gameplay.Combat.Health
+  _maxHealth: 100
+  _startAtFullHealth: 1
+  _invulnerabilitySeconds: 0.15
+  _destroyOnDeath: 0
+  _destroyDelay: 0
+  _onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  _onDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  _onRevived:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &2440158018285876978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036335149473877864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f7e90ce3c2b0e447b400e07e2cd8f65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Train.Gameplay.Player.Core.PlayerRespawnController
+  _respawnDelay: 3
+  _spawnPoint: {fileID: 0}
+  _playerController: {fileID: 0}
+  _input: {fileID: 0}
+  _combat: {fileID: 0}
+  _rigidbody: {fileID: 0}
+  _bodyCollider: {fileID: 0}
+--- !u!114 &4225315690395214271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036335149473877864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b75b426a34fec648bd1486385a52b95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Train.Gameplay::Train.Gameplay.Combat.Presentation.HealthEventRelay
+--- !u!114 &4174750116686404366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036335149473877864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d11ff18e3cfb7a544bf76f835e3ccd4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Train.Gameplay::Train.Gameplay.Combat.Buffs.BuffHandleComponent
+--- !u!114 &1465264146123567955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036335149473877864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75c39fc84ab7e2b4b8e27afb9e951389, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Train.Gameplay::Train.Gameplay.Combat.CombatStatModifierComponent
+  _defense: 0
+--- !u!114 &4851432042638076215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036335149473877864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d1efa69574e70547a8beb8ad618a1bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Train.Gameplay::Train.Gameplay.Player.Application.PlayerEquipmentStatBinder
+  _health: {fileID: 0}
+  _combatStats: {fileID: 0}
+  _swordHitbox: {fileID: 0}
+--- !u!114 &7048292515438289289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036335149473877864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b3b8ac8df18523499ab077c79a7ec2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Train.WorldInteraction::Train.WorldInteraction.Runtime.PlayerInteractionController
+  _input: {fileID: 4328961303242517429}
+  _interactionRange: 3.25
+  _scanInterval: 0.08
+  _interactionLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  _scanCenterOffset: {x: 0, y: 0.9, z: 0}
+--- !u!1 &3716191751968194056
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6893508383449184174}
+  - component: {fileID: 6060233586954227299}
+  - component: {fileID: 3793957858019761839}
+  - component: {fileID: 7364133332719889196}
+  m_Layer: 0
+  m_Name: SwordHitbox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6893508383449184174
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3716191751968194056}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8668002198007639804}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &6060233586954227299
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3716191751968194056}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 0.14, y: 0.14, z: 0.9}
+  m_Center: {x: 0, y: 0, z: 0.45}
+--- !u!114 &3793957858019761839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3716191751968194056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e2a83241aa345f428da441b8e940ead, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Train.Gameplay.Combat.SwordHitbox
+  _damage: 25
+  _impactForce: 2
+  _damageType: 3
+  _ownerTransform: {fileID: 4842261875128360157}
+  _faction: 1
+--- !u!114 &7364133332719889196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3716191751968194056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dd181d92d6047e45a79f724f8853a83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Train.Gameplay::Train.Gameplay.Combat.HitEffects.LightningWeaponHitEffect
+  _sourceId: weapon.thunder_edge
+  _duration: 8
+  _magnitudePerStack: 0.12
+  _stackAmount: 1
+  _maxStacks: 5
 --- !u!1 &9204158856958901505
 GameObject:
   m_ObjectHideFlags: 0
@@ -245,7 +501,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 6952818405276757126, guid: c4852892d7dff3948bc4d3c90180fb42, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6893508383449184174}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c4852892d7dff3948bc4d3c90180fb42, type: 3}
       insertIndex: -1
@@ -259,6 +518,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c4852892d7dff3948bc4d3c90180fb42, type: 3}
       insertIndex: -1
       addedObject: {fileID: 10991760997250284}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c4852892d7dff3948bc4d3c90180fb42, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5638194872314050971}
   m_SourcePrefab: {fileID: 100100000, guid: c4852892d7dff3948bc4d3c90180fb42, type: 3}
 --- !u!1 &1510632509766926123 stripped
 GameObject:
@@ -281,6 +543,7 @@ MonoBehaviour:
   _catalog: {fileID: 0}
   _currentAnimationId: 0
   _currentAnimationClip: {fileID: 0}
+  _currentTransitionAsset: {fileID: 0}
   _currentAnimationNormalizedTime: 0
   _currentMovementPolicy: 0
   _currentRootMotionPositionScale: 1
@@ -336,8 +599,37 @@ MonoBehaviour:
   _animator: {fileID: 8010140991801051883}
   _motor: {fileID: 1419929510780135581}
   _lastDeltaPosition: {x: 0, y: 0, z: 0}
+--- !u!114 &5638194872314050971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1510632509766926123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a60c8e4ef2ab4b03a49c3d6e9cc047b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Train.Gameplay.Player.Animation.PlayerFootIK
+  _animator: {fileID: 8010140991801051883}
+  _animancer: {fileID: 2197743690976187454}
+  _motor: {fileID: 1419929510780135581}
+  _groundLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  _raycastOriginHeight: 0.45
+  _raycastDistance: 0.8
+  _soleOffset: 0.015
+  _maximumPelvisDrop: 0.3
+  _maximumPelvisRaise: 0.15
+  _blendSpeed: 12
 --- !u!4 &2286994008504804753 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: c4852892d7dff3948bc4d3c90180fb42, type: 3}
+  m_PrefabInstance: {fileID: 1745058623246910074}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8668002198007639804 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6952818405276757126, guid: c4852892d7dff3948bc4d3c90180fb42, type: 3}
   m_PrefabInstance: {fileID: 1745058623246910074}
   m_PrefabAsset: {fileID: 0}

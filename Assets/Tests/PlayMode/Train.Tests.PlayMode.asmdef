@@ -1,0 +1,30 @@
+{
+  "name": "Train.Tests.PlayMode",
+  "rootNamespace": "Train.Tests",
+  "references": [
+    "Train.Architecture",
+    "Train.GameFlow",
+    "Train.GameFlow.Core",
+    "Train.Gameplay",
+    "Train.Infrastructure.Assets",
+    "Train.Inventory",
+    "Train.Inventory.Core",
+    "Train.Composition",
+    "Train.Presentation.UI",
+    "UnityEngine.UI",
+    "Unity.TextMeshPro",
+    "Unity.InputSystem"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

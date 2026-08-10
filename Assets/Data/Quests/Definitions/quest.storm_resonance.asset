@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8930c5a6276e5934cadb33a68f1cb9b1, type: 3}
+  m_Name: quest.storm_resonance
+  m_EditorClassIdentifier: Train.Quest::Train.Quest.Data.QuestDefinition
+  _questId: quest.storm_resonance
+  _title: "\u96F7\u9E23\u5171\u632F"
+  _description: "\u627E\u5230\u5E26\u6709\u96F7\u7535\u54CD\u5E94\u7684\u88C5\u5907\uFF0C\u8BA9\u6218\u6597\u6A21\u5757\u5B8C\u6210\u4E00\u6B21\u5143\u7D20\u6821\u51C6\u3002"
+  _autoAccept: 1
+  _sortOrder: 40
+  _objectives:
+  - _objectiveId: acquire_thunder_ring
+    _factType: 1
+    _targetId: thunder_ring
+    _displayText: "\u83B7\u5F97\u300C\u96F7\u9E23\u6307\u73AF\u300D"
+    _requiredAmount: 1
+  _rewards:
+  - _itemId: city_token
+    _amount: 80

@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fb5785f624c22947b68cdf9dfeaf684, type: 3}
+  m_Name: DefaultInventorySettings
+  m_EditorClassIdentifier: Train.Inventory::Train.Inventory.Data.InventorySettings
+  _capacity: 24
+  _items:
+  - {fileID: 11400000, guid: 4e9ad5d4cdb9c384a92d6eead72ae5e6, type: 2}
+  - {fileID: 11400000, guid: 676002a5e945824419e4947704f4e460, type: 2}
+  - {fileID: 11400000, guid: 7a17a6516fac71e4382bad509cc4e7ef, type: 2}
+  - {fileID: 11400000, guid: ec6046dba48325d48baf3d28f93eecde, type: 2}
+  - {fileID: 11400000, guid: ffe89d6fe668513428ff746a53d06e01, type: 2}
+  - {fileID: 11400000, guid: 23eb63b1e2be82443844f031d17a9dbf, type: 2}
+  - {fileID: 11400000, guid: c24fd9393ebac874db915fc6d9beeb0b, type: 2}
+  - {fileID: 11400000, guid: 928ed227e7e6f20409753dbf9bc2df28, type: 2}
+  - {fileID: 11400000, guid: 7cd498da641241247845738c8daea8be, type: 2}
+  - {fileID: 11400000, guid: e6efcd49aa8db67418488c16d0c121d4, type: 2}
+  - {fileID: 11400000, guid: 09bcf220cb871354289445dfadeee80a, type: 2}
+  - {fileID: 11400000, guid: 89f2ca0596b16ad4aa880f42e08f7c45, type: 2}
+  - {fileID: 11400000, guid: 881ff40cfc7a0354183facf93d06870a, type: 2}
+  - {fileID: 11400000, guid: 016b0eb4a4ea8ef4c907f75174bff9ff, type: 2}
+  - {fileID: 11400000, guid: 1ba64bd656b448c49b3c1880abb2649f, type: 2}
+  - {fileID: 11400000, guid: ace19de6520530a4c82561bf732bc8e3, type: 2}
+  - {fileID: 11400000, guid: 6b494aa3fbf60a74c9e2db88e2b29deb, type: 2}
+  - {fileID: 11400000, guid: 7ab4e58f383fe1740928c0a4c63e5144, type: 2}
+  - {fileID: 11400000, guid: 83689dfe75d361d4496b05cdcd9b6ec7, type: 2}
+  - {fileID: 11400000, guid: b956c324b3149974da3f929a649cff49, type: 2}
+  - {fileID: 11400000, guid: 0b15428a1f4958a448a422656ce1e5b3, type: 2}
+  - {fileID: 11400000, guid: 35b04873351fb824c8d18058ae9dcf50, type: 2}
+  _startingItems:
+  - _itemId: training_chip
+    _count: 8
+  - _itemId: healing_canister
+    _count: 3
+  - _itemId: city_token
+    _count: 120
+  - _itemId: upgrade_module
+    _count: 1
+  - _itemId: arc_gloves
+    _count: 1
+  - _itemId: charged_orbit
+    _count: 1
+  - _itemId: emergency_core
+    _count: 1
+  - _itemId: flashstep_boots
+    _count: 1
+  - _itemId: guard_badge
+    _count: 1
+  - _itemId: induction_choker
+    _count: 1
+  - _itemId: neon_capacitor
+    _count: 1
+  - _itemId: neon_goggles
+    _count: 1
+  - _itemId: patrol_compass
+    _count: 1
+  - _itemId: reinforced_chain
+    _count: 1
+  - _itemId: street_guard_armor
+    _count: 1
+  - _itemId: street_guard_boots
+    _count: 1
+  - _itemId: street_guard_gloves
+    _count: 1
+  - _itemId: street_guard_helmet
+    _count: 1
+  - _itemId: streetbreaker_blade
+    _count: 1
+  - _itemId: thunder_blade
+    _count: 1
+  - _itemId: thunder_ring
+    _count: 1
+  - _itemId: volt_weave_armor
+    _count: 1

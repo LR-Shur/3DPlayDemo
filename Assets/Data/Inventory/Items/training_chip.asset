@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d0f14bd775bf8498fc1c38cb70cca4, type: 3}
+  m_Name: training_chip
+  m_EditorClassIdentifier: Train.Inventory::Train.Inventory.Data.ItemDefinition
+  _itemId: training_chip
+  _displayName: "\u8BAD\u7EC3\u82AF\u7247"
+  _description: "\u7528\u4E8E\u57FA\u7840\u80FD\u529B\u8BAD\u7EC3\u7684\u901A\u7528\u6570\u636E\u82AF\u7247\u3002"
+  _category: 0
+  _rarity: 1
+  _maxStack: 99
+  _iconLocation: 

@@ -1,0 +1,18 @@
+Game-icons.net UI 图标署名
+==========================
+
+来源：https://game-icons.net/
+许可：CC BY 3.0（https://creativecommons.org/licenses/by/3.0/）
+
+本目录中的图标仅用于本 Unity 学习项目：
+
+- lightning-saber.png：Lorc
+- electric.png：sbed
+- globe-ring.png：Delapouite
+- gem-necklace.png：Lorc
+- intricate-necklace.png：Delapouite
+- gem-chain.png：Lorc
+- cyber-eye.png：Delapouite
+- orbital.png：Lorc
+
+图标由 Game-icons.net 提供，下载时使用白色前景、透明背景的 PNG 版本。

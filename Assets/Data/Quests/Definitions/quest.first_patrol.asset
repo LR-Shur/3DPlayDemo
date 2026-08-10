@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8930c5a6276e5934cadb33a68f1cb9b1, type: 3}
+  m_Name: quest.first_patrol
+  m_EditorClassIdentifier: Train.Quest::Train.Quest.Data.QuestDefinition
+  _questId: quest.first_patrol
+  _title: "\u521D\u6B21\u5DE1\u9632"
+  _description: "\u6E05\u7406\u8BAD\u7EC3\u57CE\u533A\u4E2D\u7684\u6A21\u62DF\u654C\u4EBA\uFF0C\u719F\u6089\u57FA\u7840\u653B\u51FB\u3001\u95EA\u907F\u4E0E\u8FFD\u51FB\u8282\u594F\u3002"
+  _autoAccept: 1
+  _sortOrder: 10
+  _objectives:
+  - _objectiveId: defeat_training_knights
+    _factType: 0
+    _targetId: kaykit_knight
+    _displayText: "\u51FB\u8D25\u8BAD\u7EC3\u9A91\u58EB"
+    _requiredAmount: 3
+  _rewards:
+  - _itemId: city_token
+    _amount: 30

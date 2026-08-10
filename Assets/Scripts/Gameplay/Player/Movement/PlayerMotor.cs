@@ -1,24 +1,32 @@
+using System.Collections.Generic;
 using Train.Gameplay.Player.Animation.Data;
 using UnityEngine;
 
 namespace Train.Gameplay.Player.Movement
 {
     /// <summary>
-    /// 通过 CharacterController 执行所有带碰撞检测的玩家移动。
+    /// 通过动态 Rigidbody 和 CapsuleCollider 执行玩家移动与碰撞响应。
     /// 同时支持相机相对移动、Animator Root Motion 和动画时间驱动的可调位移曲线。
     /// </summary>
-    [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
     public sealed class PlayerMotor : MonoBehaviour
     {
-        [SerializeField] private CharacterController _characterController;
-        [SerializeField] private float _gravity = -25f;
+        [SerializeField] private Rigidbody _rigidbody;
+        [SerializeField] private CapsuleCollider _capsuleCollider;
+        [SerializeField, Range(0f, 89f)] private float _maximumGroundAngle = 55f;
         [SerializeField] private float _cameraFacingTurnSpeed = 720f;
 
+        private readonly HashSet<Collider> _groundColliders = new();
         private Transform _cameraTransform;
         private PlayerMovementMode _movementMode;
         private float _rootMotionPositionScale = 1f;
-        private float _verticalVelocity;
-        private bool _hasReportedMissingCharacterController;
+        private Vector3 _requestedHorizontalVelocity;
+        private Vector3 _pendingHorizontalDisplacement;
+        private Quaternion _targetRotation;
+        private float _pendingJumpSpeed = -1f;
+        private bool _hasRotationTarget;
+        private bool _snapRotation;
+        private bool _hasReportedMissingPhysicsComponents;
 
         /// <summary>
         /// 获取当前选中的水平移动来源。
@@ -28,38 +36,85 @@ namespace Train.Gameplay.Player.Movement
         /// <summary>
         /// 获取玩家当前的水平前方方向。
         /// </summary>
-        public Vector3 Forward => transform.forward;
+        public Vector3 Forward =>
+            _hasRotationTarget ? _targetRotation * Vector3.forward : transform.forward;
 
         /// <summary>
-        /// 获取玩家逻辑根节点当前的世界旋转。
+        /// 获取玩家逻辑根节点当前或待应用的世界旋转。
         /// </summary>
-        public Quaternion FacingRotation => transform.rotation;
+        public Quaternion FacingRotation =>
+            _hasRotationTarget ? _targetRotation : transform.rotation;
 
         /// <summary>
-        /// 获取角色当前是否由 CharacterController 判定为站在地面上。
+        /// 获取角色是否与坡度允许的地面保持物理接触。
         /// </summary>
-        public bool IsGrounded => EnsureCharacterController() && _characterController.isGrounded;
+        public bool IsGrounded => _groundColliders.Count > 0;
 
         /// <summary>
-        /// 缓存必需的 CharacterController 引用。
+        /// 缓存必需的刚体与胶囊碰撞体，并初始化物理旋转目标。
         /// </summary>
         private void Awake()
         {
-            EnsureCharacterController();
+            if (!EnsurePhysicsComponents())
+            {
+                return;
+            }
+
+            _targetRotation = _rigidbody.rotation;
         }
 
         /// <summary>
-        /// 在编辑器内修改组件时自动回填同一对象上的 CharacterController 引用。
+        /// 在编辑器内修改组件时自动回填同一对象上的刚体与胶囊碰撞体引用。
         /// </summary>
         private void OnValidate()
         {
-            EnsureCharacterController();
+            EnsurePhysicsComponents();
         }
 
         /// <summary>
-        /// 获取移动组件是否已找到可用的 CharacterController。
+        /// 在固定物理步中统一应用水平速度、跳跃速度和朝向。
         /// </summary>
-        public bool IsReady => EnsureCharacterController();
+        private void FixedUpdate()
+        {
+            if (!EnsurePhysicsComponents())
+            {
+                return;
+            }
+
+            // 死亡/过场会临时把刚体设为 Kinematic。此时 Unity 禁止写速度，
+            // 并且这些帧的位移请求也不应该在复活后一次性补发。
+            if (_rigidbody.isKinematic)
+            {
+                _pendingHorizontalDisplacement = Vector3.zero;
+                _requestedHorizontalVelocity = Vector3.zero;
+                _pendingJumpSpeed = -1f;
+                return;
+            }
+
+            ApplyRotation();
+
+            var velocity = _rigidbody.linearVelocity;
+            var horizontalVelocity = _movementMode == PlayerMovementMode.Scripted
+                ? _requestedHorizontalVelocity
+                : _pendingHorizontalDisplacement / Time.fixedDeltaTime;
+            velocity.x = horizontalVelocity.x;
+            velocity.z = horizontalVelocity.z;
+
+            if (_pendingJumpSpeed >= 0f)
+            {
+                velocity.y = _pendingJumpSpeed;
+                _pendingJumpSpeed = -1f;
+                _groundColliders.Clear();
+            }
+
+            _rigidbody.linearVelocity = velocity;
+            _pendingHorizontalDisplacement = Vector3.zero;
+        }
+
+        /// <summary>
+        /// 获取移动组件是否已找到可用的刚体与胶囊碰撞体。
+        /// </summary>
+        public bool IsReady => EnsurePhysicsComponents();
 
         /// <summary>
         /// 设置用于计算移动坐标轴和角色朝向的相机。
@@ -77,6 +132,7 @@ namespace Train.Gameplay.Player.Movement
         public void SetMovementMode(PlayerMovementMode movementMode)
         {
             _movementMode = movementMode;
+            ResetHorizontalRequest();
         }
 
         /// <summary>
@@ -89,11 +145,17 @@ namespace Train.Gameplay.Player.Movement
             PlayerAnimationMovementPolicy movementPolicy,
             float rootMotionPositionScale)
         {
-            _movementMode = movementPolicy == PlayerAnimationMovementPolicy.RootMotion
+            var movementMode = movementPolicy == PlayerAnimationMovementPolicy.RootMotion
                 ? PlayerMovementMode.AnimationRootMotion
                 : movementPolicy == PlayerAnimationMovementPolicy.AuthoredMotion
                     ? PlayerMovementMode.AuthoredMotion
                     : PlayerMovementMode.Scripted;
+            if (_movementMode != movementMode)
+            {
+                _movementMode = movementMode;
+                ResetHorizontalRequest();
+            }
+
             _rootMotionPositionScale = movementPolicy == PlayerAnimationMovementPolicy.RootMotion
                 ? Mathf.Max(0f, rootMotionPositionScale)
                 : 1f;
@@ -114,12 +176,12 @@ namespace Train.Gameplay.Player.Movement
             var movementDirection = GetCameraRelativeDirection(input);
             if (movementDirection.sqrMagnitude <= 0.0001f)
             {
-                Move(Vector3.zero);
+                _requestedHorizontalVelocity = Vector3.zero;
                 return;
             }
 
             FaceMovementDirection(movementDirection);
-            Move(movementDirection * speed * Time.deltaTime);
+            _requestedHorizontalVelocity = movementDirection * speed;
         }
 
         /// <summary>
@@ -140,8 +202,7 @@ namespace Train.Gameplay.Player.Movement
         }
 
         /// <summary>
-        /// 立即将玩家逻辑根节点转向指定的水平世界方向。
-        /// 用于翻滚等进入状态时必须锁定朝向、不能继续平滑转身的动作。
+        /// 在下一个物理步立即将玩家转向指定的水平世界方向。
         /// </summary>
         /// <param name="worldDirection">需要面对的世界空间水平向量。</param>
         public void FaceDirectionImmediately(Vector3 worldDirection)
@@ -152,11 +213,13 @@ namespace Train.Gameplay.Player.Movement
                 return;
             }
 
-            transform.rotation = Quaternion.LookRotation(worldDirection.normalized, Vector3.up);
+            _targetRotation = Quaternion.LookRotation(worldDirection.normalized, Vector3.up);
+            _hasRotationTarget = true;
+            _snapRotation = true;
         }
 
         /// <summary>
-        /// 在动画 Root Motion 状态激活时，通过 CharacterController 应用动画位移。
+        /// 在动画 Root Motion 状态激活时，把动画位移交给刚体移动链。
         /// </summary>
         /// <param name="deltaPosition">Animator 在当前帧报告的位移。</param>
         public void ApplyRootMotion(Vector3 deltaPosition)
@@ -167,12 +230,12 @@ namespace Train.Gameplay.Player.Movement
             }
 
             deltaPosition.y = 0f;
-            Move(deltaPosition * _rootMotionPositionScale);
+            _pendingHorizontalDisplacement += deltaPosition * _rootMotionPositionScale;
         }
 
         /// <summary>
-        /// 在数据驱动位移状态激活时，沿锁定方向执行本帧动画曲线产生的位移。
-        /// 最终仍交给 CharacterController，因此不会绕过墙体、台阶和地面碰撞。
+        /// 在数据驱动位移状态激活时，沿锁定方向累计本帧动画曲线产生的位移。
+        /// 位移最终由动态刚体在物理步中执行，因此仍会响应墙体和地面碰撞。
         /// </summary>
         /// <param name="worldDirection">状态进入时锁定的水平世界方向。</param>
         /// <param name="distanceDelta">本帧相对上一帧新增的位移距离。</param>
@@ -184,45 +247,48 @@ namespace Train.Gameplay.Player.Movement
             }
 
             worldDirection.y = 0f;
-            var horizontalDisplacement = worldDirection.sqrMagnitude > 0.0001f
-                ? worldDirection.normalized * distanceDelta
-                : Vector3.zero;
-            Move(horizontalDisplacement);
+            if (worldDirection.sqrMagnitude > 0.0001f)
+            {
+                _pendingHorizontalDisplacement += worldDirection.normalized * distanceDelta;
+            }
         }
 
         /// <summary>
-        /// 在角色位于地面时施加一次向上的初速度，使角色以配置高度起跳。
+        /// 在角色位于地面时安排一次向上的刚体初速度。
         /// </summary>
         /// <param name="jumpHeight">期望达到的最高跳跃高度。</param>
-        /// <returns>成功起跳时返回 true；空中再次请求时返回 false。</returns>
+        /// <returns>成功安排起跳时返回 true；空中再次请求时返回 false。</returns>
         public bool TryJump(float jumpHeight)
         {
-            if (!EnsureCharacterController() || !_characterController.isGrounded || jumpHeight <= 0f)
+            if (!EnsurePhysicsComponents() || !IsGrounded || jumpHeight <= 0f)
             {
                 return false;
             }
 
-            _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * _gravity);
+            var gravity = Physics.gravity.y;
+            if (gravity >= 0f)
+            {
+                return false;
+            }
+
+            _pendingJumpSpeed = Mathf.Sqrt(jumpHeight * -2f * gravity);
             return true;
         }
 
         /// <summary>
-        /// 当状态刻意不提供脚本水平移动时，保持重力仍然生效。
+        /// 当状态刻意不提供脚本水平移动时，仅保留刚体的垂直物理运动。
         /// </summary>
         public void MoveVerticalOnly()
         {
-            if (_movementMode != PlayerMovementMode.Scripted)
+            if (_movementMode == PlayerMovementMode.Scripted)
             {
-                return;
+                _requestedHorizontalVelocity = Vector3.zero;
             }
-
-            Move(Vector3.zero);
         }
 
         /// <summary>
-        /// 将角色旋转至本次输入换算得到的实际水平移动方向。
+        /// 将角色旋转目标更新为本次输入换算得到的实际水平移动方向。
         /// </summary>
-        /// <param name="movementDirection">已转换到世界坐标系的水平移动方向。</param>
         private void FaceMovementDirection(Vector3 movementDirection)
         {
             if (movementDirection.sqrMagnitude <= 0.0001f)
@@ -230,65 +296,100 @@ namespace Train.Gameplay.Player.Movement
                 return;
             }
 
-            var targetRotation = Quaternion.LookRotation(
+            _targetRotation = Quaternion.LookRotation(
                 movementDirection.normalized,
                 Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(
-                transform.rotation,
-                targetRotation,
-                _cameraFacingTurnSpeed * Time.deltaTime);
+            _hasRotationTarget = true;
+            _snapRotation = false;
         }
 
         /// <summary>
-        /// 应用重力，并将最终位移交给 CharacterController。
+        /// 在固定物理步中平滑或立即应用待处理朝向。
         /// </summary>
-        /// <param name="horizontalDisplacement">当前帧请求的水平位移。</param>
-        private void Move(Vector3 horizontalDisplacement)
+        private void ApplyRotation()
         {
-            if (!EnsureCharacterController())
+            if (!_hasRotationTarget)
             {
                 return;
             }
 
-            if (_characterController.isGrounded && _verticalVelocity < 0f)
-            {
-                _verticalVelocity = -2f;
-            }
-
-            _verticalVelocity += _gravity * Time.deltaTime;
-            var verticalDisplacement = Vector3.up * (_verticalVelocity * Time.deltaTime);
-            _characterController.Move(horizontalDisplacement + verticalDisplacement);
+            var rotation = _snapRotation
+                ? _targetRotation
+                : Quaternion.RotateTowards(
+                    _rigidbody.rotation,
+                    _targetRotation,
+                    _cameraFacingTurnSpeed * Time.fixedDeltaTime);
+            _rigidbody.MoveRotation(rotation);
+            _snapRotation = false;
         }
 
         /// <summary>
-        /// 确保移动组件拥有同一对象上的 CharacterController。
-        /// 缺失时仅记录一次错误并禁用自身，防止每帧重复抛出空引用异常。
+        /// 清除切换位移模式时不再适用的水平移动请求。
         /// </summary>
-        /// <returns>成功取得 CharacterController 时返回 true。</returns>
-        private bool EnsureCharacterController()
+        private void ResetHorizontalRequest()
         {
-            if (_characterController != null)
+            _requestedHorizontalVelocity = Vector3.zero;
+            _pendingHorizontalDisplacement = Vector3.zero;
+        }
+
+        /// <summary>
+        /// 收集满足最大坡度限制的刚体接触面，供落地与跳跃判断使用。
+        /// </summary>
+        private void OnCollisionStay(Collision collision)
+        {
+            var minimumGroundNormalY = Mathf.Cos(_maximumGroundAngle * Mathf.Deg2Rad);
+            var hasGroundContact = false;
+            for (var i = 0; i < collision.contactCount; i++)
             {
+                if (collision.GetContact(i).normal.y >= minimumGroundNormalY)
+                {
+                    hasGroundContact = true;
+                    break;
+                }
+            }
+
+            if (hasGroundContact)
+            {
+                _groundColliders.Add(collision.collider);
+            }
+            else
+            {
+                _groundColliders.Remove(collision.collider);
+            }
+        }
+
+        /// <summary>
+        /// 移除已经离开的地面碰撞体。
+        /// </summary>
+        private void OnCollisionExit(Collision collision)
+        {
+            _groundColliders.Remove(collision.collider);
+        }
+
+        /// <summary>
+        /// 确保移动组件拥有同一对象上的 Rigidbody 与 CapsuleCollider。
+        /// </summary>
+        private bool EnsurePhysicsComponents()
+        {
+            _rigidbody ??= GetComponent<Rigidbody>();
+            _capsuleCollider ??= GetComponent<CapsuleCollider>();
+            if (_rigidbody != null && _capsuleCollider != null)
+            {
+                _hasReportedMissingPhysicsComponents = false;
                 return true;
             }
 
-            _characterController = GetComponent<CharacterController>();
-            if (_characterController != null)
+            if (!_hasReportedMissingPhysicsComponents)
             {
-                _hasReportedMissingCharacterController = false;
-                return true;
-            }
-
-            if (!_hasReportedMissingCharacterController)
-            {
-                Debug.LogError("PlayerMotor 必须与 CharacterController 挂在同一个对象上。", this);
-                _hasReportedMissingCharacterController = true;
+                Debug.LogError(
+                    "PlayerMotor 必须与 Rigidbody 和 CapsuleCollider 挂在同一个对象上。",
+                    this);
+                _hasReportedMissingPhysicsComponents = true;
             }
 
             enabled = false;
             return false;
         }
-
     }
 
     /// <summary>

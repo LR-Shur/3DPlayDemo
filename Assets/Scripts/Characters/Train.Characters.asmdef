@@ -1,0 +1,17 @@
+{
+  "name": "Train.Characters",
+  "rootNamespace": "Train.Characters",
+  "references": [
+    "Train.Architecture",
+    "Train.Characters.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

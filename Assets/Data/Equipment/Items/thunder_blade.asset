@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4b5d79076a448748bbea2ecf7819cd7, type: 3}
+  m_Name: thunder_blade
+  m_EditorClassIdentifier: Train.Equipment::Train.Equipment.Data.EquipmentItemDefinition
+  _itemId: thunder_blade
+  _displayName: "\u96F7\u9E23\u5203"
+  _description: "\u5C06\u9AD8\u538B\u7535\u8377\u538B\u7F29\u4E8E\u5203\u810A\u7684\u5236\u5F0F\u957F\u5251\uFF0C\u6325\u51FB\u65F6\u7559\u4E0B\u84DD\u767D\u7535\u5F27\u3002"
+  _rarity: 5
+  _category: 0
+  _setId: storm_protocol
+  _icon: {fileID: 21300000, guid: d19c4e278493f1f4c9f8eda089f0662d, type: 3}
+  _modifiers:
+  - _statType: 1
+    _operation: 0
+    _value: 35
+  - _statType: 5
+    _operation: 0
+    _value: 0.08

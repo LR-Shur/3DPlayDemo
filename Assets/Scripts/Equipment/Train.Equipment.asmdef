@@ -1,0 +1,17 @@
+{
+  "name": "Train.Equipment",
+  "rootNamespace": "Train.Equipment",
+  "references": [
+    "Train.Architecture",
+    "Train.Equipment.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

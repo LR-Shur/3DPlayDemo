@@ -52,7 +52,9 @@ namespace Train.Gameplay.Player.States
                 return;
             }
 
-            Context.Animation.PlayOneShot(_animationId, OnAnimationEnded);
+            Context.Animation.PlayOneShot(
+                _animationId,
+                _returnToLocomotionOnEnd ? OnAnimationEnded : null);
         }
 
         /// <summary>

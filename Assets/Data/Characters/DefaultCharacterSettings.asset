@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c616cfc6e2bbd1a4aafdad978c31c4f3, type: 3}
+  m_Name: DefaultCharacterSettings
+  m_EditorClassIdentifier: Train.Characters::Train.Characters.Data.CharacterSettings
+  _characters:
+  - {fileID: 11400000, guid: 0e8639eb1774a814b8b3446828a5a73e, type: 2}
+  - {fileID: 11400000, guid: f1c81f3e86576c649a01910b0eadcf22, type: 2}
+  - {fileID: 11400000, guid: 6fbf1a4e5888fd0419e7f10a48baad19, type: 2}
+  _defaultSelectedCharacterId: character.ellen

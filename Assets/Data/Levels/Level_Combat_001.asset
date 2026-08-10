@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fa487d9e66730b4e8d37ae1a87a717a, type: 3}
+  m_Name: Level_Combat_001
+  m_EditorClassIdentifier: Train.GameFlow::Train.GameFlow.Data.LevelDefinition
+  _levelId: level.combat.001
+  _displayName: "\u7B2C 1 \u8BAD\u7EC3\u533A"
+  _sceneLocation: Assets/Scenes/Playable/Level_Combat_001.unity
+  _introSeconds: 1.2
+  _maxPlayerDeaths: 0
+  _enemySpawns:
+  - _spawnId: knight_01
+    _archetypeId: kaykit_knight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_KayKitKnight.prefab
+    _position: {x: -46.8, y: 0, z: -26}
+    _eulerAngles: {x: 0, y: 180, z: 0}
+  - _spawnId: knight_02
+    _archetypeId: kaykit_knight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_KayKitKnight.prefab
+    _position: {x: -50.8, y: 0, z: -28}
+    _eulerAngles: {x: 0, y: 135, z: 0}
+  - _spawnId: knight_03
+    _archetypeId: kaykit_knight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_KayKitKnight.prefab
+    _position: {x: -42.8, y: 0, z: -28}
+    _eulerAngles: {x: 0, y: 225, z: 0}

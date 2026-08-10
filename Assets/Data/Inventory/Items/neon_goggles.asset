@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d0f14bd775bf8498fc1c38cb70cca4, type: 3}
+  m_Name: neon_goggles
+  m_EditorClassIdentifier: Train.Inventory::Train.Inventory.Data.ItemDefinition
+  _itemId: neon_goggles
+  _displayName: "\u9713\u8679\u76EE\u955C"
+  _description: "\u80FD\u591F\u6807\u8BB0\u7535\u8377\u8F68\u8FF9\u7684\u6218\u672F\u76EE\u955C\uFF0C\u9002\u5408\u9AD8\u901F\u8FFD\u51FB\u3002"
+  _category: 4
+  _rarity: 4
+  _maxStack: 1
+  _iconLocation: Assets/Arts/UI/Icons/GameIcons/cyber-eye.png

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ee7c309cf88f3b4a80eab82a9cc84d1, type: 3}
+  m_Name: KayKitKnightEnemyConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Train.Gameplay.Enemy.Data.EnemyConfig
+  _patrolSpeed: 1.5
+  _chaseSpeed: 3.5
+  _turnSpeed: 10
+  _idleSeconds: 1.5
+  _attackRange: 0.9
+  _attackDuration: 0.9
+  _hitboxStartTime: 0.22
+  _hitboxEndTime: 0.55
+  _hitReactionDuration: 0.45
+  _deathDespawnDelay: 2.2

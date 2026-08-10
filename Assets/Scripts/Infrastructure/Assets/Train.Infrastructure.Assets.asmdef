@@ -1,0 +1,17 @@
+{
+  "name": "Train.Infrastructure.Assets",
+  "rootNamespace": "Train.Infrastructure.Assets",
+  "references": [
+    "Train.Architecture",
+    "YooAsset"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -5,6 +5,7 @@ using Train.Gameplay.Player.Movement;
 using Train.Gameplay.Player.Animation.Data;
 using Train.Gameplay.Player.States;
 using Train.Gameplay.Player.States.Locomotion;
+using Train.Gameplay.Combat;
 using UnityEngine;
 
 namespace Train.Gameplay.Player.Core
@@ -20,6 +21,7 @@ namespace Train.Gameplay.Player.Core
         [SerializeField] private PlayerAnimation _animation;
         [SerializeField] private PlayerConfig _config;
         [SerializeField] private Transform _cameraTransform;
+        [SerializeField] private PlayerCombat _combat;
 
         private PlayerStateMachine _stateMachine;
 
@@ -35,17 +37,18 @@ namespace Train.Gameplay.Player.Core
             _input ??= GetComponent<PlayerInputReader>();
             _motor ??= GetComponent<PlayerMotor>();
             _animation ??= GetComponentInChildren<PlayerAnimation>();
+            _combat ??= GetComponent<PlayerCombat>();
             _cameraTransform ??= UnityEngine.Camera.main != null ? UnityEngine.Camera.main.transform : null;
 
             if (_input == null || _motor == null || !_motor.IsReady || _animation == null || _config == null || _cameraTransform == null)
             {
-                Debug.LogError("PlayerController 缺少输入、移动、动画、配置、相机或 CharacterController 引用。", this);
+                Debug.LogError("PlayerController 缺少输入、移动、动画、配置、相机、Rigidbody 或 CapsuleCollider 引用。", this);
                 enabled = false;
                 return;
             }
 
             _motor.SetCameraTransform(_cameraTransform);
-            var context = new PlayerContext(_input, _motor, _animation, _config);
+            var context = new PlayerContext(_input, _motor, _animation, _config, _combat);
             _stateMachine = new PlayerStateMachine(context);
             _stateMachine.ChangeState(new LocomotionState(_stateMachine, context));
         }

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4b5d79076a448748bbea2ecf7819cd7, type: 3}
+  m_Name: volt_weave_armor
+  m_EditorClassIdentifier: Train.Equipment::Train.Equipment.Data.EquipmentItemDefinition
+  _itemId: volt_weave_armor
+  _displayName: "\u4F0F\u7279\u7EC7\u7532"
+  _description: "\u4EE5\u5BFC\u7535\u7EA4\u7EF4\u7F16\u7EC7\u7684\u8F7B\u578B\u6218\u7532\uFF0C\u53EF\u5FEB\u901F\u758F\u5BFC\u51B2\u51FB\u7535\u6D41\u3002"
+  _rarity: 4
+  _category: 2
+  _setId: storm_protocol
+  _icon: {fileID: 21300000, guid: 1929bdf12ae264947a4c4e22fe3c3e88, type: 3}
+  _modifiers:
+  - _statType: 0
+    _operation: 0
+    _value: 160
+  - _statType: 2
+    _operation: 0
+    _value: 18

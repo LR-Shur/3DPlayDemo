@@ -1,0 +1,14 @@
+{
+  "name": "Train.Dialogue.Core",
+  "rootNamespace": "Train.Dialogue.Core",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

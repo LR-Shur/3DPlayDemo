@@ -189,7 +189,7 @@ namespace Train.EditorTools
                 }
 
                 controller.enabled = false;
-                var context = new PlayerContext(input, motor, animation, config);
+                var context = new PlayerContext(input, motor, animation, config, null);
                 _validationStateMachine = new PlayerStateMachine(context);
                 CaptureBaseline();
                 _validationStateMachine.ChangeState(

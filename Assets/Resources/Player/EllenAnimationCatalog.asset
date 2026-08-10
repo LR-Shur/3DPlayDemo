@@ -699,7 +699,7 @@ MonoBehaviour:
     _stateKind: 7
     _movementPolicy: 3
     _rootMotionPositionScale: 1
-    _authoredMotionDistance: 0.55
+    _authoredMotionDistance: 3
     _authoredMotionCurve:
       serializedVersion: 2
       m_Curve:
@@ -743,7 +743,7 @@ MonoBehaviour:
     _stateKind: 7
     _movementPolicy: 3
     _rootMotionPositionScale: 1
-    _authoredMotionDistance: 0.2
+    _authoredMotionDistance: 1.5
     _authoredMotionCurve:
       serializedVersion: 2
       m_Curve:
@@ -1403,7 +1403,7 @@ MonoBehaviour:
     _stateKind: 7
     _movementPolicy: 3
     _rootMotionPositionScale: 1
-    _authoredMotionDistance: 2
+    _authoredMotionDistance: 5
     _authoredMotionCurve:
       serializedVersion: 2
       m_Curve:

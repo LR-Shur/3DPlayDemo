@@ -1,0 +1,38 @@
+{
+  "name": "Train.Tests.EditMode",
+  "rootNamespace": "Train.Tests",
+  "references": [
+    "Train.Architecture",
+    "Train.Gameplay",
+    "Train.Infrastructure.Assets",
+    "Train.GameFlow",
+    "Train.GameFlow.Core",
+    "Train.Inventory.Core",
+    "Train.Inventory",
+    "Train.Presentation.UI",
+    "Train.Quest.Core",
+    "Train.Quest",
+    "Train.Equipment.Core",
+    "Train.Equipment",
+    "Train.Buffs.Core",
+    "Train.WorldInteraction.Core",
+    "Train.Dialogue.Core",
+    "Train.Dialogue",
+    "Train.Characters.Core",
+    "Train.Characters"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

@@ -35,7 +35,7 @@ namespace Train.Gameplay.Player.Movement
         }
 
         /// <summary>
-        /// 接管 Animator 的根运动回调，并把本帧位移增量交给 CharacterController 移动链。
+        /// 接管 Animator 的根运动回调，并把本帧位移增量交给 Rigidbody 移动链。
         /// PlayerMotor 会依据当前动画策略决定忽略、缩放或应用这段位移。
         /// </summary>
         private void OnAnimatorMove()

@@ -79,7 +79,7 @@ namespace Train.Gameplay.Player.Animation.Data
                 : _movementPolicy;
 
         /// <summary>
-        /// 获取 Root Motion 位移应用到 CharacterController 前使用的缩放系数。
+        /// 获取 Root Motion 位移应用到 Rigidbody 前使用的缩放系数。
         /// 仅当位移策略为 RootMotion 时生效。
         /// </summary>
         public float RootMotionPositionScale => _rootMotionPositionScale;

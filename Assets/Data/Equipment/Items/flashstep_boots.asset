@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4b5d79076a448748bbea2ecf7819cd7, type: 3}
+  m_Name: flashstep_boots
+  m_EditorClassIdentifier: Train.Equipment::Train.Equipment.Data.EquipmentItemDefinition
+  _itemId: flashstep_boots
+  _displayName: "\u95EA\u6B65\u6218\u9774"
+  _description: "\u5FAE\u578B\u8109\u51B2\u63A8\u8FDB\u5668\u53EF\u5728\u8D77\u6B65\u65F6\u63D0\u4F9B\u77AC\u65F6\u52A0\u901F\u3002"
+  _rarity: 4
+  _category: 4
+  _setId: storm_protocol
+  _icon: {fileID: 21300000, guid: 4d2c5a6a476b9894282ad3ffe1274535, type: 3}
+  _modifiers:
+  - _statType: 3
+    _operation: 0
+    _value: 0.04
+  - _statType: 1
+    _operation: 1
+    _value: 0.05

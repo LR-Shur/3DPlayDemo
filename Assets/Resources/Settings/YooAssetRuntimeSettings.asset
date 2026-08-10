@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de57916f15718ef489aabb095c888833, type: 3}
+  m_Name: YooAssetRuntimeSettings
+  m_EditorClassIdentifier: Train.Infrastructure.Assets::Train.Infrastructure.Assets.YooAssetRuntimeSettings
+  _packageName: DefaultPackage
+  _editorPlayMode: 0
+  _playerPlayMode: 1
+  _primaryHostUrl: http://127.0.0.1/CDN/PC
+  _fallbackHostUrl: http://127.0.0.1/CDN/PC

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d0f14bd775bf8498fc1c38cb70cca4, type: 3}
+  m_Name: upgrade_module
+  m_EditorClassIdentifier: Train.Inventory::Train.Inventory.Data.ItemDefinition
+  _itemId: upgrade_module
+  _displayName: "\u9AD8\u80FD\u5347\u7EA7\u6A21\u7EC4"
+  _description: "\u7A00\u6709\u7684\u88C5\u5907\u5F3A\u5316\u7EC4\u4EF6\uFF0C\u8574\u542B\u9AD8\u5BC6\u5EA6\u80FD\u91CF\u3002"
+  _category: 0
+  _rarity: 4
+  _maxStack: 10
+  _iconLocation: 

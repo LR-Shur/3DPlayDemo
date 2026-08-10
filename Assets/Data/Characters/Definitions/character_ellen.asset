@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57502717aa56be749a1e6728c99892e8, type: 3}
+  m_Name: character_ellen
+  m_EditorClassIdentifier: Train.Characters::Train.Characters.Data.CharacterDefinition
+  _characterId: character.ellen
+  _displayName: "\u827E\u83B2\xB7\u4E54"
+  _description: "\u7EF4\u591A\u5229\u4E9A\u5BB6\u653F\u7684\u9CA8\u9C7C\u5E0C\u4EBA\u5973\u4EC6\u3002\u5F53\u524D\u53EF\u64CD\u63A7\u89D2\u8272\uFF0C\u64C5\u957F\u9AD8\u901F\u8FD1\u6218\u3002"
+  _faction: "\u7EF4\u591A\u5229\u4E9A\u5BB6\u653F"
+  _combatRole: "\u5F3A\u653B / \u51B0\u5C5E\u6027"
+  _unlockedByDefault: 1
+  _modelAsset: {fileID: 919132149155446097, guid: c4852892d7dff3948bc4d3c90180fb42, type: 3}
+  _idleAnimation: {fileID: 1827226128182048838, guid: 1475ae0f397e68f499104189bd7721de, type: 3}

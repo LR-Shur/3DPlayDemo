@@ -1,0 +1,21 @@
+{
+  "name": "Train.WorldInteraction",
+  "rootNamespace": "Train.WorldInteraction",
+  "references": [
+    "Train.Architecture",
+    "Train.Dialogue",
+    "Train.Gameplay",
+    "Train.Inventory",
+    "Train.Inventory.Core",
+    "Train.WorldInteraction.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

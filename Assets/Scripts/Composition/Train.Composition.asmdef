@@ -1,0 +1,28 @@
+{
+  "name": "Train.Composition",
+  "rootNamespace": "Train.Composition",
+  "references": [
+    "Train.Architecture",
+    "Train.Characters",
+    "Train.Characters.Core",
+    "Train.Dialogue",
+    "Train.Dialogue.Core",
+    "Train.GameFlow",
+    "Train.Inventory",
+    "Train.Inventory.Core",
+    "Train.Equipment",
+    "Train.Equipment.Core",
+    "Train.Presentation.UI"
+    ,"Train.Quest",
+    "Train.Quest.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

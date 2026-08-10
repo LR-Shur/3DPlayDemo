@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57502717aa56be749a1e6728c99892e8, type: 3}
+  m_Name: character_billy
+  m_EditorClassIdentifier: Train.Characters::Train.Characters.Data.CharacterDefinition
+  _characterId: character.billy
+  _displayName: "\u6BD4\u5229\xB7\u5947\u5FB7"
+  _description: "\u70ED\u60C5\u5065\u8C08\u7684\u667A\u80FD\u673A\u68B0\u4EBA\uFF0C\u4F7F\u7528\u53CC\u67AA\u8FDB\u884C\u8FDC\u7A0B\u538B\u5236\u3002"
+  _faction: "\u72E1\u5154\u5C4B"
+  _combatRole: "\u5F3A\u653B / \u7269\u7406"
+  _unlockedByDefault: 0
+  _modelAsset: {fileID: 919132149155446097, guid: 6ddc10bf5cfa3954683ec8aa7866312a, type: 3}
+  _idleAnimation: {fileID: 1827226128182048838, guid: 12734321dd0d09341ac52a41f471ffcd, type: 3}

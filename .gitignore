@@ -73,3 +73,23 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# IDE
+.idea/
+**/.idea/
+
+# Local screenshots and editor captures
+Captures/
+
+# YooAsset local build output
+Bundles/
+
+# 未纳入版本控制的本地城市素材包（当前关卡未引用，需要时从原始素材重新导入）
+/Assets/Arts/KawaiiCity/
+/Assets/Arts/KawaiiCity_URP/
+/Assets/Arts/KawaiiCity.meta
+/Assets/Arts/KawaiiCity_URP.meta
+
+# 本地推送临时日志
+.push_*.log
+.push_pid.txt

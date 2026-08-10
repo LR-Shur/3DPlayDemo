@@ -1,0 +1,22 @@
+{
+  "name": "Train.Gameplay",
+  "rootNamespace": "Train.Gameplay",
+  "references": [
+    "Train.Architecture",
+    "Train.Buffs.Core",
+    "Train.Equipment",
+    "Train.Equipment.Core",
+    "Kybernetik.Animancer",
+    "Unity.Cinemachine",
+    "Unity.InputSystem"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

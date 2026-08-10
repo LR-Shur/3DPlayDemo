@@ -1,0 +1,14 @@
+{
+  "name": "Train.Buffs.Core",
+  "rootNamespace": "Train.Buffs.Core",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

@@ -41,7 +41,7 @@ namespace Train.EditorTools
                 return;
             }
 
-            // 防遮挡组件按标签忽略玩家自身，避免镜头误判角色的 CharacterController 为障碍物。
+            // 防遮挡组件按标签忽略玩家自身，避免镜头误判角色的 CapsuleCollider 为障碍物。
             player.tag = "Player";
 
             var oldController = mainCamera.GetComponent("ThirdPersonCameraController");

@@ -16,6 +16,7 @@ namespace Train.Gameplay.Camera
         [SerializeField] private bool _lockCursorOnStart = true;
 
         private CinemachineOrbitalFollow _orbitalFollow;
+        private bool _externalLookBlocked;
 
         /// <summary>
         /// 缓存 Cinemachine 轨道组件，并自动查找 Player 上的输入读取器。
@@ -31,7 +32,7 @@ namespace Train.Gameplay.Camera
         /// </summary>
         private void OnEnable()
         {
-            if (_lockCursorOnStart)
+            if (_lockCursorOnStart && !_externalLookBlocked)
             {
                 SetCursorLocked(true);
             }
@@ -43,7 +44,7 @@ namespace Train.Gameplay.Camera
         /// <param name="hasFocus">应用是否获得输入焦点。</param>
         private void OnApplicationFocus(bool hasFocus)
         {
-            if (_lockCursorOnStart && hasFocus)
+            if (_lockCursorOnStart && hasFocus && !_externalLookBlocked)
             {
                 SetCursorLocked(true);
             }
@@ -54,7 +55,9 @@ namespace Train.Gameplay.Camera
         /// </summary>
         private void Update()
         {
-            if (_input == null || _orbitalFollow == null)
+            if (_externalLookBlocked ||
+                _input == null ||
+                _orbitalFollow == null)
             {
                 return;
             }
@@ -67,6 +70,19 @@ namespace Train.Gameplay.Camera
             var verticalAxis = _orbitalFollow.VerticalAxis;
             verticalAxis.Value -= look.y * _lookSensitivity;
             _orbitalFollow.VerticalAxis = verticalAxis;
+        }
+
+        public void SetExternalLookBlocked(bool blocked)
+        {
+            _externalLookBlocked = blocked;
+            if (blocked)
+            {
+                SetCursorLocked(false);
+            }
+            else if (_lockCursorOnStart && isActiveAndEnabled)
+            {
+                SetCursorLocked(true);
+            }
         }
 
         /// <summary>

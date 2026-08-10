@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8930c5a6276e5934cadb33a68f1cb9b1, type: 3}
+  m_Name: quest.combat_clearance
+  m_EditorClassIdentifier: Train.Quest::Train.Quest.Data.QuestDefinition
+  _questId: quest.combat_clearance
+  _title: "\u6218\u533A\u8BB8\u53EF"
+  _description: "\u5B8C\u6210\u4E00\u8F6E\u5B8C\u6574\u6218\u6597\u6D41\u7A0B\uFF0C\u8BC1\u660E\u4F60\u80FD\u591F\u72EC\u7ACB\u5904\u7406\u8BAD\u7EC3\u533A\u57DF\u3002"
+  _autoAccept: 1
+  _sortOrder: 30
+  _objectives:
+  - _objectiveId: clear_combat_level
+    _factType: 2
+    _targetId: level.combat.001
+    _displayText: "\u5B8C\u6210\u300C\u9713\u8679\u8BAD\u7EC3\u573A\u300D"
+    _requiredAmount: 1
+  _rewards:
+  - _itemId: upgrade_module
+    _amount: 1
