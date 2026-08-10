@@ -552,7 +552,9 @@ namespace Train.GameFlow.Runtime
         private void OnPlayerRespawnCompleted(
             PlayerRespawnCompletedEvent message)
         {
-            if (_flow == null || _flow.CurrentPhase != LevelPhase.Combat)
+            if (_flow == null ||
+                _flow.CurrentPhase == LevelPhase.Failed ||
+                _flow.CurrentPhase == LevelPhase.Exiting)
             {
                 SetLocalCombatEnabled(false);
             }
