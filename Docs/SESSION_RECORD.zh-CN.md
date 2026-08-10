@@ -250,7 +250,7 @@ Unity 报告 `Luban`、`ByteBuf` 类型不存在。Luban 包已经嵌入并导�
 
 ## 13. 2026-08-11 战斗表现打磨
 
-- 当前提交：`1bef0d3 polish: add combat feedback and boss presentation`。
+- 当前提交：`dfa7374 polish: improve rarity-aware shop presentation`（上一轮战斗表现为 `1bef0d3`）。
 - 新增 `CombatFeedbackRuntimeController`：敌人受击显示元素颜色伤害数字，并生成短生命周期命中粒子；限制同时存在的数字数量，避免战斗刷屏。
 - `ProgressionOverlay` 新增 Boss 专属血条、Boss 名称和血量刷新；战斗提示 4 秒后自动收起。
 - 验证结果：EditMode 204/204，PlayMode 7/7；运行截图确认 Boss 血条和金币/仓库/装备布局正常；修正粒子初始化顺序后无新增 PlayerLoop 或粒子警告。
