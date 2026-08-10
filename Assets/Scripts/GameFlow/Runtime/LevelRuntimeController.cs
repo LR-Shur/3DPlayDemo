@@ -194,6 +194,8 @@ namespace Train.GameFlow.Runtime
 
             await assets.InitializeAsync(cancellationToken);
 
+            // 玩家预制体的 Awake 会尝试读取 Camera.main；先确保主相机存在，避免动态实例化时序导致玩家被误判为无效。
+            PlayerCameraRuntimeBinder.EnsureMainCamera();
             await EnsurePlayerAsync(assets, cancellationToken);
             ValidatePlayer();
             SetLocalCombatEnabled(false);

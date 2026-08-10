@@ -29,28 +29,71 @@ namespace Train.Gameplay.Player.Core
         [SerializeField, Tooltip("当前顶层玩家状态名称。")]
         private string _currentStateName;
 
+        // 动态玩家由 YooAsset 实例化时，Awake 可能早于相机绑定；初始化必须允许重试。
+        private bool _initialized;
+        private bool _reportedMissingReferences;
+
         /// <summary>
         /// 校验引用、配置相机相对移动，并进入移动状态。
         /// </summary>
         private void Awake()
         {
+            TryInitialize();
+        }
+
+        /// <summary>
+        /// 在所有动态依赖就绪后创建玩家状态机；相机或物理组件暂缺时留待后续帧重试。
+        /// </summary>
+        private bool TryInitialize()
+        {
+            if (_initialized)
+            {
+                return true;
+            }
+
             _input ??= GetComponent<PlayerInputReader>();
             _motor ??= GetComponent<PlayerMotor>();
-            _animation ??= GetComponentInChildren<PlayerAnimation>();
+            _animation ??= GetComponentInChildren<PlayerAnimation>(true);
             _combat ??= GetComponent<PlayerCombat>();
-            _cameraTransform ??= UnityEngine.Camera.main != null ? UnityEngine.Camera.main.transform : null;
+            _cameraTransform ??= UnityEngine.Camera.main != null
+                ? UnityEngine.Camera.main.transform
+                : null;
 
-            if (_input == null || _motor == null || !_motor.IsReady || _animation == null || _config == null || _cameraTransform == null)
+            var missing = _input == null ||
+                          _motor == null ||
+                          !_motor.IsReady ||
+                          _animation == null ||
+                          _config == null ||
+                          _cameraTransform == null;
+            if (missing)
             {
-                Debug.LogError("PlayerController 缺少输入、移动、动画、配置、相机、Rigidbody 或 CapsuleCollider 引用。", this);
-                enabled = false;
-                return;
+                if (!_reportedMissingReferences)
+                {
+                    _reportedMissingReferences = true;
+                    Debug.LogWarning(
+                        $"PlayerController 等待依赖就绪：input={_input != null}, " +
+                        $"motor={_motor != null && _motor.IsReady}, " +
+                        $"animation={_animation != null}, config={_config != null}, " +
+                        $"camera={_cameraTransform != null}, combat={_combat != null}。" +
+                        "动态玩家会在后续帧自动重试。",
+                        this);
+                }
+
+                return false;
             }
 
             _motor.SetCameraTransform(_cameraTransform);
             var context = new PlayerContext(_input, _motor, _animation, _config, _combat);
             _stateMachine = new PlayerStateMachine(context);
             _stateMachine.ChangeState(new LocomotionState(_stateMachine, context));
+            _initialized = true;
+            return true;
+        }
+
+        /// <summary>Start 阶段再尝试一次，覆盖相机在玩家 Awake 后才创建的场景。</summary>
+        private void Start()
+        {
+            TryInitialize();
         }
 
         /// <summary>
@@ -58,6 +101,11 @@ namespace Train.Gameplay.Player.Core
         /// </summary>
         private void Update()
         {
+            if (!TryInitialize())
+            {
+                return;
+            }
+
             _stateMachine?.Tick();
             _currentStateName = _stateMachine?.CurrentState?.GetType().Name ?? string.Empty;
         }
