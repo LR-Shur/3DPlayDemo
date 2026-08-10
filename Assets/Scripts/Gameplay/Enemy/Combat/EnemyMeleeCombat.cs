@@ -23,6 +23,8 @@ namespace Train.Gameplay.Enemy.Combat
         private float _nextAttackTime;
         private bool _damageActive;
         private bool _damageAppliedThisAttack;
+        private float _baseDamage;
+        private float _baseAttackCooldown;
 
         public bool CanStartAttack => Time.time >= _nextAttackTime;
         public Transform SourceTransform => _hitVolume != null ? _hitVolume.transform : transform;
@@ -34,6 +36,8 @@ namespace Train.Gameplay.Enemy.Combat
 
         private void Awake()
         {
+            _baseDamage = _damage;
+            _baseAttackCooldown = _attackCooldown;
             _hitVolume ??= GetComponentInChildren<SphereCollider>(true);
             if (_hitVolume != null)
             {
@@ -71,6 +75,19 @@ namespace Train.Gameplay.Enemy.Combat
         public void ConfigureFaction(CombatFaction faction)
         {
             _faction = faction;
+        }
+
+        /// <summary>
+        /// 供 Boss 阶段调整攻击强度与节奏，始终基于初始配置计算，避免重复叠加误差。
+        /// </summary>
+        public void ApplyPhaseModifiers(
+            float damageMultiplier,
+            float cooldownMultiplier)
+        {
+            _damage = _baseDamage * Mathf.Max(0f, damageMultiplier);
+            _attackCooldown = Mathf.Max(
+                0.25f,
+                _baseAttackCooldown * Mathf.Max(0.2f, cooldownMultiplier));
         }
 
         private void ApplyWeaponHit()

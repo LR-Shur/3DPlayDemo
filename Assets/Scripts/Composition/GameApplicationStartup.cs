@@ -128,6 +128,11 @@ namespace Train.Composition
                 gameObject.AddComponent<CombatFeedbackRuntimeController>();
             }
 
+            if (gameObject.GetComponent<RunSaveRuntimeController>() == null)
+            {
+                gameObject.AddComponent<RunSaveRuntimeController>();
+            }
+
             if (_initializationTask != null)
             {
                 return;

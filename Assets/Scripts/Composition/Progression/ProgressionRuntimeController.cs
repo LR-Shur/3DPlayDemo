@@ -405,7 +405,7 @@ namespace Train.Composition.Progression
                 if (health != null && health.IsAlive)
                 {
                     _bossHealth = health;
-                    _bossLabel.text = $"BOSS // {identity.ArchetypeId.ToUpperInvariant()}";
+                    _bossLabel.text = $"CORE FORGE // {identity.ArchetypeId.ToUpperInvariant()}";
                     break;
                 }
             }
@@ -433,6 +433,13 @@ namespace Train.Composition.Progression
 
             _bossFill.fillAmount = Mathf.Clamp01(
                 _bossHealth.CurrentHealth / Mathf.Max(1f, _bossHealth.MaxHealth));
+            var ratio = _bossFill.fillAmount;
+            var phaseLabel = ratio <= .33f
+                ? "OVERLOAD // PHASE 3"
+                : ratio <= .66f
+                    ? "SYSTEM BREACH // PHASE 2"
+                    : "CORE FORGE // PHASE 1";
+            _bossLabel.text = $"{phaseLabel} // BOSS_RUSK";
             if (!_bossHealth.IsAlive)
             {
                 _bossBar.SetActive(false);

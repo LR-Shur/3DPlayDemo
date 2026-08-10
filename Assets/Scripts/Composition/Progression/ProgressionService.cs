@@ -52,6 +52,53 @@ namespace Train.Composition.Progression
 
         public IReadOnlyList<RunNode> Nodes => _nodes;
 
+        /// <summary>导出当前 Run 的可持久化进度。</summary>
+        public ProgressionSaveData CaptureState()
+        {
+            var data = new ProgressionSaveData
+            {
+                Coins = _coins,
+                CurrentNodeIndex = _currentNodeIndex,
+                CurrentLevelId = _currentLevelId
+            };
+            data.ClearedLevels.AddRange(_clearedLevels);
+            return data;
+        }
+
+        /// <summary>
+        /// 恢复已校验的 Run 进度，并发布一次完整进度变更。
+        /// </summary>
+        public void RestoreState(ProgressionSaveData data)
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            _coins = Math.Max(0, data.Coins);
+            _clearedLevels.Clear();
+            for (var i = 0; i < data.ClearedLevels.Count; i++)
+            {
+                if (TryGetNode(data.ClearedLevels[i], out var clearedNode))
+                {
+                    _clearedLevels.Add(clearedNode.LevelId);
+                }
+            }
+
+            var requestedIndex = Math.Max(
+                0,
+                Math.Min(_nodes.Count - 1, data.CurrentNodeIndex));
+            if (TryGetNode(data.CurrentLevelId, out var currentNode))
+            {
+                requestedIndex = _nodes.IndexOf(currentNode);
+            }
+
+            _currentNodeIndex = requestedIndex;
+            _currentLevelId = _nodes[_currentNodeIndex].LevelId;
+            _events.Publish(new CurrencyChangedEvent(_coins, 0, "读取 Run 存档"));
+            _events.Publish(new ProgressionChangedEvent(Snapshot));
+        }
+
         public void AddCoins(int amount, string reason)
         {
             if (amount <= 0)
@@ -125,5 +172,17 @@ namespace Train.Composition.Progression
         {
             return id.Replace("level.", string.Empty).Replace('.', '_');
         }
+    }
+
+    /// <summary>
+    /// ProgressionService 的轻量 JSON 存档结构。
+    /// </summary>
+    [Serializable]
+    public sealed class ProgressionSaveData
+    {
+        public int Coins = 150;
+        public int CurrentNodeIndex;
+        public string CurrentLevelId = "level.combat.001";
+        public List<string> ClearedLevels = new();
     }
 }

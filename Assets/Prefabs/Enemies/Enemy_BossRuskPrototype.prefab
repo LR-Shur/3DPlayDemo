@@ -83,5 +83,29 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 350229544916355179, guid: d25cbb44d4ee2544c98d6d4464397b56, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8539598795020016346}
   m_SourcePrefab: {fileID: 100100000, guid: d25cbb44d4ee2544c98d6d4464397b56, type: 3}
+--- !u!1 &6973762779689714218 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 350229544916355179, guid: d25cbb44d4ee2544c98d6d4464397b56, type: 3}
+  m_PrefabInstance: {fileID: 7213512777299200577}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8539598795020016346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6973762779689714218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef8298b622ec86044bb2781bd81ff066, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Train.Gameplay::Train.Gameplay.Enemy.Core.BossPhaseController
+  _phaseTwoThreshold: 0.66
+  _phaseThreeThreshold: 0.33
+  _phaseTwoColor: {r: 0.95, g: 0.18, b: 0.72, a: 1}
+  _phaseThreeColor: {r: 1, g: 0.34, b: 0.08, a: 1}

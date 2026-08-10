@@ -34,5 +34,22 @@ namespace Train.Tests.EditMode.Progression
             Assert.That(service.TrySpendCoins(50, "test"), Is.True);
             Assert.That(service.Snapshot.Coins, Is.EqualTo(100));
         }
+
+        [Test]
+        public void CaptureAndRestore_RoundTripsRunProgress()
+        {
+            var source = new ProgressionService(new EventBus());
+            source.AddCoins(245, "test");
+            source.CompleteLevel("level.combat.001", out _);
+            var saved = source.CaptureState();
+
+            var restored = new ProgressionService(new EventBus());
+            restored.RestoreState(saved);
+
+            Assert.That(restored.Snapshot.Coins, Is.EqualTo(575));
+            Assert.That(restored.Snapshot.CurrentNodeIndex, Is.EqualTo(0));
+            Assert.That(restored.Snapshot.CurrentLevelId, Is.EqualTo("level.combat.001"));
+            Assert.That(restored.Snapshot.ClearedNodeCount, Is.EqualTo(1));
+        }
     }
 }

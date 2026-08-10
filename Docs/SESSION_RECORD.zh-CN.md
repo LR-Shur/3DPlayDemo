@@ -254,6 +254,9 @@ Unity 报告 `Luban`、`ByteBuf` 类型不存在。Luban 包已经嵌入并导�
 - 新增 `CombatFeedbackRuntimeController`：敌人受击显示元素颜色伤害数字，并生成短生命周期命中粒子；限制同时存在的数字数量，避免战斗刷屏。
 - `ProgressionOverlay` 新增 Boss 专属血条、Boss 名称和血量刷新；战斗提示 4 秒后自动收起。
 - 验证结果：EditMode 204/204，PlayMode 7/7；运行截图确认 Boss 血条和金币/仓库/装备布局正常；修正粒子初始化顺序后无新增 PlayerLoop 或粒子警告。
+- Run 存档已落地：`run-save.json` 保存金币、当前节点、已通关节点、背包堆叠和装备槽位；实际运行已确认文件生成。
+- Boss 三阶段已落地：66% 和 33% 生命阈值触发攻击调谐、材质过载和 HUD 阶段标题。
+- 最新验证结果：EditMode 205/205，PlayMode 7/7。
 - 本轮没有提交字体、角色预制体和全局 ProjectSettings 的本地改动。
 
 从其他机器继续时，先切换到 `agent/player-state-machine` 分支，阅读本节和 `PRODUCTION_ROADMAP.zh-CN.md`，再按第 10 节执行内容构建菜单。下一阶段优先级为存档/读档、装备词条、精英技能和 Boss 阶段机制。
