@@ -95,6 +95,7 @@ namespace Train.GameFlow.Runtime
         {
             _lifetime = new CancellationTokenSource();
             _events = SceneBootstrap.ResolveEvents(this);
+            _spawnedActorsRoot ??= transform.Find("SpawnedActors");
             ResolvePlayer();
             SetLocalCombatEnabled(false);
             if (GameBootstrap.Instance.Context.Services.TryResolve(

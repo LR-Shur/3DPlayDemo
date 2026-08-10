@@ -64,6 +64,11 @@ namespace Train.EditorTools.GameFlow
             var definition = CreateOrUpdateLevelDefinition();
             var floorMaterial = CreateOrUpdateArenaFloorMaterial();
             CreateOrUpdatePlayableScene(definition, floorMaterial);
+            // 场景点位是关卡位置的唯一来源，再同步回 LevelDefinition，
+            // 避免场景坐标与 SO 坐标长期出现两份不一致的数据。
+            LevelPointSyncBuilder.SyncScene(
+                EditorSceneManager.GetActiveScene(),
+                definition);
             CreateOrUpdateBootScene();
             ConfigureBuildSettings();
 
