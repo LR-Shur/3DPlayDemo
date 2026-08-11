@@ -9,6 +9,9 @@ namespace Train.Gameplay.Combat
         Fire,
         Ice,
         Electric,
-        True,
+        True = 4,
+        Water = 5,
+        Wind = 6,
+        Earth = 7,
     }
 }

@@ -79,6 +79,9 @@ namespace Train.Gameplay.Combat
                 DamageType.Fire => Train.Buffs.Core.DamageElement.Fire,
                 DamageType.Ice => Train.Buffs.Core.DamageElement.Ice,
                 DamageType.Electric => Train.Buffs.Core.DamageElement.Electric,
+                DamageType.Water => Train.Buffs.Core.DamageElement.Water,
+                DamageType.Wind => Train.Buffs.Core.DamageElement.Wind,
+                DamageType.Earth => Train.Buffs.Core.DamageElement.Earth,
                 DamageType.True => Train.Buffs.Core.DamageElement.True,
                 _ => Train.Buffs.Core.DamageElement.Physical
             };

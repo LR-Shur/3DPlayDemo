@@ -99,6 +99,38 @@ namespace Train.Buffs.Core
             var registry = new BuffFactoryRegistry();
             registry.Register(
                 new LightningVulnerabilityBuffFactory());
+            registry.Register(
+                new ElementalDamageModifierBuffFactory(
+                    ElementalBuffIds.FireVulnerability,
+                    DamageElement.Fire));
+            registry.Register(
+                new ElementalDamageModifierBuffFactory(
+                    ElementalBuffIds.WaterVulnerability,
+                    DamageElement.Water));
+            registry.Register(
+                new ElementalDamageModifierBuffFactory(
+                    ElementalBuffIds.WindVulnerability,
+                    DamageElement.Wind));
+            registry.Register(
+                new ElementalDamageModifierBuffFactory(
+                    ElementalBuffIds.EarthVulnerability,
+                    DamageElement.Earth));
+            registry.Register(
+                new ElementalDamageModifierBuffFactory(
+                    ElementalBuffIds.Burning,
+                    DamageElement.Fire));
+            registry.Register(
+                new ElementalDamageModifierBuffFactory(
+                    ElementalBuffIds.Wet,
+                    DamageElement.Electric));
+            registry.Register(
+                new ElementalDamageModifierBuffFactory(
+                    ElementalBuffIds.WindMark,
+                    DamageElement.Wind));
+            registry.Register(
+                new ElementalDamageModifierBuffFactory(
+                    ElementalBuffIds.Fracture,
+                    DamageElement.Physical));
             return registry;
         }
 

@@ -25,6 +25,15 @@ namespace Train.Buffs.Core
         /// </summary>
         Electric = 3,
 
+        /// <summary>水属性伤害。</summary>
+        Water = 5,
+
+        /// <summary>风属性伤害。</summary>
+        Wind = 6,
+
+        /// <summary>地属性伤害。</summary>
+        Earth = 7,
+
         /// <summary>
         /// 真实伤害，通常跳过元素易伤和防御修正。
         /// </summary>

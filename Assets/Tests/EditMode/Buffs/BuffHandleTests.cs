@@ -23,7 +23,7 @@ namespace Train.Tests.EditMode.Buffs
 
             var created = registry.Create(info);
 
-            Assert.That(registry.Count, Is.EqualTo(1));
+            Assert.That(registry.Count, Is.GreaterThanOrEqualTo(9));
             Assert.That(created, Is.TypeOf<
                 LightningVulnerabilityBuff>());
             Assert.That(
