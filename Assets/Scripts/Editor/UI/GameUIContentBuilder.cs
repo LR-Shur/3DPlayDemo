@@ -799,6 +799,52 @@ namespace Train.EditorTools.UI
                     new Vector2(0.5f, 0.5f));
             }
 
+            var categoryButtons = new Button[6];
+            var categoryLabelTexts = new TMP_Text[6];
+            for (var index = 0; index < categoryLabels.Length; index++)
+            {
+                var categoryObject = categoryRail.Find($"Category_{index:00}");
+                var categoryButton = categoryObject.gameObject.AddComponent<Button>();
+                categoryButton.targetGraphic = categoryObject.GetComponent<Image>();
+                categoryButtons[index] = categoryButton;
+                categoryLabelTexts[index] = categoryObject.GetComponentInChildren<TMP_Text>();
+            }
+
+            if (categoryLabelTexts[1] != null)
+            {
+                categoryLabelTexts[1].text = "养成";
+            }
+
+            var extraCategoryLabels = new[] { "装备", "任务" };
+            for (var index = categoryLabels.Length; index < categoryButtons.Length; index++)
+            {
+                var categoryObject = CreateAnchored(
+                    $"Category_{index:00}",
+                    categoryRail,
+                    new Vector2(0.5f, 1f),
+                    new Vector2(84f, 72f),
+                    new Vector2(0f, -40f - index * 84f),
+                    new Vector2(0.5f, 1f));
+                var categoryImage = AddImage(
+                    categoryObject.gameObject,
+                    new Color32(31, 49, 70, 255),
+                    false);
+                var categoryButton = categoryObject.gameObject.AddComponent<Button>();
+                categoryButton.targetGraphic = categoryImage;
+                categoryButtons[index] = categoryButton;
+                categoryLabelTexts[index] = CreateText(
+                    "Text",
+                    categoryObject,
+                    extraCategoryLabels[index - categoryLabels.Length],
+                    font,
+                    18f,
+                    Secondary,
+                    TextAlignmentOptions.Center,
+                    Vector2.zero,
+                    new Vector2(80f, 40f),
+                    new Vector2(0.5f, 0.5f));
+            }
+
             var gridArea = CreateAnchored(
                 "ItemGrid",
                 body,
@@ -973,6 +1019,8 @@ namespace Train.EditorTools.UI
                 slotIcons,
                 slotNames,
                 slotQuantities,
+                categoryButtons,
+                categoryLabelTexts,
                 detailCategory,
                 detailName,
                 detailRarity,

@@ -17,6 +17,7 @@ namespace Train.Presentation.UI.ViewModels
             int capacity,
             int occupiedCount,
             int selectedSlotIndex,
+            int selectedCategoryIndex,
             InventorySlotViewModel[] slots,
             InventoryItemDetailViewModel detail)
         {
@@ -24,6 +25,7 @@ namespace Train.Presentation.UI.ViewModels
             Capacity = capacity;
             OccupiedCount = occupiedCount;
             SelectedSlotIndex = selectedSlotIndex;
+            SelectedCategoryIndex = selectedCategoryIndex;
             _slots = Array.AsReadOnly(
                 slots ?? throw new ArgumentNullException(nameof(slots)));
             Detail = detail ?? InventoryItemDetailViewModel.Empty;
@@ -40,6 +42,9 @@ namespace Train.Presentation.UI.ViewModels
 
         /// <summary>获取当前选中的槽位索引。</summary>
         public int SelectedSlotIndex { get; }
+
+        /// <summary>获取左侧分类索引，0 表示全部。</summary>
+        public int SelectedCategoryIndex { get; }
 
         /// <summary>获取按索引排列的只读槽位视图模型。</summary>
         public IReadOnlyList<InventorySlotViewModel> Slots => _slots;

@@ -59,8 +59,8 @@ namespace Train.Composition
                 }
 
                 floating.Root.transform.position =
-                    floating.StartPosition +
-                    Vector3.up * Mathf.Lerp(0f, 1.15f, normalized);
+                floating.StartPosition +
+                    Vector3.up * Mathf.Lerp(0f, 1.35f, normalized);
                 if (camera != null)
                 {
                     floating.Root.transform.rotation =
@@ -142,7 +142,8 @@ namespace Train.Composition
             text.outlineWidth = 0.18f;
             text.outlineColor = new Color32(5, 12, 22, 255);
             text.color = color;
-            root.transform.position = position + Vector3.up * 0.18f;
+            // 命中点通常位于胸口或碰撞体中心，初始抬高后可避免数字覆盖敌人头部。
+            root.transform.position = position + Vector3.up * 0.82f;
             _floatingTexts.Add(new FloatingDamageText(
                 root,
                 text,

@@ -120,9 +120,8 @@ namespace Train.GameFlow.Runtime
 
         private void Start()
         {
-            // 场景只放置 LevelRuntimeRoot、没有预先放 Player 时，
-            // 必须自动启动一次安装流程，否则没有输入读取器可以按 Start。
-            if (_autoStart || _playerInput == null)
+            // 只有显式配置自动开始的关卡才在进入场景时启动；第一关由训练对话完成事件启动。
+            if (_autoStart)
             {
                 StartLevel();
             }
@@ -142,19 +141,6 @@ namespace Train.GameFlow.Runtime
             _startRequested = true;
             _startupTask = RunStartupFlowAsync(_lifetime.Token);
             Observe(_startupTask);
-        }
-
-        /// <summary>在开始界面阶段读取独立 Start 动作，避免战斗提前生成。</summary>
-        private void Update()
-        {
-            if (!IsWaitingForStart ||
-                _playerInput == null ||
-                !_playerInput.ConsumeStartPressed())
-            {
-                return;
-            }
-
-            StartLevel();
         }
 
         /// <summary>

@@ -182,6 +182,7 @@ namespace Train.Tests.UI
         private sealed class FakeInventoryView : IInventoryView
         {
             public event Action<int> SlotSelected;
+            public event Action<int> CategorySelected;
             public event Action CloseRequested;
 
             public int RenderCount { get; private set; }
@@ -196,6 +197,11 @@ namespace Train.Tests.UI
             public void SelectSlot(int slotIndex)
             {
                 SlotSelected?.Invoke(slotIndex);
+            }
+
+            public void SelectCategory(int categoryIndex)
+            {
+                CategorySelected?.Invoke(categoryIndex);
             }
 
             public void RequestClose()

@@ -12,6 +12,9 @@ namespace Train.Presentation.UI.Contracts
         /// <summary>当玩家选择一个背包槽位时触发。</summary>
         event Action<int> SlotSelected;
 
+        /// <summary>当玩家切换左侧物品分类时触发，0 表示全部。</summary>
+        event Action<int> CategorySelected;
+
         /// <summary>当玩家请求关闭背包界面时触发。</summary>
         event Action CloseRequested;
 

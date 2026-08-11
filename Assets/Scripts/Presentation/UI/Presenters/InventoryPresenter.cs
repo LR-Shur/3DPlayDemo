@@ -22,6 +22,7 @@ namespace Train.Presentation.UI.Presenters
         private readonly Action _onCloseRequested;
         private readonly IDisposable _inventoryChangedSubscription;
         private int _selectedSlotIndex = -1;
+        private int _selectedCategoryIndex;
         private bool _disposed;
 
         /// <summary>
@@ -44,6 +45,7 @@ namespace Train.Presentation.UI.Presenters
             _onCloseRequested = onCloseRequested;
 
             _view.SlotSelected += OnSlotSelected;
+            _view.CategorySelected += OnCategorySelected;
             _view.CloseRequested += OnCloseRequested;
             _inventoryChangedSubscription =
                 events.Subscribe<InventoryChangedEvent>(OnInventoryChanged);
@@ -65,6 +67,7 @@ namespace Train.Presentation.UI.Presenters
             }
 
             _view.SlotSelected -= OnSlotSelected;
+            _view.CategorySelected -= OnCategorySelected;
             _view.CloseRequested -= OnCloseRequested;
             _inventoryChangedSubscription.Dispose();
             _disposed = true;
@@ -101,20 +104,54 @@ namespace Train.Presentation.UI.Presenters
             }
         }
 
+        private void OnCategorySelected(int categoryIndex)
+        {
+            if (_disposed || categoryIndex < 0 || categoryIndex > 5)
+            {
+                return;
+            }
+
+            _selectedCategoryIndex = categoryIndex;
+            _selectedSlotIndex = -1;
+            Render();
+        }
+
         private void Render()
         {
             var snapshot = _inventory.Snapshot;
-            EnsureSelection(snapshot);
+            var filteredSlots = new System.Collections.Generic.List<InventorySlotSnapshot>();
+            var occupiedCount = 0;
+            for (var index = 0; index < snapshot.Slots.Count; index++)
+            {
+                var slot = snapshot.Slots[index];
+                if (slot.IsEmpty)
+                {
+                    continue;
+                }
+
+                occupiedCount++;
+                _inventory.TryGetDefinition(slot.ItemId, out var definition);
+                var category = definition != null
+                    ? definition.Category
+                    : ItemCategory.Material;
+                if (MatchesCategory(_selectedCategoryIndex, category))
+                {
+                    filteredSlots.Add(slot);
+                }
+            }
+
+            EnsureSelection(filteredSlots.Count);
 
             var slots = new InventorySlotViewModel[VisibleSlotCount];
-            var occupiedCount = 0;
             var detail = InventoryItemDetailViewModel.Empty;
 
             for (var slotIndex = 0;
                  slotIndex < VisibleSlotCount;
                  slotIndex++)
             {
-                var slot = FindSlot(snapshot, slotIndex);
+                var slot = slotIndex < filteredSlots.Count
+                    ? filteredSlots[slotIndex]
+                    : new InventorySlotSnapshot(slotIndex, null, 0);
                 var occupied = !slot.IsEmpty;
                 var selected = slotIndex == _selectedSlotIndex;
                 ItemDefinition definition = null;
@@ -184,54 +221,36 @@ namespace Train.Presentation.UI.Presenters
                     VisibleSlotCount,
                     occupiedCount,
                     _selectedSlotIndex,
+                    _selectedCategoryIndex,
                     slots,
                     detail));
         }
 
-        private void EnsureSelection(InventorySnapshot snapshot)
+        private void EnsureSelection(int filteredCount)
         {
             if (_selectedSlotIndex >= 0 &&
-                _selectedSlotIndex < VisibleSlotCount)
+                _selectedSlotIndex < filteredCount)
             {
                 return;
             }
 
-            _selectedSlotIndex = -1;
-            for (var i = 0; i < snapshot.Slots.Count; i++)
-            {
-                var slot = snapshot.Slots[i];
-                if (!slot.IsEmpty &&
-                    slot.SlotIndex >= 0 &&
-                    slot.SlotIndex < VisibleSlotCount)
-                {
-                    _selectedSlotIndex = slot.SlotIndex;
-                    return;
-                }
-            }
+            _selectedSlotIndex = filteredCount > 0 ? 0 : -1;
         }
 
-        private static InventorySlotSnapshot FindSlot(
-            InventorySnapshot snapshot,
-            int slotIndex)
+        private static bool MatchesCategory(
+            int categoryIndex,
+            ItemCategory category)
         {
-            if (slotIndex < snapshot.Slots.Count)
+            return categoryIndex switch
             {
-                var candidate = snapshot.Slots[slotIndex];
-                if (candidate.SlotIndex == slotIndex)
-                {
-                    return candidate;
-                }
-            }
-
-            for (var i = 0; i < snapshot.Slots.Count; i++)
-            {
-                if (snapshot.Slots[i].SlotIndex == slotIndex)
-                {
-                    return snapshot.Slots[i];
-                }
-            }
-
-            return new InventorySlotSnapshot(slotIndex, null, 0);
+                0 => true,
+                1 => category == ItemCategory.Material,
+                2 => category == ItemCategory.Consumable,
+                3 => category == ItemCategory.Equipment,
+                4 => category == ItemCategory.Currency,
+                5 => category == ItemCategory.Quest,
+                _ => true
+            };
         }
     }
 }

@@ -214,7 +214,7 @@ namespace Train.Presentation.UI.Presenters
             var snapshot = ReadSnapshot();
             var objective = snapshot.HasLevel
                 ? snapshot.Phase == LevelPhase.None
-                    ? "按 Enter / Space 开始模拟训练"
+                    ? "靠近训练终端并按 E 完成引导"
                     : $"击败敌人  {snapshot.DefeatedEnemyCount}/{snapshot.EnemyCount}"
                 : string.Empty;
 

@@ -26,6 +26,8 @@ namespace Train.Presentation.UI.Views
         [SerializeField] private TMP_Text[] _slotNames = Array.Empty<TMP_Text>();
         [SerializeField] private TMP_Text[] _slotQuantities =
             Array.Empty<TMP_Text>();
+        [SerializeField] private Button[] _categoryButtons = Array.Empty<Button>();
+        [SerializeField] private TMP_Text[] _categoryLabels = Array.Empty<TMP_Text>();
         [SerializeField] private TMP_Text _detailCategory;
         [SerializeField] private TMP_Text _detailName;
         [SerializeField] private TMP_Text _detailRarity;
@@ -35,6 +37,9 @@ namespace Train.Presentation.UI.Views
 
         /// <inheritdoc />
         public event Action<int> SlotSelected;
+
+        /// <summary>当玩家切换左侧物品分类时触发，0 表示全部。</summary>
+        public event Action<int> CategorySelected;
 
         /// <inheritdoc />
         public event Action CloseRequested;
@@ -56,6 +61,8 @@ namespace Train.Presentation.UI.Views
             Image[] slotIcons,
             TMP_Text[] slotNames,
             TMP_Text[] slotQuantities,
+            Button[] categoryButtons,
+            TMP_Text[] categoryLabels,
             TMP_Text detailCategory,
             TMP_Text detailName,
             TMP_Text detailRarity,
@@ -72,6 +79,8 @@ namespace Train.Presentation.UI.Views
             _slotIcons = slotIcons;
             _slotNames = slotNames;
             _slotQuantities = slotQuantities;
+            _categoryButtons = categoryButtons;
+            _categoryLabels = categoryLabels;
             _detailCategory = detailCategory;
             _detailName = detailName;
             _detailRarity = detailRarity;
@@ -99,6 +108,26 @@ namespace Train.Presentation.UI.Views
 
             _capacityText.text =
                 $"容量  {viewModel.OccupiedCount:00} / {viewModel.Capacity:00}";
+
+            for (var index = 0; index < _categoryButtons.Length; index++)
+            {
+                var selected = index == viewModel.SelectedCategoryIndex;
+                if (_categoryButtons[index] != null &&
+                    _categoryButtons[index].targetGraphic != null)
+                {
+                    _categoryButtons[index].targetGraphic.color = selected
+                        ? new Color32(29, 83, 96, 255)
+                        : new Color32(31, 49, 70, 255);
+                }
+
+                if (index < _categoryLabels.Length &&
+                    _categoryLabels[index] != null)
+                {
+                    _categoryLabels[index].color = selected
+                        ? new Color32(88, 224, 231, 255)
+                        : new Color32(170, 184, 200, 255);
+                }
+            }
 
             var count = Mathf.Min(
                 viewModel.Slots.Count,
@@ -142,6 +171,13 @@ namespace Train.Presentation.UI.Views
                 var captured = index;
                 _slotButtons[index]?.onClick.AddListener(
                     () => SlotSelected?.Invoke(captured));
+            }
+
+            for (var index = 0; index < _categoryButtons.Length; index++)
+            {
+                var captured = index;
+                _categoryButtons[index]?.onClick.AddListener(
+                    () => CategorySelected?.Invoke(captured));
             }
         }
 
