@@ -99,6 +99,10 @@ namespace Train.EditorTools
                         "在 Player_Ellen 中找不到名称包含 Sword、Blade 或 Weapon 的剑节点。");
                 }
 
+                // 如果模型节点允许写入预制体覆盖，就直接在 0005_Ellen_Weapon 上保存碰撞体；
+                // 运行时 SwordHitbox 仍会再次校准网格范围，确保模型动画缩放后也能正确命中。
+                ConfigureActualWeaponCollider(swordTransform);
+
                 var hitboxParent = FindSwordAttachment(swordTransform);
                 var existingHitbox = root.GetComponentInChildren<SwordHitbox>(true);
                 var hitboxObject = existingHitbox != null
@@ -218,6 +222,18 @@ namespace Train.EditorTools
 
         private static Transform FindSwordTransform(Transform root)
         {
+            // Ellen 模型的实际武器节点优先级最高，避免回退到手骨或其他装饰网格。
+            var exactWeapon = root
+                .GetComponentsInChildren<Transform>(true)
+                .FirstOrDefault(transform => string.Equals(
+                    transform.name,
+                    "0005_Ellen_Weapon",
+                    StringComparison.Ordinal));
+            if (exactWeapon != null)
+            {
+                return exactWeapon;
+            }
+
             return root
                 .GetComponentsInChildren<Transform>(true)
                 .Select(transform => new
@@ -230,6 +246,35 @@ namespace Train.EditorTools
                 .ThenBy(candidate => candidate.Transform.GetSiblingIndex())
                 .Select(candidate => candidate.Transform)
                 .FirstOrDefault();
+        }
+
+        private static void ConfigureActualWeaponCollider(Transform weaponTransform)
+        {
+            if (!string.Equals(weaponTransform.name, "0005_Ellen_Weapon", StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            try
+            {
+                var collider = weaponTransform.GetComponent<BoxCollider>();
+                if (collider == null)
+                {
+                    collider = weaponTransform.gameObject.AddComponent<BoxCollider>();
+                }
+
+                collider.isTrigger = true;
+                FitSwordCollider(
+                    weaponTransform,
+                    weaponTransform.GetComponentsInChildren<Renderer>(true),
+                    collider);
+                collider.enabled = false;
+            }
+            catch (Exception exception)
+            {
+                // 某些导入模型会禁止嵌套预制体覆盖，运行时绑定逻辑仍可创建同一碰撞体。
+                Debug.LogWarning($"无法将碰撞体保存到 {weaponTransform.name}，将由运行时自动绑定：{exception.Message}");
+            }
         }
 
         private static int ScoreSwordCandidate(Transform transform)

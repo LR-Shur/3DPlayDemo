@@ -18,12 +18,15 @@ namespace Train.Gameplay.Combat
         [SerializeField] private DamageType _damageType = DamageType.Physical;
         [SerializeField] private Transform _ownerTransform;
         [SerializeField] private CombatFaction _faction = CombatFaction.Player;
+        [SerializeField] private string _weaponNodeName = "0005_Ellen_Weapon";
 
         private readonly HashSet<IDamageable> _hitTargets = new();
         private Collider _trigger;
+        private Collider _localCollider;
         private IWeaponHitEffect[] _hitEffects = Array.Empty<IWeaponHitEffect>();
 
-        public Transform SourceTransform => transform;
+        /// <summary>伤害来源位置使用真实武器节点，便于命中特效和击退方向贴合刀身。</summary>
+        public Transform SourceTransform => _trigger != null ? _trigger.transform : transform;
         public Transform OwnerTransform => _ownerTransform;
         public float Damage => _damage;
         public DamageType DamageType => _damageType;
@@ -41,10 +44,22 @@ namespace Train.Gameplay.Combat
 
         private void Awake()
         {
-            _trigger = GetComponent<Collider>();
-            _trigger.isTrigger = true;
-            _trigger.enabled = false;
             _ownerTransform ??= transform.root;
+            _localCollider = GetComponent<Collider>();
+            _trigger = ResolveWeaponCollider();
+            if (_trigger != null)
+            {
+                _trigger.isTrigger = true;
+                _trigger.enabled = false;
+                EnsureTriggerForwarder(_trigger.gameObject);
+            }
+
+            // 保留旧的占位碰撞体作为兜底，但实际攻击期间只启用武器节点上的碰撞体。
+            if (_localCollider != null && _localCollider != _trigger)
+            {
+                _localCollider.enabled = false;
+            }
+
             CacheHitEffects();
         }
 
@@ -68,10 +83,13 @@ namespace Train.Gameplay.Combat
             _hitTargets.Clear();
             if (_trigger == null)
             {
-                _trigger = GetComponent<Collider>();
+                _trigger = ResolveWeaponCollider();
             }
 
-            _trigger.enabled = true;
+            if (_trigger != null)
+            {
+                _trigger.enabled = true;
+            }
         }
 
         public void EndAttack()
@@ -121,15 +139,16 @@ namespace Train.Gameplay.Combat
         {
             var collider = _trigger != null
                 ? _trigger
-                : GetComponent<Collider>();
+                : FindWeaponColliderInEditor();
             if (collider == null)
             {
+                DrawWeaponRendererBounds();
                 return;
             }
 
             Gizmos.color = new Color(1f, 0.25f, 0.12f, 0.8f);
             var previousMatrix = Gizmos.matrix;
-            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.matrix = collider.transform.localToWorldMatrix;
             switch (collider)
             {
                 case BoxCollider box:
@@ -144,6 +163,122 @@ namespace Train.Gameplay.Combat
             }
 
             Gizmos.matrix = previousMatrix;
+        }
+
+        /// <summary>优先查找真实的 0005_Ellen_Weapon 节点，并在其上复用或创建碰撞体。</summary>
+        private Collider ResolveWeaponCollider()
+        {
+            var weapon = FindWeaponNode();
+            if (weapon == null)
+            {
+                return _localCollider ?? GetComponent<Collider>();
+            }
+
+            var collider = weapon.GetComponent<Collider>();
+            var createdAtRuntime = false;
+            if (collider == null)
+            {
+                collider = weapon.gameObject.AddComponent<BoxCollider>();
+                createdAtRuntime = true;
+            }
+
+            // 预制体中已经保存了按网格计算的碰撞体时保持美术侧尺寸；只有旧预制体运行时补建时才重新估算。
+            if (createdAtRuntime && collider is BoxCollider box)
+            {
+                FitBoxToWeaponRenderers(box, weapon);
+            }
+
+            return collider;
+        }
+
+        /// <summary>编辑器 Gizmo 只读取已有碰撞体，不在绘制阶段修改场景。</summary>
+        private Collider FindWeaponColliderInEditor()
+        {
+            var weapon = FindWeaponNode();
+            return weapon != null ? weapon.GetComponent<Collider>() : _localCollider ?? GetComponent<Collider>();
+        }
+
+        private Transform FindWeaponNode()
+        {
+            if (string.IsNullOrWhiteSpace(_weaponNodeName) || transform.root == null)
+            {
+                return null;
+            }
+
+            var transforms = transform.root.GetComponentsInChildren<Transform>(true);
+            foreach (var candidate in transforms)
+            {
+                if (string.Equals(candidate.name, _weaponNodeName, StringComparison.Ordinal))
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
+        }
+
+        private void EnsureTriggerForwarder(GameObject target)
+        {
+            var forwarder = target.GetComponent<SwordHitboxTriggerForwarder>();
+            if (forwarder == null)
+            {
+                forwarder = target.AddComponent<SwordHitboxTriggerForwarder>();
+            }
+
+            forwarder.Bind(this);
+        }
+
+        private static void FitBoxToWeaponRenderers(BoxCollider box, Transform weapon)
+        {
+            var renderers = weapon.GetComponentsInChildren<Renderer>(true);
+            if (renderers.Length == 0)
+            {
+                return;
+            }
+
+            var worldBounds = renderers[0].bounds;
+            for (var i = 1; i < renderers.Length; i++)
+            {
+                worldBounds.Encapsulate(renderers[i].bounds);
+            }
+
+            var localCenter = weapon.InverseTransformPoint(worldBounds.center);
+            var localSize = weapon.InverseTransformVector(worldBounds.size);
+            localSize = new Vector3(
+                Mathf.Max(Mathf.Abs(localSize.x) + 0.04f, 0.05f),
+                Mathf.Max(Mathf.Abs(localSize.y) + 0.04f, 0.05f),
+                Mathf.Max(Mathf.Abs(localSize.z) + 0.04f, 0.05f));
+            box.center = localCenter;
+            box.size = localSize;
+        }
+
+        private void DrawWeaponRendererBounds()
+        {
+            var weapon = FindWeaponNode();
+            if (weapon == null)
+            {
+                return;
+            }
+
+            var renderers = weapon.GetComponentsInChildren<Renderer>(true);
+            if (renderers.Length == 0)
+            {
+                return;
+            }
+
+            var bounds = renderers[0].bounds;
+            for (var i = 1; i < renderers.Length; i++)
+            {
+                bounds.Encapsulate(renderers[i].bounds);
+            }
+
+            Gizmos.color = new Color(1f, 0.25f, 0.12f, 0.8f);
+            Gizmos.DrawWireCube(bounds.center, bounds.size);
+        }
+
+        internal void HandleTrigger(Collider other)
+        {
+            TryDamage(other);
         }
 
         private void TryDamage(Collider other)
@@ -176,8 +311,9 @@ namespace Train.Gameplay.Combat
                     break;
                 }
 
-                var closestPoint = other.ClosestPoint(transform.position);
-                var direction = other.bounds.center - transform.position;
+                var sourcePosition = SourceTransform.position;
+                var closestPoint = other.ClosestPoint(sourcePosition);
+                var direction = other.bounds.center - sourcePosition;
                 var damageInfo = new DamageInfo(
                     _damage,
                     this,
@@ -231,6 +367,31 @@ namespace Train.Gameplay.Combat
             {
                 hitEffect.OnDamageApplied(target, damageInfo, result);
             }
+        }
+    }
+
+    /// <summary>
+    /// 挂在真实武器碰撞体上的转发器。SwordHitbox 仍负责伤害策略，转发器只负责接收 Unity 物理回调，
+    /// 这样碰撞体可以直接贴在 0005_Ellen_Weapon 网格节点上，而不会把战斗逻辑耦合到模型层。
+    /// </summary>
+    [DisallowMultipleComponent]
+    internal sealed class SwordHitboxTriggerForwarder : MonoBehaviour
+    {
+        private SwordHitbox _owner;
+
+        public void Bind(SwordHitbox owner)
+        {
+            _owner = owner;
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            _owner?.HandleTrigger(other);
+        }
+
+        private void OnTriggerStay(Collider other)
+        {
+            _owner?.HandleTrigger(other);
         }
     }
 }

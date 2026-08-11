@@ -390,9 +390,10 @@ namespace Train.Composition.Progression
             _completion = CreatePanel(_root.transform, "[MissionResult]");
             SetRect(_completion.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(760f, 520f));
             var completionTitle = CreateLabel(_completion.transform, "任务完成", 34, TextAlignmentOptions.Top);
-            SetRect(completionTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(.5f, 1f), new Vector2(0f, -58f), new Vector2(0f, 54f));
+            // 标题固定在弹窗顶部，给关卡名称和通关信息留出清晰的垂直间距。
+            SetRect(completionTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(.5f, 1f), new Vector2(0f, -36f), new Vector2(0f, 48f));
             _completionSummary = CreateLabel(_completion.transform, string.Empty, 22, TextAlignmentOptions.Center);
-            SetRect(_completionSummary.rectTransform, new Vector2(.08f, .42f), new Vector2(.92f, .78f), new Vector2(.5f, .6f), Vector2.zero, Vector2.zero);
+            SetRect(_completionSummary.rectTransform, new Vector2(.08f, .32f), new Vector2(.92f, .70f), new Vector2(.5f, .51f), Vector2.zero, Vector2.zero);
             _shopButton = CreateButton(_completion.transform, "打开商店", 22);
             SetRect(_shopButton.GetComponent<RectTransform>(), new Vector2(.08f, .10f), new Vector2(.46f, .28f), new Vector2(.27f, .19f), Vector2.zero, Vector2.zero);
             _nextButton = CreateButton(_completion.transform, "下一关", 22);
