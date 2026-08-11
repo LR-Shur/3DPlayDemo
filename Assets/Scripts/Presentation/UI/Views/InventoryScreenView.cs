@@ -34,12 +34,17 @@ namespace Train.Presentation.UI.Views
         [SerializeField] private TMP_Text _detailDescription;
         [SerializeField] private TMP_Text _detailQuantity;
         [SerializeField] private Image _detailIcon;
+        [SerializeField] private Button _discardButton;
+        private TMP_Text _discardLabel;
 
         /// <inheritdoc />
         public event Action<int> SlotSelected;
 
         /// <summary>当玩家切换左侧物品分类时触发，0 表示全部。</summary>
         public event Action<int> CategorySelected;
+
+        /// <summary>丢弃当前选中物品的请求。</summary>
+        public event Action DiscardRequested;
 
         /// <inheritdoc />
         public event Action CloseRequested;
@@ -135,8 +140,11 @@ namespace Train.Presentation.UI.Views
             for (var index = 0; index < count; index++)
             {
                 var slot = viewModel.Slots[index];
+                var displayName = slot.IsEquipped
+                    ? $"已装备 · {slot.DisplayName}"
+                    : slot.DisplayName;
                 _slotNames[index].text = slot.IsOccupied
-                    ? slot.DisplayName
+                    ? displayName
                     : "空槽位";
                 _slotNames[index].color = slot.IsOccupied
                     ? new Color32(244, 247, 251, 255)
@@ -157,6 +165,8 @@ namespace Train.Presentation.UI.Views
                 }
                 _slotBackgrounds[index].color = slot.IsSelected
                     ? new Color32(28, 66, 83, 248)
+                    : slot.IsEquipped
+                        ? new Color32(66, 54, 31, 245)
                     : new Color32(23, 40, 61, 238);
             }
 
@@ -179,11 +189,14 @@ namespace Train.Presentation.UI.Views
                 _categoryButtons[index]?.onClick.AddListener(
                     () => CategorySelected?.Invoke(captured));
             }
+
+            EnsureDiscardButton();
         }
 
         private void OnDestroy()
         {
             _closeButton?.onClick.RemoveListener(HandleClose);
+            _discardButton?.onClick.RemoveListener(HandleDiscard);
         }
 
         private void HandleClose()
@@ -191,8 +204,69 @@ namespace Train.Presentation.UI.Views
             CloseRequested?.Invoke();
         }
 
+        private void HandleDiscard()
+        {
+            DiscardRequested?.Invoke();
+        }
+
+        /// <summary>为旧版 UI 预制体补建丢弃按钮。</summary>
+        private void EnsureDiscardButton()
+        {
+            if (_discardButton != null || _detailName == null)
+            {
+                return;
+            }
+
+            var detail = _detailName.transform.parent as RectTransform;
+            if (detail == null)
+            {
+                return;
+            }
+
+            var buttonObject = new GameObject(
+                "DiscardButton",
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(Button));
+            buttonObject.transform.SetParent(detail, false);
+            var rect = buttonObject.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(1f, 0f);
+            rect.anchorMax = new Vector2(1f, 0f);
+            rect.pivot = new Vector2(1f, 0f);
+            rect.sizeDelta = new Vector2(150f, 48f);
+            rect.anchoredPosition = new Vector2(-30f, 28f);
+
+            var image = buttonObject.GetComponent<Image>();
+            image.color = new Color32(132, 43, 58, 255);
+            _discardButton = buttonObject.GetComponent<Button>();
+            _discardButton.targetGraphic = image;
+            _discardButton.onClick.AddListener(HandleDiscard);
+
+            var labelObject = new GameObject(
+                "Label",
+                typeof(RectTransform),
+                typeof(TMP_Text));
+            labelObject.transform.SetParent(buttonObject.transform, false);
+            var labelRect = labelObject.GetComponent<RectTransform>();
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = Vector2.zero;
+            labelRect.offsetMax = Vector2.zero;
+            _discardLabel = labelObject.GetComponent<TMP_Text>();
+            _discardLabel.font = _detailName.font;
+            _discardLabel.fontSize = 18f;
+            _discardLabel.alignment = TextAlignmentOptions.Center;
+            _discardLabel.color = Color.white;
+            _discardLabel.raycastTarget = false;
+        }
+
         private void RenderDetail(InventoryItemDetailViewModel detail)
         {
+            if (detail == null || !detail.HasItem)
+            {
+                SetDiscardState(false, false, false);
+            }
+
             if (detail == null || !detail.HasItem)
             {
                 if (_detailIcon != null)
@@ -214,6 +288,7 @@ namespace Train.Presentation.UI.Views
             _detailRarity.text = FormatRarity(detail.Rarity);
             _detailRarity.color = RarityColor(detail.Rarity);
             _detailDescription.text = detail.Description;
+            SetDiscardState(true, detail.CanDiscard, detail.IsEquipped);
             _detailQuantity.text =
                 $"持有  {detail.Quantity}    堆叠上限  {detail.MaxStack}";
             if (_detailIcon != null)
@@ -224,6 +299,24 @@ namespace Train.Presentation.UI.Views
         }
 
         /// <summary>按稳定物品 ID 从 Resources 读取本地化图标。</summary>
+        private void SetDiscardState(bool visible, bool interactable, bool equipped)
+        {
+            if (_discardButton == null)
+            {
+                return;
+            }
+
+            _discardButton.gameObject.SetActive(visible);
+            _discardButton.interactable = interactable;
+            _discardButton.image.color = interactable
+                ? new Color32(132, 43, 58, 255)
+                : new Color32(74, 74, 74, 220);
+            if (_discardLabel != null)
+            {
+                _discardLabel.text = equipped ? "已装备" : "丢弃物品";
+            }
+        }
+
         private static Sprite LoadItemIcon(string itemId)
         {
             return string.IsNullOrWhiteSpace(itemId)

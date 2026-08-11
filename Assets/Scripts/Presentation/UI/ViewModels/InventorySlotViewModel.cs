@@ -18,7 +18,8 @@ namespace Train.Presentation.UI.ViewModels
             ItemCategory category,
             ItemRarity rarity,
             string iconLocation,
-            bool isSelected)
+            bool isSelected,
+            bool isEquipped)
         {
             SlotIndex = slotIndex;
             IsOccupied = isOccupied;
@@ -30,6 +31,7 @@ namespace Train.Presentation.UI.ViewModels
             Rarity = rarity;
             IconLocation = iconLocation ?? string.Empty;
             IsSelected = isSelected;
+            IsEquipped = isEquipped;
         }
 
         /// <summary>获取槽位索引。</summary>
@@ -61,5 +63,8 @@ namespace Train.Presentation.UI.ViewModels
 
         /// <summary>获取此槽位当前是否被选中。</summary>
         public bool IsSelected { get; }
+
+        /// <summary>当前物品是否已装备。</summary>
+        public bool IsEquipped { get; }
     }
 }

@@ -110,6 +110,7 @@ namespace Train.Presentation.UI.Runtime
             _root.MenuNavigationRoot.SetActive(false);
             _inventoryPresenter = new InventoryPresenter(
                 inventory,
+                equipment,
                 events,
                 _root.Inventory,
                 HideMenu);

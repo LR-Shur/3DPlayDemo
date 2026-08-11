@@ -15,6 +15,9 @@ namespace Train.Presentation.UI.Contracts
         /// <summary>当玩家切换左侧物品分类时触发，0 表示全部。</summary>
         event Action<int> CategorySelected;
 
+        /// <summary>请求丢弃当前选中物品。</summary>
+        event Action DiscardRequested;
+
         /// <summary>当玩家请求关闭背包界面时触发。</summary>
         event Action CloseRequested;
 

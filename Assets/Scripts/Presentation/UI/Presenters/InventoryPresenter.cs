@@ -1,5 +1,7 @@
 using System;
 using Train.Architecture.Events;
+using Train.Equipment.Application;
+using Train.Equipment.Events;
 using Train.Inventory.Application;
 using Train.Inventory.Core;
 using Train.Inventory.Data;
@@ -18,9 +20,11 @@ namespace Train.Presentation.UI.Presenters
         public const int VisibleSlotCount = 24;
 
         private readonly IInventoryService _inventory;
+        private readonly IEquipmentService _equipment;
         private readonly IInventoryView _view;
         private readonly Action _onCloseRequested;
         private readonly IDisposable _inventoryChangedSubscription;
+        private readonly IDisposable _equipmentChangedSubscription;
         private int _selectedSlotIndex = -1;
         private int _selectedCategoryIndex;
         private bool _disposed;
@@ -30,12 +34,14 @@ namespace Train.Presentation.UI.Presenters
         /// </summary>
         public InventoryPresenter(
             IInventoryService inventory,
+            IEquipmentService equipment,
             IEventBus events,
             IInventoryView view,
             Action onCloseRequested = null)
         {
             _inventory =
                 inventory ?? throw new ArgumentNullException(nameof(inventory));
+            _equipment = equipment;
             if (events == null)
             {
                 throw new ArgumentNullException(nameof(events));
@@ -46,11 +52,24 @@ namespace Train.Presentation.UI.Presenters
 
             _view.SlotSelected += OnSlotSelected;
             _view.CategorySelected += OnCategorySelected;
+            _view.DiscardRequested += OnDiscardRequested;
             _view.CloseRequested += OnCloseRequested;
             _inventoryChangedSubscription =
                 events.Subscribe<InventoryChangedEvent>(OnInventoryChanged);
+            _equipmentChangedSubscription =
+                events.Subscribe<EquipmentChangedEvent>(OnEquipmentChanged);
 
             Render();
+        }
+
+        /// <summary>兼容不需要装备标记的旧测试和独立背包预览。</summary>
+        public InventoryPresenter(
+            IInventoryService inventory,
+            IEventBus events,
+            IInventoryView view,
+            Action onCloseRequested = null)
+            : this(inventory, null, events, view, onCloseRequested)
+        {
         }
 
         /// <summary>获取当前选中的槽位索引；尚未选择时为 -1。</summary>
@@ -68,8 +87,10 @@ namespace Train.Presentation.UI.Presenters
 
             _view.SlotSelected -= OnSlotSelected;
             _view.CategorySelected -= OnCategorySelected;
+            _view.DiscardRequested -= OnDiscardRequested;
             _view.CloseRequested -= OnCloseRequested;
             _inventoryChangedSubscription.Dispose();
+            _equipmentChangedSubscription.Dispose();
             _disposed = true;
         }
 
@@ -81,6 +102,15 @@ namespace Train.Presentation.UI.Presenters
             }
 
             Render();
+        }
+
+        /// <summary>装备变化后刷新背包中的装备标记。</summary>
+        private void OnEquipmentChanged(EquipmentChangedEvent message)
+        {
+            if (!_disposed)
+            {
+                Render();
+            }
         }
 
         private void OnSlotSelected(int slotIndex)
@@ -116,9 +146,27 @@ namespace Train.Presentation.UI.Presenters
             Render();
         }
 
+        /// <summary>删除当前选中的整叠物品，已装备物品由详情模型禁止删除。</summary>
+        private void OnDiscardRequested()
+        {
+            if (_disposed || _selectedSlotIndex < 0)
+            {
+                return;
+            }
+
+            var detail = BuildSelectedDetail();
+            if (detail == null || !detail.CanDiscard)
+            {
+                return;
+            }
+
+            _inventory.TryRemove(detail.ItemId, detail.Quantity);
+        }
+
         private void Render()
         {
             var snapshot = _inventory.Snapshot;
+            var equippedIds = GetEquippedItemIds();
             var filteredSlots = new System.Collections.Generic.List<InventorySlotSnapshot>();
             var occupiedCount = 0;
             for (var index = 0; index < snapshot.Slots.Count; index++)
@@ -158,7 +206,6 @@ namespace Train.Presentation.UI.Presenters
 
                 if (occupied)
                 {
-                    occupiedCount++;
                     _inventory.TryGetDefinition(
                         slot.ItemId,
                         out definition);
@@ -185,6 +232,7 @@ namespace Train.Presentation.UI.Presenters
                     ? definition.IconLocation
                     : string.Empty;
 
+                var isEquipped = occupied && equippedIds.Contains(slot.ItemId);
                 slots[slotIndex] = new InventorySlotViewModel(
                     slotIndex,
                     occupied,
@@ -195,7 +243,8 @@ namespace Train.Presentation.UI.Presenters
                     category,
                     rarity,
                     iconLocation,
-                    selected);
+                    selected,
+                    isEquipped);
 
                 if (selected && occupied)
                 {
@@ -211,7 +260,8 @@ namespace Train.Presentation.UI.Presenters
                         maxStack,
                         category,
                         rarity,
-                        iconLocation);
+                        iconLocation,
+                        isEquipped);
                 }
             }
 
@@ -224,6 +274,70 @@ namespace Train.Presentation.UI.Presenters
                     _selectedCategoryIndex,
                     slots,
                     detail));
+        }
+
+        /// <summary>重新解析当前筛选页的选中物品，供丢弃操作使用。</summary>
+        private InventoryItemDetailViewModel BuildSelectedDetail()
+        {
+            var snapshot = _inventory.Snapshot;
+            var filteredSlots = new System.Collections.Generic.List<InventorySlotSnapshot>();
+            foreach (var slot in snapshot.Slots)
+            {
+                if (slot.IsEmpty)
+                {
+                    continue;
+                }
+
+                _inventory.TryGetDefinition(slot.ItemId, out var definition);
+                var category = definition != null
+                    ? definition.Category
+                    : ItemCategory.Material;
+                if (MatchesCategory(_selectedCategoryIndex, category))
+                {
+                    filteredSlots.Add(slot);
+                }
+            }
+
+            if (_selectedSlotIndex < 0 || _selectedSlotIndex >= filteredSlots.Count)
+            {
+                return null;
+            }
+
+            var slotSnapshot = filteredSlots[_selectedSlotIndex];
+            _inventory.TryGetDefinition(slotSnapshot.ItemId, out var itemDefinition);
+            var equipped = GetEquippedItemIds().Contains(slotSnapshot.ItemId);
+            return new InventoryItemDetailViewModel(
+                true,
+                _selectedSlotIndex,
+                slotSnapshot.ItemId,
+                itemDefinition != null ? itemDefinition.DisplayName : slotSnapshot.ItemId,
+                itemDefinition != null ? itemDefinition.Description : string.Empty,
+                slotSnapshot.Quantity,
+                itemDefinition != null ? itemDefinition.MaxStack : slotSnapshot.Quantity,
+                itemDefinition != null ? itemDefinition.Category : ItemCategory.Material,
+                itemDefinition != null ? itemDefinition.Rarity : ItemRarity.Common,
+                itemDefinition != null ? itemDefinition.IconLocation : string.Empty,
+                equipped);
+        }
+
+        /// <summary>收集装备栏中已使用的物品 ID，供背包角标和删除保护复用。</summary>
+        private System.Collections.Generic.HashSet<string> GetEquippedItemIds()
+        {
+            var result = new System.Collections.Generic.HashSet<string>(StringComparer.Ordinal);
+            if (_equipment == null)
+            {
+                return result;
+            }
+
+            foreach (var slot in _equipment.Snapshot.Slots)
+            {
+                if (!slot.IsEmpty && slot.Item != null)
+                {
+                    result.Add(slot.Item.ItemId);
+                }
+            }
+
+            return result;
         }
 
         private void EnsureSelection(int filteredCount)

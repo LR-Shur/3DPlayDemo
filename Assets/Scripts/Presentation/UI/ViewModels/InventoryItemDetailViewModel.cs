@@ -19,7 +19,8 @@ namespace Train.Presentation.UI.ViewModels
                 0,
                 ItemCategory.Material,
                 ItemRarity.Common,
-                string.Empty);
+                string.Empty,
+                false);
 
         /// <summary>创建一份背包物品详情视图模型。</summary>
         public InventoryItemDetailViewModel(
@@ -32,7 +33,8 @@ namespace Train.Presentation.UI.ViewModels
             int maxStack,
             ItemCategory category,
             ItemRarity rarity,
-            string iconLocation)
+            string iconLocation,
+            bool isEquipped)
         {
             HasItem = hasItem;
             SlotIndex = slotIndex;
@@ -44,6 +46,7 @@ namespace Train.Presentation.UI.ViewModels
             Category = category;
             Rarity = rarity;
             IconLocation = iconLocation ?? string.Empty;
+            IsEquipped = isEquipped;
         }
 
         /// <summary>获取当前详情是否包含有效物品。</summary>
@@ -75,5 +78,11 @@ namespace Train.Presentation.UI.ViewModels
 
         /// <summary>获取物品图标的资源定位地址。</summary>
         public string IconLocation { get; }
+
+        /// <summary>当前详情物品是否已装备。</summary>
+        public bool IsEquipped { get; }
+
+        /// <summary>当前详情物品是否允许丢弃。</summary>
+        public bool CanDiscard => HasItem && !IsEquipped;
     }
 }
