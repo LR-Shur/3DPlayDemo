@@ -47,5 +47,20 @@ namespace Train.Inventory.Data
             definition = null;
             return false;
         }
+
+        /// <summary>创建由 Luban 物品表驱动的运行时背包配置，初始背包保持为空。</summary>
+        public static InventorySettings CreateRuntime(
+            int capacity,
+            IReadOnlyList<ItemDefinition> items)
+        {
+            var settings = CreateInstance<InventorySettings>();
+            settings.name = "LubanInventorySettings";
+            settings._capacity = Mathf.Max(1, capacity);
+            settings._items = items != null
+                ? new List<ItemDefinition>(items)
+                : new List<ItemDefinition>();
+            settings._startingItems = new List<StartingItemDefinition>();
+            return settings;
+        }
     }
 }

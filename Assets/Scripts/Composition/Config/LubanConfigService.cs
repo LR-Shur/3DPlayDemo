@@ -26,6 +26,7 @@ namespace Train.Composition.Config
 
         private readonly Dictionary<string, byte[]> _buffers = new();
         private bool _disposed;
+        private Task _initializationTask;
 
         /// <inheritdoc />
         public bool IsReady => Tables != null && !_disposed;
@@ -41,6 +42,21 @@ namespace Train.Composition.Config
             {
                 return;
             }
+
+            if (_initializationTask != null)
+            {
+                await _initializationTask;
+                return;
+            }
+
+            _initializationTask = InitializeCoreAsync(cancellationToken);
+            await _initializationTask;
+        }
+
+        /// <summary>只允许一次实际读取，避免启动根和关卡控制器并发加载表。</summary>
+        private async Task InitializeCoreAsync(CancellationToken cancellationToken)
+        {
+            ThrowIfDisposed();
 
             foreach (var tableName in TableNames)
             {
@@ -116,6 +132,7 @@ namespace Train.Composition.Config
 
             _buffers.Clear();
             Tables = null;
+            _initializationTask = null;
             _disposed = true;
         }
 

@@ -98,6 +98,20 @@ namespace Train.Composition
             }
 
             var services = GameBootstrap.Instance.Context.Services;
+            // 先注册 Luban 服务和配置提供者，保证关卡控制器的 Start 不会跑在配置服务之前。
+            if (!services.TryResolve<ILubanConfigService>(out var lubanConfig))
+            {
+                lubanConfig = new LubanConfigService();
+                services.Install<ILubanConfigService>(lubanConfig);
+            }
+
+            if (!services.TryResolve<ILevelDefinitionProvider>(out _))
+            {
+                var provider = new LubanLevelDefinitionProvider(lubanConfig);
+                services.Install<ILevelDefinitionProvider>(provider);
+                services.Install<IEnemyArchetypeProvider>(provider);
+            }
+
             if (!services.TryResolve<ILevelSessionRegistry>(out _))
             {
                 services.Install<ILevelSessionRegistry>(
@@ -153,12 +167,8 @@ namespace Train.Composition
 
             try
             {
-                if (!game.Context.Services.TryResolve<ILubanConfigService>(out _))
-                {
-                    var luban = new LubanConfigService();
-                    await luban.InitializeAsync(cancellationToken);
-                    game.Context.Services.Install<ILubanConfigService>(luban);
-                }
+                var luban = game.Context.Services.Resolve<ILubanConfigService>();
+                await luban.InitializeAsync(cancellationToken);
 
                 var assets = await WaitForAssetServiceAsync(
                     game,
@@ -235,6 +245,21 @@ namespace Train.Composition
                     await assets.LoadAsync<EquipmentSettings>(
                         AssetLocations.EquipmentSettings,
                         cancellationToken);
+                if (game.Context.Services.TryResolve<ILubanConfigService>(
+                        out var luban) &&
+                    luban.IsReady)
+                {
+                    var runtimeSettings =
+                        LubanRuntimeSettingsFactory.CreateEquipmentSettings(
+                            luban.Tables,
+                            settingsLease.Asset);
+                    settingsLease.Dispose();
+                    settingsLease =
+                        LubanRuntimeSettingsFactory.CreateLease(
+                            runtimeSettings,
+                            "luban://equipment");
+                }
+
                 var service = new EquipmentService(
                     settingsLease.Asset,
                     game.Context.Events,
@@ -460,6 +485,21 @@ namespace Train.Composition
                     await assets.LoadAsync<InventorySettings>(
                         AssetLocations.InventorySettings,
                         cancellationToken);
+                if (game.Context.Services.TryResolve<ILubanConfigService>(
+                        out var luban) &&
+                    luban.IsReady)
+                {
+                    var runtimeSettings =
+                        LubanRuntimeSettingsFactory.CreateInventorySettings(
+                            luban.Tables,
+                            settingsLease.Asset);
+                    settingsLease.Dispose();
+                    settingsLease =
+                        LubanRuntimeSettingsFactory.CreateLease(
+                            runtimeSettings,
+                            "luban://items");
+                }
+
                 var service = new InventoryService(
                     settingsLease.Asset,
                     game.Context.Events,

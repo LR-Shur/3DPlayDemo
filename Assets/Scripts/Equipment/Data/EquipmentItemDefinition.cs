@@ -113,5 +113,27 @@ namespace Train.Equipment.Data
                 normalizedSetId,
                 modifiers);
         }
+
+        /// <summary>根据 Luban 装备行创建运行时装备定义。</summary>
+        public static EquipmentItemDefinition CreateRuntime(
+            string itemId,
+            string displayName,
+            EquipmentRarity rarity,
+            EquipmentItemCategory category,
+            IReadOnlyList<EquipmentStatModifierDefinition> modifiers)
+        {
+            var definition = CreateInstance<EquipmentItemDefinition>();
+            definition.name = $"LubanEquipment_{itemId}";
+            definition._itemId = itemId;
+            definition._displayName = displayName;
+            definition._description = $"由 Luban 配置的 {displayName}。";
+            definition._rarity = rarity;
+            definition._category = category;
+            definition._setId = string.Empty;
+            definition._modifiers = modifiers != null
+                ? new List<EquipmentStatModifierDefinition>(modifiers)
+                : new List<EquipmentStatModifierDefinition>();
+            return definition;
+        }
     }
 }

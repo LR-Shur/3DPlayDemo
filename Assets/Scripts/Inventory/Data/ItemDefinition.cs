@@ -40,5 +40,27 @@ namespace Train.Inventory.Data
 
         /// <summary>获取 YooAsset 图标定位地址。</summary>
         public string IconLocation => _iconLocation;
+
+        /// <summary>根据 Luban 行创建运行时物品定义。</summary>
+        public static ItemDefinition CreateRuntime(
+            string itemId,
+            string displayName,
+            string description,
+            ItemCategory category,
+            ItemRarity rarity,
+            int maxStack,
+            string iconLocation)
+        {
+            var definition = CreateInstance<ItemDefinition>();
+            definition.name = $"LubanItem_{itemId}";
+            definition._itemId = itemId;
+            definition._displayName = displayName;
+            definition._description = description;
+            definition._category = category;
+            definition._rarity = rarity;
+            definition._maxStack = Mathf.Max(1, maxStack);
+            definition._iconLocation = iconLocation;
+            return definition;
+        }
     }
 }

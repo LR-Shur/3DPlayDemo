@@ -77,6 +77,13 @@ namespace Train.Gameplay.Enemy.Combat
             _faction = faction;
         }
 
+        /// <summary>应用 Luban 敌人原型的攻击力覆盖。</summary>
+        public void ConfigureDamage(float damage)
+        {
+            _baseDamage = Mathf.Max(0f, damage);
+            _damage = _baseDamage;
+        }
+
         /// <summary>
         /// 供 Boss 阶段调整攻击强度与节奏，始终基于初始配置计算，避免重复叠加误差。
         /// </summary>

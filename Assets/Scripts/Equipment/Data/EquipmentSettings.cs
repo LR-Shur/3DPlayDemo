@@ -33,5 +33,23 @@ namespace Train.Equipment.Data
         /// <summary>获取只读初始穿戴配置列表。</summary>
         public IReadOnlyList<StartingEquipmentDefinition>
             StartingEquipment => _startingEquipment;
+
+        /// <summary>创建由 Luban 装备表驱动的运行时配置，默认不穿戴任何装备。</summary>
+        public static EquipmentSettings CreateRuntime(
+            IReadOnlyList<EquipmentBaseStatDefinition> baseStats,
+            IReadOnlyList<EquipmentItemDefinition> items)
+        {
+            var settings = CreateInstance<EquipmentSettings>();
+            settings.name = "LubanEquipmentSettings";
+            settings._baseStats = baseStats != null
+                ? new List<EquipmentBaseStatDefinition>(baseStats)
+                : new List<EquipmentBaseStatDefinition>();
+            settings._items = items != null
+                ? new List<EquipmentItemDefinition>(items)
+                : new List<EquipmentItemDefinition>();
+            settings._sets = new List<EquipmentSetDefinition>();
+            settings._startingEquipment = new List<StartingEquipmentDefinition>();
+            return settings;
+        }
     }
 }

@@ -30,5 +30,19 @@ namespace Train.Equipment.Data
         {
             return new StatModifier(_statType, _operation, _value);
         }
+
+        /// <summary>创建由 Luban 数值行生成的运行时属性词条。</summary>
+        public static EquipmentStatModifierDefinition CreateRuntime(
+            StatType statType,
+            StatModifierOperation operation,
+            float value)
+        {
+            return new EquipmentStatModifierDefinition
+            {
+                _statType = statType,
+                _operation = operation,
+                _value = value
+            };
+        }
     }
 }

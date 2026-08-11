@@ -32,5 +32,20 @@ namespace Train.Gameplay.Enemy.Data
         public float HitboxEndTime => Mathf.Clamp(_hitboxEndTime, HitboxStartTime, _attackDuration);
         public float HitReactionDuration => _hitReactionDuration;
         public float DeathDespawnDelay => _deathDespawnDelay;
+
+        /// <summary>按 Luban 的移动速度创建运行时副本，不修改项目中的原始配置资产。</summary>
+        public static EnemyConfig CreateRuntime(EnemyConfig baseline, float moveSpeed)
+        {
+            if (baseline == null)
+            {
+                return null;
+            }
+
+            var runtime = Instantiate(baseline);
+            runtime.name = $"{baseline.name}_Runtime";
+            runtime._patrolSpeed = Mathf.Max(0f, moveSpeed);
+            runtime._chaseSpeed = Mathf.Max(0f, moveSpeed);
+            return runtime;
+        }
     }
 }

@@ -30,5 +30,27 @@ namespace Train.GameFlow.Data
         public float IntroSeconds => _introSeconds;
         public int MaxPlayerDeaths => _maxPlayerDeaths;
         public IReadOnlyList<EnemySpawnDefinition> EnemySpawns => _enemySpawns;
+
+        /// <summary>由 Luban 关卡表创建运行时关卡定义。</summary>
+        public static LevelDefinition CreateRuntime(
+            string levelId,
+            string displayName,
+            string sceneLocation,
+            float introSeconds,
+            int maxPlayerDeaths,
+            IReadOnlyList<EnemySpawnDefinition> enemySpawns)
+        {
+            var definition = CreateInstance<LevelDefinition>();
+            definition.name = $"LubanLevel_{levelId}";
+            definition._levelId = levelId;
+            definition._displayName = displayName;
+            definition._sceneLocation = sceneLocation;
+            definition._introSeconds = Mathf.Max(0f, introSeconds);
+            definition._maxPlayerDeaths = Mathf.Max(0, maxPlayerDeaths);
+            definition._enemySpawns = enemySpawns != null
+                ? new List<EnemySpawnDefinition>(enemySpawns)
+                : new List<EnemySpawnDefinition>();
+            return definition;
+        }
     }
 }

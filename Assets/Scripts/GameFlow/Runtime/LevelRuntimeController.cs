@@ -15,6 +15,8 @@ using Train.Gameplay.Combat.Application.Events;
 using Train.Gameplay.Combat.Factions;
 using Train.Gameplay.Camera;
 using Train.Gameplay.Enemy.Core;
+using Train.Gameplay.Enemy.Combat;
+using Train.Gameplay.Enemy.Data;
 using Train.Gameplay.Player.Application.Events;
 using Train.Gameplay.Player.Core;
 using Train.Gameplay.Player.Input;
@@ -236,6 +238,7 @@ namespace Train.GameFlow.Runtime
                     }
 
                     controller.enabled = false;
+                    ApplyLubanArchetype(spawn, instance, health, controller);
                     pendingActors.Add((health, identity, controller));
                 }
             }
@@ -416,6 +419,24 @@ namespace Train.GameFlow.Runtime
         private async Task ResolveDefinitionAsync(
             CancellationToken cancellationToken)
         {
+            var services = GameBootstrap.Instance.Context.Services;
+            if (services.TryResolve<ILevelDefinitionProvider>(out var provider))
+            {
+                var requestedId = _definition != null
+                    ? _definition.LevelId
+                    : LevelSceneLauncher.Instance != null &&
+                      LevelSceneLauncher.Instance.CurrentDefinition != null
+                        ? LevelSceneLauncher.Instance.CurrentDefinition.LevelId
+                        : string.Empty;
+                if (!string.IsNullOrWhiteSpace(requestedId))
+                {
+                    _definition = await provider.ResolveAsync(
+                        requestedId,
+                        cancellationToken);
+                    return;
+                }
+            }
+
             if (_definition != null)
             {
                 return;
@@ -440,6 +461,37 @@ namespace Train.GameFlow.Runtime
                 AssetLocations.CombatArenaDefinition,
                 cancellationToken);
             _definition = _ownedDefinitionLease.Asset;
+        }
+
+        /// <summary>把 Luban 敌人原型的生命、攻击、防御和移动速度应用到实例。</summary>
+        private static void ApplyLubanArchetype(
+            EnemySpawnDefinition spawn,
+            GameObject instance,
+            Health health,
+            EnemyController controller)
+        {
+            if (!GameBootstrap.Instance.Context.Services.TryResolve<IEnemyArchetypeProvider>(
+                    out var provider) ||
+                !provider.TryGet(spawn.ArchetypeId, out var data))
+            {
+                return;
+            }
+
+            health.SetMaxHealth(data.MaxHealth, true);
+            var stats = instance.GetComponent<CombatStatModifierComponent>();
+            if (stats == null)
+            {
+                stats = instance.AddComponent<CombatStatModifierComponent>();
+            }
+
+            stats.SetDefense(data.Defense);
+            var melee = instance.GetComponentInChildren<EnemyMeleeCombat>(true);
+            melee?.ConfigureDamage(data.Attack);
+
+            var runtimeConfig = EnemyConfig.CreateRuntime(
+                controller.Config,
+                data.MoveSpeed);
+            controller.ApplyRuntimeConfig(runtimeConfig);
         }
 
         private void ResolvePlayer()

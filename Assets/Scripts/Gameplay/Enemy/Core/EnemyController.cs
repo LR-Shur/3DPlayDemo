@@ -24,12 +24,20 @@ namespace Train.Gameplay.Enemy.Core
         private Health _health;
         private IEnemySensor _sensor;
         private EnemyStateMachine _stateMachine;
+        private EnemyConfig _runtimeConfig;
 
         public string CurrentStateName => _currentStateName;
+        public EnemyConfig Config => _config;
 
         private void Awake()
         {
             _health = GetComponent<Health>();
+            BuildStateMachine();
+        }
+
+        /// <summary>构建敌人状态机，供初始配置和运行时 Luban 覆盖共同使用。</summary>
+        private void BuildStateMachine()
+        {
             _sensor = Resolve<IEnemySensor>(_sensorComponent);
             var motor = Resolve<IEnemyMotor>(_motorComponent);
             var combat = Resolve<IEnemyCombat>(_combatComponent);
@@ -60,6 +68,24 @@ namespace Train.Gameplay.Enemy.Core
             _stateMachine.ChangeState(_stateMachine.Idle);
         }
 
+        /// <summary>应用敌人原型生成的运行时配置，并重建状态机上下文。</summary>
+        public void ApplyRuntimeConfig(EnemyConfig config)
+        {
+            if (config == null)
+            {
+                return;
+            }
+
+            _config = config;
+            if (_runtimeConfig != null)
+            {
+                Destroy(_runtimeConfig);
+            }
+
+            _runtimeConfig = config;
+            BuildStateMachine();
+        }
+
         private void OnEnable()
         {
             _health ??= GetComponent<Health>();
@@ -76,6 +102,15 @@ namespace Train.Gameplay.Enemy.Core
 
             _health.Damaged -= OnDamaged;
             _health.Died -= OnDied;
+        }
+
+        private void OnDestroy()
+        {
+            if (_runtimeConfig != null)
+            {
+                Destroy(_runtimeConfig);
+                _runtimeConfig = null;
+            }
         }
 
         private void Update()

@@ -18,5 +18,17 @@ namespace Train.Equipment.Data
 
         /// <summary>获取基础属性数值。</summary>
         public float Value => _value;
+
+        /// <summary>创建运行时基础属性定义。</summary>
+        public static EquipmentBaseStatDefinition CreateRuntime(
+            StatType statType,
+            float value)
+        {
+            return new EquipmentBaseStatDefinition
+            {
+                _statType = statType,
+                _value = value
+            };
+        }
     }
 }
