@@ -24,7 +24,7 @@
 
 - 仓库：[LR-Shur/3DPlayDemo](https://github.com/LR-Shur/3DPlayDemo)
 - 分支：`agent/player-state-machine`
-- 提交：`dfa7374`
+- 提交：`222c4e4`
 - 会话记录：[`SESSION_RECORD.zh-CN.md`](SESSION_RECORD.zh-CN.md)
 
 为了控制仓库体积，未被关卡引用的 KawaiiCity 城市素材目录已加入 `.gitignore`，但仍保留在开发机上；当前新增场景使用项目内现有模型与程序化工业布景。

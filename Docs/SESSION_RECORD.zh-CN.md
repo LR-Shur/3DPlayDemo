@@ -1,6 +1,6 @@
 # 3DPlayDemo 开发会话记录
 
-> 最后更新：2026-08-11（关卡、经济、商店和显示问题修复）
+> 最后更新：2026-08-11（关卡、经济、商店、存档和 Boss 阶段）
 >
 > 用途：这是项目的“最后一次会话记录”。换环境或继续开发前，先阅读本文件，再查看 `git log` 和工作区状态。
 
@@ -259,4 +259,16 @@ Unity 报告 `Luban`、`ByteBuf` 类型不存在。Luban 包已经嵌入并导�
 - 最新验证结果：EditMode 205/205，PlayMode 7/7。
 - 本轮没有提交字体、角色预制体和全局 ProjectSettings 的本地改动。
 
-从其他机器继续时，先切换到 `agent/player-state-machine` 分支，阅读本节和 `PRODUCTION_ROADMAP.zh-CN.md`，再按第 10 节执行内容构建菜单。下一阶段优先级为存档/读档、装备词条、精英技能和 Boss 阶段机制。
+从其他机器继续时，先切换到 `agent/player-state-machine` 分支，阅读本节和 `PRODUCTION_ROADMAP.zh-CN.md`，再按第 10 节执行内容构建菜单。下一阶段优先级为装备词条、精英技能、Boss 专属场地机制和独立外观。
+
+## 14. 2026-08-11 GitHub 最新增量
+
+- 已从 GitHub 快进拉取 `1acb33f..222c4e4`，无受跟踪文件冲突。
+- 当前提交：`222c4e4 feature: add run save and boss phase progression`。
+- 新增第 2 战区 `Level_Combat_002` 和核心熔炉 Boss 关 `Level_Boss_001`，并加入 Build Settings、关卡 SO、敌人配置、敌人预制体和 Luban 表数据。
+- 新增金币/成长服务、关卡节点和战地商店流程：击杀与通关获得金币，通关可加载下一关，商店购买装备并尝试自动装备，背包容量为 36。
+- 新增 `CombatFeedbackRuntimeController`：元素颜色伤害数字、短生命周期命中粒子、Boss 专属血条和自动收起的战斗提示。
+- 新增 `RunSaveRuntimeController`：以 `Application.persistentDataPath/3DPlay/run-save.json` 保存金币、关卡节点、已通关关卡、背包堆叠和装备槽位，并通过事件防抖写盘。
+- 新增 `BossPhaseController`：Boss 在 66%/33% 生命阈值进入第二/第三阶段，调整攻击伤害与冷却、缩放和发光材质。
+- 新增 Progression EditMode 测试；远端文档记录的最新结果为 EditMode 205/205、PlayMode 7/7，本次拉取没有重跑 Unity 测试。
+- 当前工作区仍保留一个未跟踪的空目录遗留文件 `Assets/Scripts/Infrastructure/Config.meta`，没有纳入版本库。
