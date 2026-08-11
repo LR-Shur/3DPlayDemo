@@ -123,7 +123,8 @@ namespace Train.Presentation.UI.Runtime
                 quests,
                 events,
                 _root.Quests,
-                HideMenu);
+                HideMenu,
+                inventory);
             _characterPresenter = new CharacterPresenter(
                 characters,
                 events,

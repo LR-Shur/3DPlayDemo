@@ -114,6 +114,38 @@ namespace Train.Gameplay.Combat
             _damage = Mathf.Max(0f, damage);
         }
 
+        /// <summary>
+        /// 仅在 Unity 场景视图选中武器时绘制命中盒，运行时不会显示，方便关卡调试。
+        /// </summary>
+        private void OnDrawGizmosSelected()
+        {
+            var collider = _trigger != null
+                ? _trigger
+                : GetComponent<Collider>();
+            if (collider == null)
+            {
+                return;
+            }
+
+            Gizmos.color = new Color(1f, 0.25f, 0.12f, 0.8f);
+            var previousMatrix = Gizmos.matrix;
+            Gizmos.matrix = transform.localToWorldMatrix;
+            switch (collider)
+            {
+                case BoxCollider box:
+                    Gizmos.DrawWireCube(box.center, box.size);
+                    break;
+                case SphereCollider sphere:
+                    Gizmos.DrawWireSphere(sphere.center, sphere.radius);
+                    break;
+                case CapsuleCollider capsule:
+                    Gizmos.DrawWireSphere(capsule.center, capsule.radius);
+                    break;
+            }
+
+            Gizmos.matrix = previousMatrix;
+        }
+
         private void TryDamage(Collider other)
         {
             if (!IsDamageActive || other == null)

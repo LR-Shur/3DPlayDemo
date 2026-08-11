@@ -55,6 +55,7 @@ MonoBehaviour:
   _displayName: "\u8BAD\u7EC3\u7EC8\u7AEF"
   _actionLabel: "\u5BF9\u8BDD"
   _priority: 35
+  _interactionRange: 1.6
   _interactionPoint: {fileID: 3869339866833661530}
 --- !u!135 &1022650282281765619
 SphereCollider:

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Train.Architecture.Events;
+using Train.Inventory.Application;
 using Train.Presentation.UI.Contracts;
 using Train.Presentation.UI.ViewModels;
 using Train.Quest.Application;
@@ -18,6 +19,7 @@ namespace Train.Presentation.UI.Presenters
     public sealed class QuestPresenter : IDisposable
     {
         private readonly IQuestService _quests;
+        private readonly IInventoryService _inventory;
         private readonly IQuestView _view;
         private readonly Action _closeRequested;
         private readonly List<IDisposable> _subscriptions = new();
@@ -32,12 +34,14 @@ namespace Train.Presentation.UI.Presenters
             IQuestService quests,
             IEventBus events,
             IQuestView view,
-            Action closeRequested)
+            Action closeRequested,
+            IInventoryService inventory = null)
         {
             _quests = quests ?? throw new ArgumentNullException(nameof(quests));
             _view = view ?? throw new ArgumentNullException(nameof(view));
             _closeRequested = closeRequested ??
                 throw new ArgumentNullException(nameof(closeRequested));
+            _inventory = inventory;
             if (events == null)
             {
                 throw new ArgumentNullException(nameof(events));
@@ -324,7 +328,7 @@ namespace Train.Presentation.UI.Presenters
             return objective.TargetId;
         }
 
-        private static string FormatRewards(QuestDefinition definition)
+        private string FormatRewards(QuestDefinition definition)
         {
             if (definition.Rewards.Count == 0)
             {
@@ -340,12 +344,35 @@ namespace Train.Presentation.UI.Presenters
                 }
 
                 builder.Append("• ");
-                builder.Append(reward.ItemId);
+                builder.Append(ResolveRewardName(reward.ItemId));
                 builder.Append(" ×");
                 builder.Append(reward.Amount);
             }
 
             return builder.ToString();
+        }
+
+        /// <summary>优先从物品目录读取中文名称，避免任务奖励直接显示稳定 ID。</summary>
+        private string ResolveRewardName(string itemId)
+        {
+            if (_inventory != null &&
+                _inventory.TryGetDefinition(itemId, out var definition) &&
+                definition != null &&
+                !string.IsNullOrWhiteSpace(definition.DisplayName))
+            {
+                return definition.DisplayName;
+            }
+
+            return itemId switch
+            {
+                "training_chip" => "训练芯片",
+                "healing_canister" => "急救罐",
+                "upgrade_module" => "强化模块",
+                "city_token" => "城市场景代币",
+                "thunder_blade" => "雷鸣刀",
+                "thunder_ring" => "雷鸣指环",
+                _ => itemId
+            };
         }
     }
 }

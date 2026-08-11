@@ -180,6 +180,12 @@ namespace Train.WorldInteraction.Runtime
             var distance = Vector3.Distance(
                 center,
                 GetInteractionPosition(interactable, overlap.transform));
+            if (interactable is IInteractionRangeProvider rangeProvider &&
+                distance > Mathf.Max(0.5f, rangeProvider.InteractionRange))
+            {
+                return;
+            }
+
             var candidate = new InteractionCandidate(
                 interactable,
                 GetInteractionPriority(interactable),

@@ -22,6 +22,7 @@ namespace Train.Presentation.UI.Views
         [SerializeField] private Button[] _slotButtons = Array.Empty<Button>();
         [SerializeField] private Image[] _slotBackgrounds = Array.Empty<Image>();
         [SerializeField] private Image[] _slotAccents = Array.Empty<Image>();
+        [SerializeField] private Image[] _slotIcons = Array.Empty<Image>();
         [SerializeField] private TMP_Text[] _slotNames = Array.Empty<TMP_Text>();
         [SerializeField] private TMP_Text[] _slotQuantities =
             Array.Empty<TMP_Text>();
@@ -30,6 +31,7 @@ namespace Train.Presentation.UI.Views
         [SerializeField] private TMP_Text _detailRarity;
         [SerializeField] private TMP_Text _detailDescription;
         [SerializeField] private TMP_Text _detailQuantity;
+        [SerializeField] private Image _detailIcon;
 
         /// <inheritdoc />
         public event Action<int> SlotSelected;
@@ -51,13 +53,15 @@ namespace Train.Presentation.UI.Views
             Button[] slotButtons,
             Image[] slotBackgrounds,
             Image[] slotAccents,
+            Image[] slotIcons,
             TMP_Text[] slotNames,
             TMP_Text[] slotQuantities,
             TMP_Text detailCategory,
             TMP_Text detailName,
             TMP_Text detailRarity,
             TMP_Text detailDescription,
-            TMP_Text detailQuantity)
+            TMP_Text detailQuantity,
+            Image detailIcon)
         {
             _screenRoot = screenRoot;
             _closeButton = closeButton;
@@ -65,6 +69,7 @@ namespace Train.Presentation.UI.Views
             _slotButtons = slotButtons;
             _slotBackgrounds = slotBackgrounds;
             _slotAccents = slotAccents;
+            _slotIcons = slotIcons;
             _slotNames = slotNames;
             _slotQuantities = slotQuantities;
             _detailCategory = detailCategory;
@@ -72,6 +77,7 @@ namespace Train.Presentation.UI.Views
             _detailRarity = detailRarity;
             _detailDescription = detailDescription;
             _detailQuantity = detailQuantity;
+            _detailIcon = detailIcon;
         }
 
         /// <summary>设置背包页面根节点的显示状态。</summary>
@@ -112,6 +118,14 @@ namespace Train.Presentation.UI.Views
                 _slotAccents[index].color = slot.IsOccupied
                     ? RarityColor(slot.Rarity)
                     : new Color32(50, 70, 92, 150);
+                if (index < _slotIcons.Length && _slotIcons[index] != null)
+                {
+                    _slotIcons[index].sprite = slot.IsOccupied
+                        ? LoadItemIcon(slot.ItemId)
+                        : null;
+                    _slotIcons[index].gameObject.SetActive(
+                        _slotIcons[index].sprite != null);
+                }
                 _slotBackgrounds[index].color = slot.IsSelected
                     ? new Color32(28, 66, 83, 248)
                     : new Color32(23, 40, 61, 238);
@@ -145,7 +159,12 @@ namespace Train.Presentation.UI.Views
         {
             if (detail == null || !detail.HasItem)
             {
-                _detailCategory.text = "ITEM DATA";
+                if (_detailIcon != null)
+                {
+                    _detailIcon.sprite = null;
+                    _detailIcon.gameObject.SetActive(false);
+                }
+                _detailCategory.text = "物品详情";
                 _detailName.text = "未选择物品";
                 _detailRarity.text = "--";
                 _detailDescription.text =
@@ -161,17 +180,30 @@ namespace Train.Presentation.UI.Views
             _detailDescription.text = detail.Description;
             _detailQuantity.text =
                 $"持有  {detail.Quantity}    堆叠上限  {detail.MaxStack}";
+            if (_detailIcon != null)
+            {
+                _detailIcon.sprite = LoadItemIcon(detail.ItemId);
+                _detailIcon.gameObject.SetActive(_detailIcon.sprite != null);
+            }
+        }
+
+        /// <summary>按稳定物品 ID 从 Resources 读取本地化图标。</summary>
+        private static Sprite LoadItemIcon(string itemId)
+        {
+            return string.IsNullOrWhiteSpace(itemId)
+                ? null
+                : Resources.Load<Sprite>($"UI/Icons/{itemId}");
         }
 
         private static string FormatCategory(ItemCategory category)
         {
             return category switch
             {
-                ItemCategory.Consumable => "消耗品 // CONSUMABLE",
-                ItemCategory.Currency => "货币 // CURRENCY",
-                ItemCategory.Quest => "任务物品 // QUEST",
-                ItemCategory.Equipment => "装备 // EQUIPMENT",
-                _ => "养成素材 // MATERIAL"
+                ItemCategory.Consumable => "消耗品",
+                ItemCategory.Currency => "货币",
+                ItemCategory.Quest => "任务物品",
+                ItemCategory.Equipment => "装备",
+                _ => "养成素材"
             };
         }
 

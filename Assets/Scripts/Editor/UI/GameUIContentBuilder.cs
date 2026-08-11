@@ -514,7 +514,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "QuestLabel",
                 tracker,
-                "CURRENT COMMISSION",
+                "当前委托",
                 font,
                 13f,
                 Gold,
@@ -719,7 +719,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "HeaderEnglish",
                 body,
-                "INVENTORY // STORAGE",
+                "仓库 · 物品管理",
                 font,
                 16f,
                 Cyan,
@@ -822,6 +822,7 @@ namespace Train.EditorTools.UI
             var slotButtons = new Button[24];
             var slotBackgrounds = new Image[24];
             var slotAccents = new Image[24];
+            var slotIcons = new Image[24];
             var slotNames = new TMP_Text[24];
             var slotQuantities = new TMP_Text[24];
             for (var index = 0; index < 24; index++)
@@ -833,6 +834,7 @@ namespace Train.EditorTools.UI
                     out slotButtons[index],
                     out slotBackgrounds[index],
                     out slotAccents[index],
+                    out slotIcons[index],
                     out slotNames[index],
                     out slotQuantities[index]);
             }
@@ -856,7 +858,7 @@ namespace Train.EditorTools.UI
             var detailCategory = CreateText(
                 "Category",
                 detail,
-                "养成素材 // MATERIAL",
+                "养成素材",
                 font,
                 15f,
                 Cyan,
@@ -911,11 +913,24 @@ namespace Train.EditorTools.UI
                 false);
             onlineIconImage.sprite = _crosshairSprite;
             onlineIconImage.preserveAspect = true;
+            var detailItemIcon = CreateAnchored(
+                "ItemIcon",
+                preview,
+                new Vector2(0.5f, 0.5f),
+                new Vector2(108f, 108f),
+                new Vector2(0f, 12f),
+                new Vector2(0.5f, 0.5f));
+            var detailItemIconImage = AddImage(
+                detailItemIcon.gameObject,
+                Color.white,
+                false);
+            detailItemIconImage.preserveAspect = true;
+            detailItemIconImage.raycastTarget = false;
             CreateDecorativeDiamond(preview, Vector2.zero, Cyan, 96f);
             CreateText(
                 "IconLetters",
                 preview,
-                "DATA",
+                "数据",
                 font,
                 20f,
                 Primary,
@@ -955,13 +970,15 @@ namespace Train.EditorTools.UI
                 slotButtons,
                 slotBackgrounds,
                 slotAccents,
+                slotIcons,
                 slotNames,
                 slotQuantities,
                 detailCategory,
                 detailName,
                 detailRarity,
                 detailDescription,
-                detailQuantity);
+                detailQuantity,
+                detailItemIconImage);
             return view;
         }
 
@@ -991,7 +1008,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "HeaderEnglish",
                 body,
-                "AGENT LOADOUT // EQUIPMENT",
+                "代理人整备 · 装备",
                 font,
                 16f,
                 Gold,
@@ -1013,7 +1030,7 @@ namespace Train.EditorTools.UI
             var revisionText = CreateText(
                 "Revision",
                 body,
-                "LOADOUT REV. 0000",
+                "整备版本 0000",
                 font,
                 16f,
                 Secondary,
@@ -1042,7 +1059,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "SectionEyebrow",
                 loadoutPanel,
-                "CURRENT LOADOUT",
+                "当前装备",
                 font,
                 13f,
                 Cyan,
@@ -1110,7 +1127,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "SectionEyebrow",
                 catalogPanel,
-                "AVAILABLE MODULES",
+                "可用装备",
                 font,
                 13f,
                 Gold,
@@ -1194,7 +1211,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "DetailEyebrow",
                 detailPanel,
-                "MODULE ANALYSIS",
+                "装备详情",
                 font,
                 13f,
                 Cyan,
@@ -1266,7 +1283,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "ModifierLabel",
                 detailPanel,
-                "EQUIPMENT EFFECT // 装备词条",
+                "装备词条",
                 font,
                 13f,
                 Cyan,
@@ -1310,7 +1327,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "SetLabel",
                 setPanel,
-                "SET BONUS // 套装效果",
+                "套装效果",
                 font,
                 12f,
                 Gold,
@@ -1334,7 +1351,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "StatSection",
                 detailPanel,
-                "ATTRIBUTE COMPARISON // 属性对照",
+                "属性对照",
                 font,
                 13f,
                 Cyan,
@@ -1647,7 +1664,7 @@ namespace Train.EditorTools.UI
             state = CreateText(
                 "State",
                 card,
-                index == 0 ? "EQUIPPED" : "持有 ×1",
+                index == 0 ? "已装备" : "持有 ×1",
                 font,
                 11f,
                 index == 0 ? Gold : Secondary,
@@ -1683,7 +1700,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "HeaderEnglish",
                 body,
-                "COMMISSIONS // DELEGATION",
+                "任务委托",
                 font,
                 16f,
                 Cyan,
@@ -1723,7 +1740,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "SectionEyebrow",
                 listPanel,
-                "ACTIVE COMMISSIONS",
+                "进行中的委托",
                 font,
                 13f,
                 Gold,
@@ -1863,7 +1880,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "ObjectiveLabel",
                 detailPanel,
-                "OBJECTIVES // 目标进度",
+                "目标进度",
                 font,
                 13f,
                 Cyan,
@@ -1888,7 +1905,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "RewardLabel",
                 detailPanel,
-                "REWARDS // 奖励",
+                "奖励",
                 font,
                 13f,
                 Gold,
@@ -1985,7 +2002,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "HeaderEnglish",
                 body,
-                "AGENTS // ROSTER",
+                "代理人名册",
                 font,
                 16f,
                 Cyan,
@@ -2025,7 +2042,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "SectionEyebrow",
                 listPanel,
-                "UNLOCKED AGENTS",
+                "已解锁代理人",
                 font,
                 13f,
                 Gold,
@@ -2087,7 +2104,7 @@ namespace Train.EditorTools.UI
                 entryRoles[index] = CreateText(
                     "Role",
                     card,
-                    index == 0 ? "强攻 / 冰属性" : "LOCKED",
+                index == 0 ? "强攻 / 冰属性" : "未解锁",
                     font,
                     14f,
                     index == 0 ? Cyan : Muted,
@@ -2142,7 +2159,7 @@ namespace Train.EditorTools.UI
             CreateText(
                 "PreviewLetters",
                 preview,
-                "AGENT",
+                "代理人",
                 font,
                 20f,
                 Primary,
@@ -2452,7 +2469,7 @@ namespace Train.EditorTools.UI
             var eyebrow = CreateText(
                 "Eyebrow",
                 focusPanel,
-                "COMMISSIONS // 任务",
+                "任务",
                 font,
                 15f,
                 Gold,
@@ -2605,6 +2622,7 @@ namespace Train.EditorTools.UI
             out Button button,
             out Image background,
             out Image accent,
+            out Image icon,
             out TMP_Text name,
             out TMP_Text quantity)
         {
@@ -2648,9 +2666,20 @@ namespace Train.EditorTools.UI
                 new Vector2(0f, 1f));
             CreateDecorativeDiamond(
                 slot,
-                new Vector2(0f, 10f),
+                new Vector2(0f, 26f),
                 index < 4 ? Cyan : Outline,
-                36f);
+                42f);
+            var iconRect = CreateAnchored(
+                "Icon",
+                slot,
+                new Vector2(0.5f, 1f),
+                new Vector2(58f, 58f),
+                new Vector2(0f, -22f),
+                new Vector2(0.5f, 1f));
+            icon = AddImage(iconRect.gameObject, Color.white, false);
+            icon.preserveAspect = true;
+            icon.raycastTarget = false;
+            icon.gameObject.SetActive(false);
             name = CreateText(
                 "Name",
                 slot,
@@ -2665,9 +2694,9 @@ namespace Train.EditorTools.UI
                 font,
                 15f,
                 index < 4 ? Primary : Muted,
-                TextAlignmentOptions.Left,
-                new Vector2(10f, -103f),
-                new Vector2(124f, 26f),
+                TextAlignmentOptions.Center,
+                new Vector2(10f, -98f),
+                new Vector2(126f, 28f),
                 new Vector2(0f, 1f));
             quantity = CreateText(
                 "Quantity",
@@ -2683,10 +2712,10 @@ namespace Train.EditorTools.UI
                 font,
                 13f,
                 Secondary,
-                TextAlignmentOptions.Right,
-                new Vector2(-10f, -126f),
-                new Vector2(80f, 22f),
-                new Vector2(1f, 1f));
+                TextAlignmentOptions.Center,
+                new Vector2(10f, -124f),
+                new Vector2(126f, 22f),
+                new Vector2(0f, 1f));
         }
 
         private static void CreateAccentBars(RectTransform parent)

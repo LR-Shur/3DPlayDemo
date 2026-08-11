@@ -282,13 +282,13 @@ namespace Train.Presentation.UI.Views
         {
             return phase switch
             {
-                LevelPhase.Preparing => "PREPARING",
-                LevelPhase.Intro => "MISSION BRIEF",
-                LevelPhase.Combat => "IN COMBAT",
-                LevelPhase.Cleared => "CLEARED",
-                LevelPhase.Failed => "FAILED",
-                LevelPhase.Exiting => "EXITING",
-                _ => "STANDBY"
+                LevelPhase.Preparing => "作战准备",
+                LevelPhase.Intro => "任务简报",
+                LevelPhase.Combat => "战斗中",
+                LevelPhase.Cleared => "已完成",
+                LevelPhase.Failed => "已失败",
+                LevelPhase.Exiting => "退出中",
+                _ => "待机"
             };
         }
     }

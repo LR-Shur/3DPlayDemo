@@ -15,13 +15,15 @@ namespace Train.WorldInteraction.Runtime
     public sealed class WorldDialogueTerminal :
         MonoBehaviour,
         IInteractable,
-        IInteractionTargetInfo
+        IInteractionTargetInfo,
+        IInteractionRangeProvider
     {
         [SerializeField] private string _interactionId;
         [SerializeField] private string _dialogueId;
         [SerializeField] private string _displayName = "数据终端";
         [SerializeField] private string _actionLabel = "对话";
         [SerializeField, Min(1)] private int _priority = 30;
+        [SerializeField, Min(0.5f)] private float _interactionRange = 1.6f;
         [SerializeField] private Transform _interactionPoint;
 
         private IDialogueService _dialogue;
@@ -44,6 +46,9 @@ namespace Train.WorldInteraction.Runtime
 
         /// <inheritdoc />
         public string ActionLabel => _actionLabel;
+
+        /// <inheritdoc />
+        public float InteractionRange => _interactionRange;
 
         /// <inheritdoc />
         public bool IsAvailable =>
@@ -97,13 +102,15 @@ namespace Train.WorldInteraction.Runtime
             string dialogueId,
             string displayName,
             int priority = 30,
-            Transform interactionPoint = null)
+            Transform interactionPoint = null,
+            float interactionRange = 1.6f)
         {
             _interactionId = interactionId;
             _dialogueId = dialogueId;
             _displayName = displayName;
             _priority = Mathf.Max(1, priority);
             _interactionPoint = interactionPoint;
+            _interactionRange = Mathf.Max(0.5f, interactionRange);
         }
 
         /// <inheritdoc />

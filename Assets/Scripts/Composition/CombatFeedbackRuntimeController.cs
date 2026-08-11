@@ -24,6 +24,7 @@ namespace Train.Composition
         private readonly List<FloatingDamageText> _floatingTexts = new();
         private IEventBus _events;
         private IDisposable _damageSubscription;
+        private IDisposable _deathSubscription;
         private Material _particleMaterial;
 
         private void Awake()
@@ -31,6 +32,7 @@ namespace Train.Composition
             DontDestroyOnLoad(gameObject);
             _events = GameBootstrap.EnsureExists().Context.Events;
             _damageSubscription = _events.Subscribe<EntityDamagedEvent>(OnEntityDamaged);
+            _deathSubscription = _events.Subscribe<EntityDiedEvent>(OnEntityDied);
         }
 
         private void Update()
@@ -46,8 +48,8 @@ namespace Train.Composition
                 }
 
                 var normalized = Mathf.InverseLerp(
-                    floating.ExpiresAt,
                     floating.StartedAt,
+                    floating.ExpiresAt,
                     Time.unscaledTime);
                 if (normalized >= 1f)
                 {
@@ -89,11 +91,36 @@ namespace Train.Composition
             SpawnFloatingText(
                 message.Damage.HitPoint,
                 Mathf.RoundToInt(message.Result.AppliedDamage),
-                color);
+                color,
+                message.Health);
             SpawnImpactBurst(message.Damage.HitPoint, color);
         }
 
-        private void SpawnFloatingText(Vector3 position, int amount, Color color)
+        /// <summary>敌人死亡时立即清理关联的浮动伤害数字。</summary>
+        private void OnEntityDied(EntityDiedEvent message)
+        {
+            for (var i = _floatingTexts.Count - 1; i >= 0; i--)
+            {
+                var floating = _floatingTexts[i];
+                if (floating.OwnerHealth != message.Health)
+                {
+                    continue;
+                }
+
+                if (floating.Root != null)
+                {
+                    Destroy(floating.Root);
+                }
+
+                _floatingTexts.RemoveAt(i);
+            }
+        }
+
+        private void SpawnFloatingText(
+            Vector3 position,
+            int amount,
+            Color color,
+            Health ownerHealth)
         {
             if (_floatingTexts.Count >= MaxFloatingTexts)
             {
@@ -122,7 +149,8 @@ namespace Train.Composition
                 root.transform.position,
                 color,
                 Time.unscaledTime,
-                Time.unscaledTime + FloatingTextLifetime));
+                Time.unscaledTime + FloatingTextLifetime,
+                ownerHealth));
         }
 
         private void SpawnImpactBurst(Vector3 position, Color color)
@@ -175,6 +203,7 @@ namespace Train.Composition
         private void OnDestroy()
         {
             _damageSubscription?.Dispose();
+            _deathSubscription?.Dispose();
             if (_particleMaterial != null)
             {
                 Destroy(_particleMaterial);
@@ -189,7 +218,8 @@ namespace Train.Composition
                 Vector3 startPosition,
                 Color baseColor,
                 float startedAt,
-                float expiresAt)
+                float expiresAt,
+                Health ownerHealth)
             {
                 Root = root;
                 Text = text;
@@ -197,6 +227,7 @@ namespace Train.Composition
                 BaseColor = baseColor;
                 StartedAt = startedAt;
                 ExpiresAt = expiresAt;
+                OwnerHealth = ownerHealth;
             }
 
             public GameObject Root { get; }
@@ -205,6 +236,7 @@ namespace Train.Composition
             public Color BaseColor { get; }
             public float StartedAt { get; }
             public float ExpiresAt { get; }
+            public Health OwnerHealth { get; }
         }
     }
 }

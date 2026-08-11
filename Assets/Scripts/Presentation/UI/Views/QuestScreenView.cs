@@ -126,6 +126,8 @@ namespace Train.Presentation.UI.Views
             _detailRewards.text = viewModel.RewardsText;
             _detailStatus.text = viewModel.StatusText;
             _trackButton.interactable = viewModel.CanTrack;
+            // 未完成任务不显示领取按钮，避免用户误以为可以提前领奖。
+            _claimButton.gameObject.SetActive(viewModel.CanClaim);
             _claimButton.interactable = viewModel.CanClaim;
             _feedback.text = viewModel.FeedbackText;
         }

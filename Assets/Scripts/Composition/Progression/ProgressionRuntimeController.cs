@@ -6,6 +6,7 @@ using TMPro;
 using Train.Architecture.Assets;
 using Train.Architecture.Bootstrap;
 using Train.Architecture.Events;
+using Train.Composition.Config;
 using Train.Equipment.Application;
 using Train.Equipment.Core;
 using Train.Equipment.Data;
@@ -14,6 +15,8 @@ using Train.GameFlow.Runtime;
 using Train.Gameplay.Combat;
 using Train.Gameplay.Combat.Application.Events;
 using Train.Inventory.Application;
+using Train.Inventory.Data;
+using Train.Presentation.UI.Views;
 using Train.WorldInteraction.Runtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -41,6 +44,7 @@ namespace Train.Composition.Progression
         private IEquipmentService _equipment;
         private IAssetService _assets;
         private IEventBus _events;
+        private ILubanConfigService _luban;
         private IDisposable _enemySubscription;
         private IDisposable _levelSubscription;
         private IDisposable _sceneSubscription;
@@ -80,6 +84,7 @@ namespace Train.Composition.Progression
             _equipment = equipment;
             _assets = bootstrap.Context.Assets;
             _events = bootstrap.Context.Events;
+            bootstrap.Context.Services.TryResolve<ILubanConfigService>(out _luban);
             _enemySubscription = _events.Subscribe<EnemyDefeatedEvent>(OnEnemyDefeated);
             _levelSubscription = _events.Subscribe<LevelCompletedEvent>(OnLevelCompleted);
             _sceneSubscription = _events.Subscribe<LevelSceneLoadedEvent>(OnSceneLoaded);
@@ -111,15 +116,25 @@ namespace Train.Composition.Progression
                 return;
             }
 
+            _progression.TryGetNode(message.LevelId, out var completedNode);
             _progression.CompleteLevel(message.LevelId, out var nextNode);
-            var rewardItem = nextNode.IsBoss ? "upgrade_module" : "training_chip";
-            var rewardCount = nextNode.IsBoss ? 8 : 6;
-            _inventory?.TryAdd(rewardItem, rewardCount);
+            var rewards = ResolveLevelRewards(message.LevelId, completedNode.IsBoss);
+            var rewardSummary = new List<string>(rewards.Count);
+            foreach (var reward in rewards)
+            {
+                if (_inventory != null &&
+                    _inventory.TryAdd(reward.ItemId, reward.Count))
+                {
+                    var displayName = ResolveItemDisplayName(reward.ItemId);
+                    rewardSummary.Add($"{displayName} ×{reward.Count}");
+                }
+            }
+
             _overlay?.ShowCompletion(
                 message.LevelId,
                 message.ElapsedSeconds,
-                rewardItem,
-                rewardCount,
+                completedNode.DisplayName,
+                string.Join("\n", rewardSummary),
                 nextNode);
         }
 
@@ -133,6 +148,67 @@ namespace Train.Composition.Progression
             }
 
             _overlay?.RefreshBossBar();
+        }
+
+        /// <summary>从 Luban 奖励表读取当前关卡奖励，旧表不可用时才使用兜底奖励。</summary>
+        private List<RewardGrant> ResolveLevelRewards(string levelId, bool isBoss)
+        {
+            var result = new List<RewardGrant>();
+            if (_luban?.IsReady == true)
+            {
+                foreach (var reward in _luban.Tables.TbReward.DataList)
+                {
+                    if (reward != null &&
+                        string.Equals(reward.LevelId, levelId, StringComparison.Ordinal))
+                    {
+                        result.Add(new RewardGrant(reward.ItemId, reward.Count));
+                    }
+                }
+            }
+
+            if (result.Count == 0)
+            {
+                result.Add(new RewardGrant(
+                    isBoss ? "upgrade_module" : "training_chip",
+                    isBoss ? 8 : 6));
+            }
+
+            return result;
+        }
+
+        /// <summary>通过物品目录把稳定 ID 转成玩家可读的中文名称。</summary>
+        private string ResolveItemDisplayName(string itemId)
+        {
+            if (_inventory != null &&
+                _inventory.TryGetDefinition(itemId, out var definition) &&
+                definition != null &&
+                !string.IsNullOrWhiteSpace(definition.DisplayName))
+            {
+                return definition.DisplayName;
+            }
+
+            return itemId switch
+            {
+                "training_chip" => "训练芯片",
+                "healing_canister" => "急救罐",
+                "upgrade_module" => "强化模块",
+                "city_token" => "城市场景代币",
+                "thunder_ring" => "雷鸣指环",
+                "thunder_blade" => "雷鸣刀",
+                _ => itemId
+            };
+        }
+
+        private readonly struct RewardGrant
+        {
+            public RewardGrant(string itemId, int count)
+            {
+                ItemId = itemId;
+                Count = count;
+            }
+
+            public string ItemId { get; }
+            public int Count { get; }
         }
 
         private void SpawnLoot(EnemyDefeatedEvent message)
@@ -236,6 +312,7 @@ namespace Train.Composition.Progression
         private readonly IEquipmentService _equipment;
         private readonly Action<RunNode> _loadNext;
         private readonly GameObject _root;
+        private readonly GameObject _walletPlate;
         private readonly Image _walletIcon;
         private readonly TMP_Text _wallet;
         private readonly TMP_Text _toast;
@@ -275,19 +352,19 @@ namespace Train.Composition.Progression
             _root.AddComponent<GraphicRaycaster>();
 
             // 玩家状态面板占据左上角 48~166 像素，金币放到其下方，避免与生命条和生命数字重叠。
-            var walletPlate = CreatePanel(_root.transform, "[CurrencyPlate]");
-            SetRect(walletPlate.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(48f, -174f), new Vector2(224f, 46f));
-            walletPlate.GetComponent<Image>().color = new Color32(10, 20, 32, 220);
+            _walletPlate = CreatePanel(_root.transform, "[CurrencyPlate]");
+            SetRect(_walletPlate.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(48f, -174f), new Vector2(224f, 46f));
+            _walletPlate.GetComponent<Image>().color = new Color32(10, 20, 32, 220);
 
             var iconObject = new GameObject("CurrencyIcon");
-            iconObject.transform.SetParent(walletPlate.transform, false);
+            iconObject.transform.SetParent(_walletPlate.transform, false);
             _walletIcon = iconObject.AddComponent<Image>();
             _walletIcon.sprite = Resources.Load<Sprite>("UI/coin");
             _walletIcon.color = Color.white;
             _walletIcon.preserveAspect = true;
             SetRect(_walletIcon.rectTransform, new Vector2(0f, .5f), new Vector2(0f, .5f), new Vector2(0f, .5f), new Vector2(10f, 0f), new Vector2(30f, 30f));
 
-            _wallet = CreateLabel(walletPlate.transform, "金币 0150", 22, TextAlignmentOptions.MidlineLeft);
+            _wallet = CreateLabel(_walletPlate.transform, "金币 0150", 22, TextAlignmentOptions.MidlineLeft);
             SetRect(_wallet.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, .5f), new Vector2(50f, 0f), new Vector2(-58f, 0f));
             _wallet.color = new Color32(255, 214, 120, 255);
 
@@ -297,24 +374,24 @@ namespace Train.Composition.Progression
 
             _completion = CreatePanel(_root.transform, "[MissionResult]");
             SetRect(_completion.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(760f, 520f));
-            var completionTitle = CreateLabel(_completion.transform, "MISSION COMPLETE", 34, TextAlignmentOptions.Top);
+            var completionTitle = CreateLabel(_completion.transform, "任务完成", 34, TextAlignmentOptions.Top);
             SetRect(completionTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(.5f, 1f), new Vector2(0f, -58f), new Vector2(0f, 54f));
             _completionSummary = CreateLabel(_completion.transform, string.Empty, 22, TextAlignmentOptions.Center);
             SetRect(_completionSummary.rectTransform, new Vector2(.08f, .42f), new Vector2(.92f, .78f), new Vector2(.5f, .6f), Vector2.zero, Vector2.zero);
-            _shopButton = CreateButton(_completion.transform, "OPEN SHOP / 进入商店", 22);
+            _shopButton = CreateButton(_completion.transform, "打开商店", 22);
             SetRect(_shopButton.GetComponent<RectTransform>(), new Vector2(.08f, .10f), new Vector2(.46f, .28f), new Vector2(.27f, .19f), Vector2.zero, Vector2.zero);
-            _nextButton = CreateButton(_completion.transform, "NEXT MISSION / 前往下一关", 22);
+            _nextButton = CreateButton(_completion.transform, "下一关", 22);
             SetRect(_nextButton.GetComponent<RectTransform>(), new Vector2(.54f, .10f), new Vector2(.92f, .28f), new Vector2(.73f, .19f), Vector2.zero, Vector2.zero);
             _shopButton.onClick.AddListener(ShowShop);
             _nextButton.onClick.AddListener(LoadNext);
 
             _shop = CreatePanel(_root.transform, "[Shop]");
             SetRect(_shop.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(860f, 650f));
-            var shopTitle = CreateLabel(_shop.transform, "FIELD SHOP // 战地商店", 32, TextAlignmentOptions.Top);
+            var shopTitle = CreateLabel(_shop.transform, "战地商店", 32, TextAlignmentOptions.Top);
             SetRect(shopTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(.5f, 1f), new Vector2(0f, -50f), new Vector2(0f, 50f));
             _shopStatus = CreateLabel(_shop.transform, string.Empty, 18, TextAlignmentOptions.Center);
             SetRect(_shopStatus.rectTransform, new Vector2(.08f, .08f), new Vector2(.92f, .18f), new Vector2(.5f, .13f), Vector2.zero, Vector2.zero);
-            var close = CreateButton(_shop.transform, "RETURN / 返回", 20);
+            var close = CreateButton(_shop.transform, "返回", 20);
             SetRect(close.GetComponent<RectTransform>(), new Vector2(.32f, .18f), new Vector2(.68f, .28f), new Vector2(.5f, .23f), Vector2.zero, Vector2.zero);
             close.onClick.AddListener(HideShop);
 
@@ -322,7 +399,7 @@ namespace Train.Composition.Progression
             SetRect(_bossBar.GetComponent<RectTransform>(), new Vector2(.5f, 1f), new Vector2(.5f, 1f), new Vector2(.5f, 1f), new Vector2(0f, -116f), new Vector2(650f, 72f));
             var bossBackground = _bossBar.GetComponent<Image>();
             bossBackground.color = new Color32(24, 14, 34, 244);
-            _bossLabel = CreateLabel(_bossBar.transform, "BOSS // CORE FORGE", 18, TextAlignmentOptions.Top);
+            _bossLabel = CreateLabel(_bossBar.transform, "首领 · 核心熔炉", 18, TextAlignmentOptions.Top);
             SetRect(_bossLabel.rectTransform, new Vector2(.04f, .50f), new Vector2(.96f, .96f), new Vector2(.5f, 1f), Vector2.zero, Vector2.zero);
             var bossFillRoot = new GameObject("BossFill");
             bossFillRoot.transform.SetParent(_bossBar.transform, false);
@@ -358,6 +435,7 @@ namespace Train.Composition.Progression
 
         public void Tick()
         {
+            SyncWalletVisibility();
             if (_toast.gameObject.activeSelf && Time.unscaledTime >= _toastHideAt)
             {
                 _toast.text = string.Empty;
@@ -384,16 +462,37 @@ namespace Train.Composition.Progression
         public void ShowLevelBanner(RunNode node)
         {
             RenderWallet(_progression.Snapshot);
-            ShowCombatToast(node.DisplayName, node.IsBoss ? "BOSS NODE ONLINE" : "战区已载入");
+            ShowCombatToast(node.DisplayName, node.IsBoss ? "首领节点已激活" : "战区已载入");
         }
 
-        public void ShowCompletion(string levelId, float elapsed, string rewardItem, int rewardCount, RunNode nextNode)
+        public void ShowCompletion(
+            string levelId,
+            float elapsed,
+            string levelDisplayName,
+            string rewardSummary,
+            RunNode nextNode)
         {
             _completion.SetActive(true);
             _shop.SetActive(false);
-            _completionSummary.text = $"{levelId}\nCLEAR TIME  {elapsed:0.0}s\n\n战利品已写入背包：{rewardItem} ×{rewardCount}\n\n下一节点：{(string.IsNullOrWhiteSpace(nextNode.LevelId) ? "RUN COMPLETE" : nextNode.DisplayName)}";
+            _completionSummary.text =
+                $"{levelDisplayName}\n通关用时  {elapsed:0.0}s\n\n" +
+                $"战利品已写入仓库：\n{(string.IsNullOrWhiteSpace(rewardSummary) ? "无" : rewardSummary)}\n\n" +
+                $"下一节点：{(string.IsNullOrWhiteSpace(nextNode.LevelId) ? "本轮完成" : nextNode.DisplayName)}";
             _nextButton.interactable = !string.IsNullOrWhiteSpace(nextNode.ScenePath);
             RenderWallet(_progression.Snapshot);
+        }
+
+        /// <summary>打开仓库、装备或任务页面时隐藏独立 HUD 钱包，避免遮挡页面内容。</summary>
+        private void SyncWalletVisibility()
+        {
+            var root = UnityEngine.Object.FindFirstObjectByType<GameUIRootView>();
+            var menuOpen = root != null &&
+                           root.MenuNavigationRoot != null &&
+                           root.MenuNavigationRoot.activeSelf;
+            if (_walletPlate != null)
+            {
+                _walletPlate.SetActive(!menuOpen);
+            }
         }
 
         public void RefreshBossBar()
@@ -419,7 +518,7 @@ namespace Train.Composition.Progression
                 if (health != null && health.IsAlive)
                 {
                     _bossHealth = health;
-                    _bossLabel.text = $"CORE FORGE // {identity.ArchetypeId.ToUpperInvariant()}";
+                    _bossLabel.text = $"核心熔炉 · {identity.ArchetypeId}";
                     break;
                 }
             }
@@ -449,11 +548,11 @@ namespace Train.Composition.Progression
                 _bossHealth.CurrentHealth / Mathf.Max(1f, _bossHealth.MaxHealth));
             var ratio = _bossFill.fillAmount;
             var phaseLabel = ratio <= .33f
-                ? "OVERLOAD // PHASE 3"
+                ? "过载阶段 · 3"
                 : ratio <= .66f
-                    ? "SYSTEM BREACH // PHASE 2"
-                    : "CORE FORGE // PHASE 1";
-            _bossLabel.text = $"{phaseLabel} // BOSS_RUSK";
+                    ? "系统突破 · 2"
+                    : "核心熔炉 · 1";
+            _bossLabel.text = $"{phaseLabel} · Rusk 原型机";
             if (!_bossHealth.IsAlive)
             {
                 _bossBar.SetActive(false);
