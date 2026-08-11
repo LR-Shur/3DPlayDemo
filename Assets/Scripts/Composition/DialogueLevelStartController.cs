@@ -41,10 +41,7 @@ namespace Train.Composition
             foreach (var level in levels)
             {
                 if (level.Definition == null ||
-                    !string.Equals(
-                        level.Definition.LevelId,
-                        "combat_001",
-                        StringComparison.OrdinalIgnoreCase) ||
+                    !IsTrainingLevel(level.Definition) ||
                     !level.IsWaitingForStart)
                 {
                     continue;
@@ -52,6 +49,26 @@ namespace Train.Composition
 
                 level.StartLevel();
             }
+        }
+
+        /// <summary>
+        /// 兼容 SO 中的两种第一关 ID：combat_001 与 level.combat.001。
+        /// 关卡刷怪已经回到 SO，启动事件不应因为命名格式差异而漏掉目标。
+        /// </summary>
+        private static bool IsTrainingLevel(
+            Train.GameFlow.Data.LevelDefinition definition)
+        {
+            if (definition == null || string.IsNullOrWhiteSpace(definition.LevelId))
+            {
+                return false;
+            }
+
+            var normalized = definition.LevelId
+                .Trim()
+                .ToLowerInvariant()
+                .Replace("level.", string.Empty)
+                .Replace('.', '_');
+            return string.Equals(normalized, "combat_001", StringComparison.Ordinal);
         }
 
         private void OnDestroy()
