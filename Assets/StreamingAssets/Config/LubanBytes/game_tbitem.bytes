@@ -1,3 +1,4 @@
-training_chip训练芯片c,Assets/Arts/UI/Icons/GameIcons/cyber-eye.png!用于新手训练的基础材料healing_canister	急救罐
-+Assets/Arts/UI/Icons/GameIcons/electric.png恢复生命值的消耗品upgrade_module强化模块*Assets/Arts/UI/Icons/GameIcons/orbital.png用于强化角色与装备thunder_blade	雷鸣刀2Assets/Arts/UI/Icons/GameIcons/lightning-saber.png$附带雷属性伤害的单手武器thunder_ring雷鸣指环-Assets/Arts/UI/Icons/GameIcons/globe-ring.png提高雷属性伤害的饰品
+training_chip训练芯片c,Assets/Arts/UI/Icons/GameIcons/cyber-eye.png!用于新手训练的基础材料healing_canister	急救罐
++Assets/Arts/UI/Icons/GameIcons/electric.png恢复生命值的消耗品upgrade_module强化模块*Assets/Arts/UI/Icons/GameIcons/orbital.png用于强化角色与装备thunder_blade	雷鸣刀2Assets/Arts/UI/Icons/GameIcons/lightning-saber.png$附带雷属性伤害的单手武器training_armor训练外骨骼5Assets/Arts/UI/Icons/GameIcons/intricate-necklace.png*提高防御与生命值的训练外骨骼
+neon_boots霓虹战靴,Assets/Arts/UI/Icons/GameIcons/gem-chain.png'提升移动能力与生命值的战靴city_helmet城市头盔,Assets/Arts/UI/Icons/GameIcons/cyber-eye.png!提供基础防御的城市头盔shock_gloves震荡手套+Assets/Arts/UI/Icons/GameIcons/electric.png强化攻击力的震荡手套thunder_ring雷鸣指环-Assets/Arts/UI/Icons/GameIcons/globe-ring.png提高雷属性伤害的饰品
 city_token城市场景代币��,Assets/Arts/UI/Icons/GameIcons/gem-chain.png可在训练区兑换奖励neon_capacitor霓虹电容2+Assets/Arts/UI/Icons/GameIcons/electric.png'城市能源装置掉落的强化材料emergency_core应急核心*Assets/Arts/UI/Icons/GameIcons/orbital.png0紧急恢复与任务兑换使用的核心道具
