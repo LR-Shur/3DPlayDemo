@@ -32,6 +32,9 @@ namespace Train.WorldInteraction.Runtime
         /// <inheritdoc />
         public string InteractionId => _interactionId;
 
+        /// <summary>当前终端绑定的对话 ID，供外观层区分训练终端和人形 NPC。</summary>
+        public string DialogueId => _dialogueId;
+
         /// <inheritdoc />
         public int Priority => _priority;
 

@@ -88,7 +88,9 @@ namespace Train.WorldInteraction.Runtime
         /// </summary>
         private void Update()
         {
-            if (_inventory == null)
+            // 服务可能先于 Luban 物品目录安装完成；定义为空时继续重试，
+            // 避免拾取物在启动竞态中永久变成不可交互状态。
+            if (_inventory == null || _definition == null)
             {
                 TryResolveServices();
             }

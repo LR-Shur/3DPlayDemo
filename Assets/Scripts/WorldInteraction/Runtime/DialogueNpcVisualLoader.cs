@@ -18,6 +18,17 @@ namespace Train.WorldInteraction.Runtime
 
         private void Awake()
         {
+            var terminal = GetComponent<WorldDialogueTerminal>();
+            if (terminal != null &&
+                string.Equals(
+                    terminal.DialogueId,
+                    "dialogue_training_operator",
+                    System.StringComparison.Ordinal))
+            {
+                // 训练终端保留原来的全息设备外观，不替换为人物。
+                return;
+            }
+
             HideTerminalVisuals();
 
             if (string.IsNullOrWhiteSpace(_resourcePath))
