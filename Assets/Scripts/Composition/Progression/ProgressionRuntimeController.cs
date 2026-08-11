@@ -6,6 +6,7 @@ using TMPro;
 using Train.Architecture.Assets;
 using Train.Architecture.Bootstrap;
 using Train.Architecture.Events;
+using Train.Architecture.Input;
 using Train.Composition.Config;
 using Train.Equipment.Application;
 using Train.Equipment.Core;
@@ -85,10 +86,17 @@ namespace Train.Composition.Progression
             _assets = bootstrap.Context.Assets;
             _events = bootstrap.Context.Events;
             bootstrap.Context.Services.TryResolve<ILubanConfigService>(out _luban);
+            bootstrap.Context.Services.TryResolve<IInputModeService>(out var inputMode);
             _enemySubscription = _events.Subscribe<EnemyDefeatedEvent>(OnEnemyDefeated);
             _levelSubscription = _events.Subscribe<LevelCompletedEvent>(OnLevelCompleted);
             _sceneSubscription = _events.Subscribe<LevelSceneLoadedEvent>(OnSceneLoaded);
-            _overlay = ProgressionOverlay.Create(_events, _progression, _inventory, _equipment, LoadNextNode);
+            _overlay = ProgressionOverlay.Create(
+                _events,
+                _progression,
+                _inventory,
+                _equipment,
+                inputMode,
+                LoadNextNode);
             _overlay.RenderWallet(_progression.Snapshot);
         }
 
@@ -311,6 +319,7 @@ namespace Train.Composition.Progression
             _levelSubscription?.Dispose();
             _sceneSubscription?.Dispose();
             ClearLootLeases();
+            _overlay?.Dispose();
             _lifetime?.Cancel();
             _lifetime?.Dispose();
         }
@@ -325,6 +334,7 @@ namespace Train.Composition.Progression
         private readonly IProgressionService _progression;
         private readonly IInventoryService _inventory;
         private readonly IEquipmentService _equipment;
+        private readonly IInputModeService _inputMode;
         private readonly Action<RunNode> _loadNext;
         private readonly GameObject _root;
         private readonly GameObject _walletPlate;
@@ -340,6 +350,7 @@ namespace Train.Composition.Progression
         private readonly GameObject _bossBar;
         private readonly Image _bossFill;
         private readonly TMP_Text _bossLabel;
+        private IDisposable _modalLease;
         private Health _bossHealth;
         private float _toastHideAt;
 
@@ -348,12 +359,14 @@ namespace Train.Composition.Progression
             IProgressionService progression,
             IInventoryService inventory,
             IEquipmentService equipment,
+            IInputModeService inputMode,
             Action<RunNode> loadNext)
         {
             _events = events;
             _progression = progression;
             _inventory = inventory;
             _equipment = equipment;
+            _inputMode = inputMode;
             _loadNext = loadNext;
 
             _root = new GameObject("[ProgressionOverlay]");
@@ -388,16 +401,17 @@ namespace Train.Composition.Progression
             _toast.color = new Color32(120, 235, 235, 255);
 
             _completion = CreatePanel(_root.transform, "[MissionResult]");
-            SetRect(_completion.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(760f, 520f));
+            SetRect(_completion.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(1000f, 700f));
             var completionTitle = CreateLabel(_completion.transform, "任务完成", 34, TextAlignmentOptions.Top);
             // 标题固定在弹窗顶部，给关卡名称和通关信息留出清晰的垂直间距。
             SetRect(completionTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(.5f, 1f), new Vector2(0f, -36f), new Vector2(0f, 48f));
-            _completionSummary = CreateLabel(_completion.transform, string.Empty, 22, TextAlignmentOptions.Center);
-            SetRect(_completionSummary.rectTransform, new Vector2(.08f, .32f), new Vector2(.92f, .70f), new Vector2(.5f, .51f), Vector2.zero, Vector2.zero);
-            _shopButton = CreateButton(_completion.transform, "打开商店", 22);
-            SetRect(_shopButton.GetComponent<RectTransform>(), new Vector2(.08f, .10f), new Vector2(.46f, .28f), new Vector2(.27f, .19f), Vector2.zero, Vector2.zero);
-            _nextButton = CreateButton(_completion.transform, "下一关", 22);
-            SetRect(_nextButton.GetComponent<RectTransform>(), new Vector2(.54f, .10f), new Vector2(.92f, .28f), new Vector2(.73f, .19f), Vector2.zero, Vector2.zero);
+            _completionSummary = CreateLabel(_completion.transform, string.Empty, 26, TextAlignmentOptions.Center);
+            _completionSummary.textWrappingMode = TextWrappingModes.Normal;
+            SetRect(_completionSummary.rectTransform, new Vector2(.07f, .31f), new Vector2(.93f, .77f), new Vector2(.5f, .54f), Vector2.zero, Vector2.zero);
+            _shopButton = CreateButton(_completion.transform, "打开商店", 24);
+            SetRect(_shopButton.GetComponent<RectTransform>(), new Vector2(.08f, .10f), new Vector2(.46f, .25f), new Vector2(.27f, .175f), Vector2.zero, Vector2.zero);
+            _nextButton = CreateButton(_completion.transform, "下一关", 24);
+            SetRect(_nextButton.GetComponent<RectTransform>(), new Vector2(.54f, .10f), new Vector2(.92f, .25f), new Vector2(.73f, .175f), Vector2.zero, Vector2.zero);
             _shopButton.onClick.AddListener(ShowShop);
             _nextButton.onClick.AddListener(LoadNext);
 
@@ -439,9 +453,21 @@ namespace Train.Composition.Progression
             _bossBar.SetActive(false);
         }
 
-        public static ProgressionOverlay Create(IEventBus events, IProgressionService progression, IInventoryService inventory, IEquipmentService equipment, Action<RunNode> loadNext)
+        public static ProgressionOverlay Create(
+            IEventBus events,
+            IProgressionService progression,
+            IInventoryService inventory,
+            IEquipmentService equipment,
+            IInputModeService inputMode,
+            Action<RunNode> loadNext)
         {
-            return new ProgressionOverlay(events, progression, inventory, equipment, loadNext);
+            return new ProgressionOverlay(
+                events,
+                progression,
+                inventory,
+                equipment,
+                inputMode,
+                loadNext);
         }
 
         public void RenderWallet(RunProgressSnapshot snapshot)
@@ -488,6 +514,7 @@ namespace Train.Composition.Progression
             string rewardSummary,
             RunNode nextNode)
         {
+            AcquireModal();
             _completion.SetActive(true);
             _shop.SetActive(false);
             _completionSummary.text =
@@ -577,12 +604,14 @@ namespace Train.Composition.Progression
 
         public void HideAllPanels()
         {
+            ReleaseModal();
             _completion.SetActive(false);
             _shop.SetActive(false);
         }
 
         private void ShowShop()
         {
+            AcquireModal();
             _completion.SetActive(false);
             _shop.SetActive(true);
             _shopStatus.text = $"金币  {_progression.Snapshot.Coins:0000}  // 选择装备，购买后自动放入背包并穿戴。";
@@ -605,9 +634,18 @@ namespace Train.Composition.Progression
             {
                 var definition = _equipment.Catalog[i];
                 var cost = 120 + (int)definition.Rarity * 90;
-                var button = CreateButton(rows.transform, $"{definition.DisplayName}   C {cost}    [{definition.Rarity}]", 20);
+                var ownsItem = _inventory.GetTotalQuantity(definition.ItemId) > 0;
+                var canStore = CanStore(definition.ItemId, 1);
+                var label = ownsItem
+                    ? $"{definition.DisplayName}   已拥有"
+                    : canStore
+                        ? $"{definition.DisplayName}   金币 {cost}    [{definition.Rarity}]"
+                        : $"{definition.DisplayName}   背包无可用空间";
+                var button = CreateButton(rows.transform, label, 20);
                 button.GetComponent<Image>().color = GetShopButtonColor(definition.Rarity);
-                button.interactable = _progression.Snapshot.Coins >= cost;
+                button.interactable = !ownsItem &&
+                                      canStore &&
+                                      _progression.Snapshot.Coins >= cost;
                 var buttonLabel = button.GetComponentInChildren<TMP_Text>();
                 if (buttonLabel != null)
                 {
@@ -619,6 +657,18 @@ namespace Train.Composition.Progression
 
         private void Buy(EquipmentItemDefinition definition, int cost)
         {
+            if (_inventory.GetTotalQuantity(definition.ItemId) > 0)
+            {
+                _shopStatus.text = "该装备已经拥有，不能重复购买。";
+                return;
+            }
+
+            if (!CanStore(definition.ItemId, 1))
+            {
+                _shopStatus.text = "背包没有可用空间，或该物品已达到堆叠上限。";
+                return;
+            }
+
             if (!_progression.TrySpendCoins(cost, $"购买：{definition.DisplayName}"))
             {
                 _shopStatus.text = "金币不足。";
@@ -645,10 +695,60 @@ namespace Train.Composition.Progression
 
         private void LoadNext()
         {
+            ReleaseModal();
             if (_progression.Snapshot.CurrentNodeIndex + 1 < _progression.Nodes.Count)
             {
                 _loadNext(_progression.Nodes[_progression.Snapshot.CurrentNodeIndex + 1]);
             }
+        }
+
+        /// <summary>打开结算或商店时申请模态输入，释放后恢复角色与镜头控制。</summary>
+        private void AcquireModal()
+        {
+            _modalLease ??= _inputMode?.AcquireModal("ProgressionOverlay");
+        }
+
+        private void ReleaseModal()
+        {
+            _modalLease?.Dispose();
+            _modalLease = null;
+        }
+
+        /// <summary>预检查物品是否有足够堆叠容量，避免把所有失败都误报成背包已满。</summary>
+        private bool CanStore(string itemId, int quantity)
+        {
+            if (quantity <= 0 ||
+                !_inventory.TryGetDefinition(itemId, out var definition) ||
+                definition == null)
+            {
+                return false;
+            }
+
+            var remaining = quantity;
+            foreach (var slot in _inventory.Snapshot.Slots)
+            {
+                if (slot.IsEmpty)
+                {
+                    remaining -= definition.MaxStack;
+                }
+                else if (string.Equals(slot.ItemId, itemId, StringComparison.Ordinal))
+                {
+                    remaining -= Math.Max(0, definition.MaxStack - slot.Quantity);
+                }
+
+                if (remaining <= 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void Dispose()
+        {
+            ReleaseModal();
+            UnityEngine.Object.Destroy(_root);
         }
 
         private static GameObject CreatePanel(Transform parent, string name)

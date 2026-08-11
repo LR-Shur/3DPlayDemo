@@ -268,7 +268,7 @@ namespace Train.Presentation.UI.Presenters
             _view.Render(
                 new InventoryScreenViewModel(
                     snapshot.Revision,
-                    VisibleSlotCount,
+                    snapshot.Capacity,
                     occupiedCount,
                     _selectedSlotIndex,
                     _selectedCategoryIndex,
