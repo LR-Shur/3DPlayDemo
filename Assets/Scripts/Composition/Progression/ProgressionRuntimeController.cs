@@ -159,7 +159,7 @@ namespace Train.Composition.Progression
                 foreach (var reward in _luban.Tables.TbReward.DataList)
                 {
                     if (reward != null &&
-                        string.Equals(reward.LevelId, levelId, StringComparison.Ordinal))
+                        IsSameLevelId(reward.LevelId, levelId))
                     {
                         result.Add(new RewardGrant(reward.ItemId, reward.Count));
                     }
@@ -174,6 +174,21 @@ namespace Train.Composition.Progression
             }
 
             return result;
+        }
+
+        /// <summary>兼容 Luban 表的 combat_001 与运行时 level.combat.001 两种稳定 ID。</summary>
+        private static bool IsSameLevelId(string tableLevelId, string runtimeLevelId)
+        {
+            if (string.Equals(tableLevelId, runtimeLevelId, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            var normalizedTableId = tableLevelId?.Replace('_', '.');
+            return string.Equals(
+                $"level.{normalizedTableId}",
+                runtimeLevelId,
+                StringComparison.Ordinal);
         }
 
         /// <summary>通过物品目录把稳定 ID 转成玩家可读的中文名称。</summary>
