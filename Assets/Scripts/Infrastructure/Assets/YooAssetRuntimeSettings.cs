@@ -15,7 +15,9 @@ namespace Train.Infrastructure.Assets
 
         [SerializeField] private string _packageName = "DefaultPackage";
         [SerializeField] private AssetPlayMode _editorPlayMode = AssetPlayMode.EditorSimulate;
+#if !UNITY_EDITOR
         [SerializeField] private AssetPlayMode _playerPlayMode = AssetPlayMode.Offline;
+#endif
         [SerializeField] private string _primaryHostUrl = "http://127.0.0.1/CDN/PC";
         [SerializeField] private string _fallbackHostUrl = "http://127.0.0.1/CDN/PC";
 

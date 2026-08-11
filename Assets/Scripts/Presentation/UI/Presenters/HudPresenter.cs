@@ -46,6 +46,9 @@ namespace Train.Presentation.UI.Presenters
                 events.Subscribe<LevelPhaseChangedEvent>(
                     OnLevelPhaseChanged));
             _subscriptions.Add(
+                events.Subscribe<LevelSessionChangedEvent>(
+                    OnLevelSessionChanged));
+            _subscriptions.Add(
                 events.Subscribe<EnemyDefeatedEvent>(
                     OnEnemyDefeated));
             _subscriptions.Add(
@@ -100,6 +103,16 @@ namespace Train.Presentation.UI.Presenters
         private void OnLevelPhaseChanged(LevelPhaseChangedEvent message)
         {
             Render(CreatePhaseBanner(message.Current));
+        }
+
+        /// <summary>
+        /// 关卡刚挂载时立即刷新一次 HUD，确保玩家生命值已经进入数字显示。
+        /// </summary>
+        private void OnLevelSessionChanged(LevelSessionChangedEvent message)
+        {
+            Render(message.HasActiveSession
+                ? CreatePhaseBanner(ReadSnapshot().Phase)
+                : HudBannerViewModel.None);
         }
 
         private void OnEnemyDefeated(EnemyDefeatedEvent message)
@@ -200,7 +213,9 @@ namespace Train.Presentation.UI.Presenters
 
             var snapshot = ReadSnapshot();
             var objective = snapshot.HasLevel
-                ? $"击败敌人  {snapshot.DefeatedEnemyCount}/{snapshot.EnemyCount}"
+                ? snapshot.Phase == LevelPhase.None
+                    ? "按 Enter / Space 开始模拟训练"
+                    : $"击败敌人  {snapshot.DefeatedEnemyCount}/{snapshot.EnemyCount}"
                 : string.Empty;
 
             _view.Render(

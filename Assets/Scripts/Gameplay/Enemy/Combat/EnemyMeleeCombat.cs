@@ -62,8 +62,8 @@ namespace Train.Gameplay.Enemy.Combat
             _damageActive = active;
             if (active && !_damageAppliedThisAttack)
             {
-                _damageAppliedThisAttack = true;
-                ApplyWeaponHit();
+                // 只有真正结算出伤害后才锁定本次攻击，避免命中检测过早导致整段攻击“空挥”。
+                _damageAppliedThisAttack = ApplyWeaponHit();
             }
         }
 
@@ -90,11 +90,11 @@ namespace Train.Gameplay.Enemy.Combat
                 _baseAttackCooldown * Mathf.Max(0.2f, cooldownMultiplier));
         }
 
-        private void ApplyWeaponHit()
+        private bool ApplyWeaponHit()
         {
             if (_hitVolume == null)
             {
-                return;
+                return false;
             }
 
             var hitTransform = _hitVolume.transform;
@@ -102,6 +102,19 @@ namespace Train.Gameplay.Enemy.Combat
             var scale = hitTransform.lossyScale;
             var radiusScale = Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
             var radius = _hitVolume.radius * radiusScale;
+            if (TryApplyWeaponHit(center, radius))
+            {
+                return true;
+            }
+
+            // 动画还未把武器骨骼移动到手部时，使用角色前方的近战兜底范围，避免攻击完全不掉血。
+            var fallbackCenter = transform.position + transform.forward * 0.45f + Vector3.up * 0.9f;
+            return TryApplyWeaponHit(fallbackCenter, Mathf.Max(radius, 1.1f));
+        }
+
+        /// <summary>在指定范围内查找玩家生命组件并结算一次伤害。</summary>
+        private bool TryApplyWeaponHit(Vector3 center, float radius)
+        {
             var hitCount = Physics.OverlapSphereNonAlloc(
                 center,
                 radius,
@@ -117,32 +130,35 @@ namespace Train.Gameplay.Enemy.Combat
                     continue;
                 }
 
-                foreach (var behaviour in hit.GetComponentsInParent<MonoBehaviour>(true))
+                var damageable = hit.GetComponentInParent<Health>();
+                if (damageable == null || !damageable.IsAlive)
                 {
-                    if (behaviour is not IDamageable damageable || !damageable.IsAlive)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    var targetFaction = FactionResolver.FindInParents(behaviour.transform);
-                    if (!DamagePolicy.CanDamage(this, targetFaction))
-                    {
-                        break;
-                    }
+                var targetFaction = FactionResolver.FindInParents(damageable.transform);
+                if (!DamagePolicy.CanDamage(this, targetFaction))
+                {
+                    continue;
+                }
 
-                    var point = hit.ClosestPoint(center);
-                    var direction = hit.bounds.center - center;
-                    var info = new DamageInfo(
-                        _damage,
-                        this,
-                        point,
-                        direction,
-                        _impactForce,
-                        _damageType);
-                    DamageHandler.Apply(damageable, info, targetFaction);
-                    return;
+                var point = hit.ClosestPoint(center);
+                var direction = hit.bounds.center - center;
+                var info = new DamageInfo(
+                    _damage,
+                    this,
+                    point,
+                    direction,
+                    _impactForce,
+                    _damageType);
+                var result = DamageHandler.Apply(damageable, info, targetFaction);
+                if (result.AppliedDamage > 0f)
+                {
+                    return true;
                 }
             }
+
+            return false;
         }
     }
 }

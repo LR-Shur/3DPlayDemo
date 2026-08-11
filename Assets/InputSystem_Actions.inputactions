@@ -535,6 +535,17 @@
                 },
                 {
                     "name": "",
+                    "id": "a2f1a5bc-0baf-4b8c-9c0b-7a86e2f38f6e",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Start",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "c80c8a3b-df76-4f16-9c12-2f2b807d02a5",
                     "path": "<Gamepad>/start",
                     "interactions": "",

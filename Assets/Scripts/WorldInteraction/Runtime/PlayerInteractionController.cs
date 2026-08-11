@@ -91,7 +91,14 @@ namespace Train.WorldInteraction.Runtime
             _focus.FocusChanged -= OnFocusChanged;
             _focus.Clear();
             _tracked.Clear();
-            _events?.Publish(InteractionPromptChangedEvent.Hidden());
+            // 场景卸载时 UI 可能已经销毁，避免向旧 HudView 发布事件造成 MissingReferenceException。
+            if (!GameBootstrap.IsApplicationQuitting &&
+                gameObject != null &&
+                gameObject.scene.IsValid() &&
+                gameObject.scene.isLoaded)
+            {
+                _events?.Publish(InteractionPromptChangedEvent.Hidden());
+            }
         }
 
         /// <summary>

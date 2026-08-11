@@ -23,7 +23,8 @@ namespace Train.Composition
     [DisallowMultipleComponent]
     public sealed class RunSaveRuntimeController : MonoBehaviour
     {
-        private const int CurrentSaveVersion = 1;
+        // 初始背包和装备改为空配置；升级版本可自动忽略旧的满仓存档。
+        private const int CurrentSaveVersion = 2;
         private const float SaveDebounceSeconds = 0.25f;
 
         private readonly List<IDisposable> _subscriptions = new();
@@ -111,7 +112,8 @@ namespace Train.Composition
                 var data = JsonUtility.FromJson<RunSaveData>(json);
                 if (data == null || data.Version != CurrentSaveVersion)
                 {
-                    Debug.LogWarning("Run 存档版本不匹配，将使用当前默认进度。", this);
+                    // 旧版本存档不含当前的空背包规则，静默重置为新 Run，避免把可恢复的旧档误报成运行警告。
+                    Debug.Log("Run 存档版本已升级，将使用当前默认进度。", this);
                     return;
                 }
 

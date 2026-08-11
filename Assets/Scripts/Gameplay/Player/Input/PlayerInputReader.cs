@@ -217,7 +217,8 @@ namespace Train.Gameplay.Player.Input
         /// <summary>返回并清除一次关卡开始按键。</summary>
         public bool ConsumeStartPressed()
         {
-            var wasPressed = _startPressed;
+            var wasPressed = _startPressed ||
+                (_startAction != null && _startAction.WasPressedThisFrame());
             _startPressed = false;
             return wasPressed;
         }

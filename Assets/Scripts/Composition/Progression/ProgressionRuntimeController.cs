@@ -236,6 +236,7 @@ namespace Train.Composition.Progression
         private readonly IEquipmentService _equipment;
         private readonly Action<RunNode> _loadNext;
         private readonly GameObject _root;
+        private readonly Image _walletIcon;
         private readonly TMP_Text _wallet;
         private readonly TMP_Text _toast;
         private readonly GameObject _completion;
@@ -273,8 +274,21 @@ namespace Train.Composition.Progression
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             _root.AddComponent<GraphicRaycaster>();
 
-            _wallet = CreateLabel(_root.transform, "COINS 0150", 26, TextAlignmentOptions.TopRight);
-            SetRect(_wallet.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(56f, -116f), new Vector2(320f, 48f));
+            // 玩家状态面板占据左上角 48~166 像素，金币放到其下方，避免与生命条和生命数字重叠。
+            var walletPlate = CreatePanel(_root.transform, "[CurrencyPlate]");
+            SetRect(walletPlate.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(48f, -174f), new Vector2(224f, 46f));
+            walletPlate.GetComponent<Image>().color = new Color32(10, 20, 32, 220);
+
+            var iconObject = new GameObject("CurrencyIcon");
+            iconObject.transform.SetParent(walletPlate.transform, false);
+            _walletIcon = iconObject.AddComponent<Image>();
+            _walletIcon.sprite = Resources.Load<Sprite>("UI/coin");
+            _walletIcon.color = Color.white;
+            _walletIcon.preserveAspect = true;
+            SetRect(_walletIcon.rectTransform, new Vector2(0f, .5f), new Vector2(0f, .5f), new Vector2(0f, .5f), new Vector2(10f, 0f), new Vector2(30f, 30f));
+
+            _wallet = CreateLabel(walletPlate.transform, "金币 0150", 22, TextAlignmentOptions.MidlineLeft);
+            SetRect(_wallet.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, .5f), new Vector2(50f, 0f), new Vector2(-58f, 0f));
             _wallet.color = new Color32(255, 214, 120, 255);
 
             _toast = CreateLabel(_root.transform, string.Empty, 22, TextAlignmentOptions.Center);
@@ -339,7 +353,7 @@ namespace Train.Composition.Progression
 
         public void RenderWallet(RunProgressSnapshot snapshot)
         {
-            _wallet.text = $"COINS {snapshot.Coins:0000}";
+            _wallet.text = $"金币  {snapshot.Coins:0000}";
         }
 
         public void Tick()
@@ -456,7 +470,7 @@ namespace Train.Composition.Progression
         {
             _completion.SetActive(false);
             _shop.SetActive(true);
-            _shopStatus.text = $"COINS {_progression.Snapshot.Coins:0000}  // 选择装备，购买后自动放入背包并穿戴。";
+            _shopStatus.text = $"金币  {_progression.Snapshot.Coins:0000}  // 选择装备，购买后自动放入背包并穿戴。";
             var oldRows = _shop.transform.Find("Rows");
             if (oldRows != null)
             {

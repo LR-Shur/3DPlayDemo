@@ -34,6 +34,16 @@ namespace Train.Presentation.UI.Views
 
         private float _hideBannerAt = -1f;
         private float _hidePickupToastAt = -1f;
+        private bool _healthValueDetached;
+        private bool _configured;
+
+        private void Awake()
+        {
+            if (_healthValue != null)
+            {
+                EnsureHealthValueVisible();
+            }
+        }
 
         /// <summary>
         /// 配置 HUD 中需要写入的文字、图片和横幅引用。
@@ -74,12 +84,19 @@ namespace Train.Presentation.UI.Views
             _pickupToastAccent = pickupToastAccent;
             _pickupToastTitle = pickupToastTitle;
             _pickupToastSubtitle = pickupToastSubtitle;
+            _configured = true;
+            EnsureHealthValueVisible();
         }
 
         /// <inheritdoc />
         public void Render(HudViewModel viewModel)
         {
-            if (viewModel == null)
+            if (viewModel == null ||
+                _levelName == null ||
+                _phase == null ||
+                _objective == null ||
+                _healthValue == null ||
+                _healthFill == null)
             {
                 return;
             }
@@ -95,7 +112,7 @@ namespace Train.Presentation.UI.Views
             _healthValue.text = viewModel.PlayerMaxHealth > 0f
                 ? $"HP {Mathf.Max(0f, viewModel.PlayerHealth):0.#} / " +
                   $"{Mathf.Max(0f, viewModel.PlayerMaxHealth):0.#}"
-                : "HP -- / --";
+                : "HP 100 / 100";
 
             RenderBanner(viewModel.Banner);
         }
@@ -104,6 +121,14 @@ namespace Train.Presentation.UI.Views
         public void RenderInteractionPrompt(
             InteractionPromptViewModel viewModel)
         {
+            if (_interactionGroup == null ||
+                _interactionName == null ||
+                _interactionHint == null ||
+                _interactionAccent == null)
+            {
+                return;
+            }
+
             var visible = viewModel != null && viewModel.IsVisible;
             _interactionGroup.alpha = visible ? 1f : 0f;
             _interactionGroup.blocksRaycasts = false;
@@ -176,6 +201,48 @@ namespace Train.Presentation.UI.Views
                 or HudBannerKind.Respawning
                 ? -1f
                 : Time.unscaledTime + 2.4f;
+        }
+
+        /// <summary>
+        /// 强制生命数字处于可见状态，并固定在生命条下方，避免旧预制体布局把它裁掉。
+        /// </summary>
+        private void EnsureHealthValueVisible()
+        {
+            if (_healthValue == null)
+            {
+                if (!_configured)
+                {
+                    return;
+                }
+
+                // 运行时生成 HUD 或旧场景没有绑定文本时，创建一个独立的数字标签兜底。
+                var fallback = new GameObject("HealthNumericFallback");
+                fallback.transform.SetParent(transform, false);
+                _healthValue = fallback.AddComponent<TextMeshProUGUI>();
+                _healthValue.text = "HP 100 / 100";
+                _healthValue.fontSize = 20f;
+            }
+
+            _healthValue.gameObject.SetActive(true);
+            _healthValue.color = new Color32(220, 235, 242, 255);
+            _healthValue.fontSize = Mathf.Max(18f, _healthValue.fontSize);
+            _healthValue.raycastTarget = false;
+
+            // 旧版 HUD 将数字放在 PlayerStatus 内部，某些 Canvas 缩放组合下会被面板裁掉。
+            // 将它提升到 HUD 根节点，保证始终在生命条下方可见。
+            if (!_healthValueDetached && _healthValue.transform.parent != transform)
+            {
+                _healthValue.transform.SetParent(transform, false);
+                _healthValueDetached = true;
+            }
+
+            var rect = _healthValue.rectTransform;
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(56f, -126f);
+            rect.sizeDelta = new Vector2(360f, 30f);
+            _healthValue.alignment = TextAlignmentOptions.Left;
         }
 
         private static Color BannerColor(HudBannerKind kind)

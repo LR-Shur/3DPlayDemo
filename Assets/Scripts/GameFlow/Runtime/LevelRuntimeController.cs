@@ -19,6 +19,9 @@ using Train.Gameplay.Player.Application.Events;
 using Train.Gameplay.Player.Core;
 using Train.Gameplay.Player.Input;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Train.GameFlow.Runtime
 {
@@ -146,7 +149,6 @@ namespace Train.GameFlow.Runtime
         {
             if (!IsWaitingForStart ||
                 _playerInput == null ||
-                !_playerInput.HasStartPressed ||
                 !_playerInput.ConsumeStartPressed())
             {
                 return;
@@ -214,11 +216,9 @@ namespace Train.GameFlow.Runtime
                         continue;
                     }
 
-                    var lease = await assets.InstantiateAsync(
-                        spawn.PrefabLocation,
-                        _spawnedActorsRoot,
-                        spawn.Position,
-                        spawn.Rotation,
+                    var lease = await InstantiateEnemyAsync(
+                        assets,
+                        spawn,
                         cancellationToken);
                     pendingLeases.Add(lease);
 
@@ -276,6 +276,50 @@ namespace Train.GameFlow.Runtime
             TrackSceneEnemies();
             EnsurePlayerFaction();
             _prepared = true;
+        }
+
+        /// <summary>
+        /// 通过 YooAsset 实例化敌人；编辑器直接打开训练场且资源模拟包尚未准备好时，
+        /// 回退到 AssetDatabase，保证“模拟训练”仍能刷出敌人。
+        /// </summary>
+        private async Task<IInstanceLease> InstantiateEnemyAsync(
+            IAssetService assets,
+            EnemySpawnDefinition spawn,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await assets.InstantiateAsync(
+                    spawn.PrefabLocation,
+                    _spawnedActorsRoot,
+                    spawn.Position,
+                    spawn.Rotation,
+                    cancellationToken);
+            }
+            catch (Exception exception)
+                when (!(exception is OperationCanceledException))
+            {
+#if UNITY_EDITOR
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                    spawn.PrefabLocation);
+                if (prefab != null)
+                {
+                    var instance = UnityEngine.Object.Instantiate(
+                        prefab,
+                        spawn.Position,
+                        spawn.Rotation,
+                        _spawnedActorsRoot);
+                    Debug.Log(
+                        $"训练场资源服务未就绪，已使用编辑器直接实例化敌人：" +
+                        $"{spawn.PrefabLocation}。原始原因：{exception.Message}",
+                        this);
+                    return new EditorInstanceLease(
+                        spawn.PrefabLocation,
+                        instance);
+                }
+#endif
+                throw;
+            }
         }
 
         /// <summary>
@@ -761,6 +805,31 @@ namespace Train.GameFlow.Runtime
                 Debug.LogException(exception);
             }
         }
+
+#if UNITY_EDITOR
+        /// <summary>编辑器直接实例化对象的轻量租约，释放时销毁对象。</summary>
+        private sealed class EditorInstanceLease : IInstanceLease
+        {
+            public EditorInstanceLease(string location, GameObject instance)
+            {
+                Location = location;
+                Instance = instance;
+            }
+
+            public string Location { get; }
+            public GameObject Instance { get; private set; }
+            public bool IsValid => Instance != null;
+
+            public void Dispose()
+            {
+                if (Instance != null)
+                {
+                    UnityEngine.Object.Destroy(Instance);
+                    Instance = null;
+                }
+            }
+        }
+#endif
 
         private void OnDestroy()
         {

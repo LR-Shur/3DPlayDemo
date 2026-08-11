@@ -122,7 +122,7 @@ namespace Train.EditorTools.Equipment
 
             Debug.Log(
                 $"Equipment content built: {items.Length} items, 2 sets, " +
-                $"7 starting equipment entries, settings '{SettingsPath}'.");
+                $"0 starting equipment entries, settings '{SettingsPath}'.");
         }
 
         private static EquipmentSeed[] CreateEquipmentSeeds()
@@ -486,41 +486,10 @@ namespace Train.EditorTools.Equipment
                     sets[i];
             }
 
-            var startingSeeds = new[]
-            {
-                new StartingSeed(
-                    "thunder_blade",
-                    EquipmentSlot.Weapon),
-                new StartingSeed(
-                    "neon_goggles",
-                    EquipmentSlot.Helmet),
-                new StartingSeed(
-                    "volt_weave_armor",
-                    EquipmentSlot.Armor),
-                new StartingSeed(
-                    "arc_gloves",
-                    EquipmentSlot.Gloves),
-                new StartingSeed(
-                    "flashstep_boots",
-                    EquipmentSlot.Shoes),
-                new StartingSeed(
-                    "thunder_ring",
-                    EquipmentSlot.Accessory1),
-                new StartingSeed(
-                    "induction_choker",
-                    EquipmentSlot.Accessory2)
-            };
+            // 新 Run 不预穿任何装备，装备通过掉落、任务和商店获得。
             var startingList =
                 serialized.FindProperty("_startingEquipment");
-            startingList.arraySize = startingSeeds.Length;
-            for (var i = 0; i < startingSeeds.Length; i++)
-            {
-                var element = startingList.GetArrayElementAtIndex(i);
-                element.FindPropertyRelative("_item").objectReferenceValue =
-                    itemById[startingSeeds[i].ItemId];
-                element.FindPropertyRelative("_targetSlot").enumValueIndex =
-                    (int)startingSeeds[i].TargetSlot;
-            }
+            startingList.arraySize = 0;
 
             serialized.ApplyModifiedPropertiesWithoutUndo();
         }

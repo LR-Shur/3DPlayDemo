@@ -47,18 +47,4 @@ MonoBehaviour:
   _sets:
   - {fileID: 11400000, guid: 0958ce673bac42946a7b63331de5d005, type: 2}
   - {fileID: 11400000, guid: 214ce2d58f62ecf4e84e8e3171e3c9b5, type: 2}
-  _startingEquipment:
-  - _item: {fileID: 11400000, guid: b6294dd9b01273a47ae9520c11bc61ae, type: 2}
-    _targetSlot: 0
-  - _item: {fileID: 11400000, guid: 140f4094787d4bb4dbfb25ca047fd4ee, type: 2}
-    _targetSlot: 1
-  - _item: {fileID: 11400000, guid: bbd6a2bd9c67e8a4883b46725336fcf2, type: 2}
-    _targetSlot: 2
-  - _item: {fileID: 11400000, guid: 5a84ba069c684564bb0175e9b61ed2ec, type: 2}
-    _targetSlot: 3
-  - _item: {fileID: 11400000, guid: 6c4df281c30f9b748812172895fed905, type: 2}
-    _targetSlot: 4
-  - _item: {fileID: 11400000, guid: a7322c12c47e42a4db747617a75a49e1, type: 2}
-    _targetSlot: 5
-  - _item: {fileID: 11400000, guid: c8c71a9566c60d149a42ba9c64bca9a6, type: 2}
-    _targetSlot: 6
+  _startingEquipment: []

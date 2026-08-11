@@ -64,13 +64,8 @@ namespace Train.EditorTools.Inventory
                     string.Empty)
             };
 
-            var seeds = new List<StartingItemSeed>
-            {
-                new("training_chip", 8),
-                new("healing_canister", 3),
-                new("city_token", 120),
-                new("upgrade_module", 1)
-            };
+            // 新 Run 从空背包开始，物品通过拾取、任务和商店获得。
+            var seeds = new List<StartingItemSeed>();
 
             foreach (var equipment in LoadEquipmentCatalog())
             {
@@ -86,7 +81,6 @@ namespace Train.EditorTools.Inventory
                         ConvertRarity(equipment.Rarity),
                         1,
                         iconPath));
-                seeds.Add(new StartingItemSeed(equipment.ItemId, 1));
             }
 
             var settings =
