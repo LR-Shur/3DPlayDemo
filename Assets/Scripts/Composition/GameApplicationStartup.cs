@@ -98,18 +98,17 @@ namespace Train.Composition
             }
 
             var services = GameBootstrap.Instance.Context.Services;
-            // 先注册 Luban 服务和配置提供者，保证关卡控制器的 Start 不会跑在配置服务之前。
+            // 先注册 Luban 服务，供物品、装备、奖励和敌人原型读取。
             if (!services.TryResolve<ILubanConfigService>(out var lubanConfig))
             {
                 lubanConfig = new LubanConfigService();
                 services.Install<ILubanConfigService>(lubanConfig);
             }
 
-            if (!services.TryResolve<ILevelDefinitionProvider>(out _))
+            if (!services.TryResolve<IEnemyArchetypeProvider>(out _))
             {
-                var provider = new LubanLevelDefinitionProvider(lubanConfig);
-                services.Install<ILevelDefinitionProvider>(provider);
-                services.Install<IEnemyArchetypeProvider>(provider);
+                services.Install<IEnemyArchetypeProvider>(
+                    new LubanEnemyArchetypeProvider(lubanConfig));
             }
 
             if (!services.TryResolve<ILevelSessionRegistry>(out _))

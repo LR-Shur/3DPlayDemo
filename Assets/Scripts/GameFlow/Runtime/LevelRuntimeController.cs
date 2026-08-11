@@ -419,24 +419,6 @@ namespace Train.GameFlow.Runtime
         private async Task ResolveDefinitionAsync(
             CancellationToken cancellationToken)
         {
-            var services = GameBootstrap.Instance.Context.Services;
-            if (services.TryResolve<ILevelDefinitionProvider>(out var provider))
-            {
-                var requestedId = _definition != null
-                    ? _definition.LevelId
-                    : LevelSceneLauncher.Instance != null &&
-                      LevelSceneLauncher.Instance.CurrentDefinition != null
-                        ? LevelSceneLauncher.Instance.CurrentDefinition.LevelId
-                        : string.Empty;
-                if (!string.IsNullOrWhiteSpace(requestedId))
-                {
-                    _definition = await provider.ResolveAsync(
-                        requestedId,
-                        cancellationToken);
-                    return;
-                }
-            }
-
             if (_definition != null)
             {
                 return;

@@ -1,17 +1,12 @@
-using System.Threading;
-using System.Threading.Tasks;
-using Train.GameFlow.Data;
-
 namespace Train.GameFlow.Application
 {
-    /// <summary>关卡配置提供者接口，GameFlow 不依赖 Luban 的具体实现。</summary>
-    public interface ILevelDefinitionProvider
+    /// <summary>敌人原型配置查询接口，供关卡运行时应用属性覆盖。</summary>
+    public interface IEnemyArchetypeProvider
     {
-        /// <summary>按关卡 ID 解析运行时关卡定义。</summary>
-        Task<LevelDefinition> ResolveAsync(string levelId, CancellationToken cancellationToken);
+        bool TryGet(string archetypeId, out EnemyArchetypeRuntimeData data);
     }
 
-    /// <summary>敌人原型的运行时只读数据。</summary>
+    /// <summary>Luban 敌人原型转换后的运行时只读数据。</summary>
     public readonly struct EnemyArchetypeRuntimeData
     {
         public EnemyArchetypeRuntimeData(
@@ -36,11 +31,5 @@ namespace Train.GameFlow.Application
         public float Attack { get; }
         public float Defense { get; }
         public float MoveSpeed { get; }
-    }
-
-    /// <summary>敌人原型配置查询接口，供关卡运行时应用属性覆盖。</summary>
-    public interface IEnemyArchetypeProvider
-    {
-        bool TryGet(string archetypeId, out EnemyArchetypeRuntimeData data);
     }
 }

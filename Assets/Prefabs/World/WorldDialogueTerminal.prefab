@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4255602198377931778}
   - component: {fileID: 7946993023438461739}
   - component: {fileID: 1022650282281765619}
+  - component: {fileID: 7740000000000000001}
   m_Layer: 0
   m_Name: WorldDialogueTerminal
   m_TagString: Untagged
@@ -48,7 +49,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5f98e8656104af45b07f98af1894161, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Train.WorldInteraction::Train.WorldInteraction.Runtime.WorldDialogueTerminal
   _interactionId: world.dialogue.prefab
   _dialogueId: dialogue_training_operator
@@ -78,6 +79,22 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 1.35
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &7740000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 194476991265911271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c8ed7a97bf04e6ca15d5ec8b9bba7c1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Train.WorldInteraction::Train.WorldInteraction.Runtime.DialogueNpcVisualLoader
+  _resourcePath: NPC/Casual_Female
+  _localPosition: {x: 0, y: 0, z: 0}
+  _localEulerAngles: {x: 0, y: 180, z: 0}
+  _localScale: 1
 --- !u!1 &1867253313060526736
 GameObject:
   m_ObjectHideFlags: 0
