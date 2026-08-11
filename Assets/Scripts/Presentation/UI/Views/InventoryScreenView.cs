@@ -92,6 +92,10 @@ namespace Train.Presentation.UI.Views
             _detailDescription = detailDescription;
             _detailQuantity = detailQuantity;
             _detailIcon = detailIcon;
+
+            // 鏃у叾瀹氭湇浠剁殑 UI 鍦ㄦ暟鎹垵濮嬪寲鍚庢墠鑳芥壘鍒拌鎯呭瓧浣撱€傚湪 Configure 鍚庡啀纭繚涓㈠純鎸夐挳鍜屽瓧浣撳瓨鍦ㄣ€?
+            EnsureDiscardButton();
+            AttachDiscardListener();
         }
 
         /// <summary>设置背包页面根节点的显示状态。</summary>
@@ -191,6 +195,7 @@ namespace Train.Presentation.UI.Views
             }
 
             EnsureDiscardButton();
+            AttachDiscardListener();
         }
 
         private void OnDestroy()
@@ -209,50 +214,69 @@ namespace Train.Presentation.UI.Views
             DiscardRequested?.Invoke();
         }
 
+        /// <summary>纭繚涓㈠純鎸夐挳鍙湁涓€涓湁鏁堢殑鐐瑰嚮鐩戝惉銆?/summary>
+        private void AttachDiscardListener()
+        {
+            if (_discardButton == null)
+            {
+                return;
+            }
+
+            _discardButton.onClick.RemoveListener(HandleDiscard);
+            _discardButton.onClick.AddListener(HandleDiscard);
+        }
+
         /// <summary>为旧版 UI 预制体补建丢弃按钮。</summary>
         private void EnsureDiscardButton()
         {
-            if (_discardButton != null || _detailName == null)
+            if (_detailName == null)
             {
                 return;
             }
 
-            var detail = _detailName.transform.parent as RectTransform;
-            if (detail == null)
+            if (_discardButton == null)
             {
-                return;
+                var detail = _detailName.transform.parent as RectTransform;
+                if (detail == null)
+                {
+                    return;
+                }
+
+                var buttonObject = new GameObject(
+                    "DiscardButton",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(Button));
+                buttonObject.transform.SetParent(detail, false);
+                var rect = buttonObject.GetComponent<RectTransform>();
+                rect.anchorMin = new Vector2(1f, 0f);
+                rect.anchorMax = new Vector2(1f, 0f);
+                rect.pivot = new Vector2(1f, 0f);
+                rect.sizeDelta = new Vector2(150f, 48f);
+                rect.anchoredPosition = new Vector2(-30f, 28f);
+
+                var image = buttonObject.GetComponent<Image>();
+                image.color = new Color32(132, 43, 58, 255);
+                _discardButton = buttonObject.GetComponent<Button>();
+                _discardButton.targetGraphic = image;
             }
 
-            var buttonObject = new GameObject(
-                "DiscardButton",
-                typeof(RectTransform),
-                typeof(Image),
-                typeof(Button));
-            buttonObject.transform.SetParent(detail, false);
-            var rect = buttonObject.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(1f, 0f);
-            rect.anchorMax = new Vector2(1f, 0f);
-            rect.pivot = new Vector2(1f, 0f);
-            rect.sizeDelta = new Vector2(150f, 48f);
-            rect.anchoredPosition = new Vector2(-30f, 28f);
+            _discardLabel = _discardButton.GetComponentInChildren<TMP_Text>(true);
+            if (_discardLabel == null)
+            {
+                var labelObject = new GameObject(
+                    "Label",
+                    typeof(RectTransform),
+                    typeof(TextMeshProUGUI));
+                labelObject.transform.SetParent(_discardButton.transform, false);
+                var labelRect = labelObject.GetComponent<RectTransform>();
+                labelRect.anchorMin = Vector2.zero;
+                labelRect.anchorMax = Vector2.one;
+                labelRect.offsetMin = Vector2.zero;
+                labelRect.offsetMax = Vector2.zero;
+                _discardLabel = labelObject.GetComponent<TMP_Text>();
+            }
 
-            var image = buttonObject.GetComponent<Image>();
-            image.color = new Color32(132, 43, 58, 255);
-            _discardButton = buttonObject.GetComponent<Button>();
-            _discardButton.targetGraphic = image;
-            _discardButton.onClick.AddListener(HandleDiscard);
-
-            var labelObject = new GameObject(
-                "Label",
-                typeof(RectTransform),
-                typeof(TMP_Text));
-            labelObject.transform.SetParent(buttonObject.transform, false);
-            var labelRect = labelObject.GetComponent<RectTransform>();
-            labelRect.anchorMin = Vector2.zero;
-            labelRect.anchorMax = Vector2.one;
-            labelRect.offsetMin = Vector2.zero;
-            labelRect.offsetMax = Vector2.zero;
-            _discardLabel = labelObject.GetComponent<TMP_Text>();
             _discardLabel.font = _detailName.font;
             _discardLabel.fontSize = 18f;
             _discardLabel.alignment = TextAlignmentOptions.Center;
