@@ -138,9 +138,6 @@ namespace Train.Composition
                 _input.ItemUsePerformed -= OnItemUsePerformed;
             }
 
-            _slotAssignmentSubscription?.Dispose();
-            _slotAssignmentSubscription = null;
-
             _input = player;
             _playerHealth = player != null
                 ? player.GetComponent<Health>()
