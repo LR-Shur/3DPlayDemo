@@ -1,14 +1,17 @@
 using System;
 using System.Collections.Generic;
+using Train.Architecture.Events;
 using Train.Architecture.Bootstrap;
 using Train.Composition.Config;
 using Train.Inventory.Application;
 using Train.Inventory.Data;
+using Train.Inventory.Events;
 using Train.Gameplay.Combat;
 using Train.Gameplay.Combat.Factions;
 using Train.Gameplay.Combat.Buffs;
 using Train.Buffs.Core;
 using Train.Gameplay.Player.Input;
+using Train.Presentation.UI.Views;
 using UnityEngine;
 
 namespace Train.Composition
@@ -26,6 +29,8 @@ namespace Train.Composition
         private ILubanConfigService _luban;
         private PlayerInputReader _input;
         private Health _playerHealth;
+        private ActiveItemQuickBarView _quickBar;
+        private IDisposable _slotAssignmentSubscription;
 
         /// <summary>公开四个快捷槽的只读物品 ID。</summary>
         public IReadOnlyList<string> SlotItemIds => _slotItemIds;
@@ -39,6 +44,7 @@ namespace Train.Composition
         {
             TryInitialize();
             BindPlayer();
+            RenderQuickBar();
         }
 
         /// <summary>
@@ -69,6 +75,55 @@ namespace Train.Composition
             var bootstrap = GameBootstrap.EnsureExists();
             bootstrap.Context.Services.TryResolve(out _inventory);
             bootstrap.Context.Services.TryResolve(out _luban);
+            if (_slotAssignmentSubscription == null)
+            {
+                _slotAssignmentSubscription = bootstrap.Context.Events.Subscribe<
+                    ActiveItemSlotAssignmentRequested>(
+                    message => AssignSlot(message.SlotIndex, message.ItemId));
+            }
+        }
+
+        private void RenderQuickBar()
+        {
+            if (_quickBar == null)
+            {
+                _quickBar = FindFirstObjectByType<ActiveItemQuickBarView>();
+                if (_quickBar == null)
+                {
+                    var root = FindFirstObjectByType<GameUIRootView>();
+                    if (root != null && root.Hud != null)
+                    {
+                        var quickBarObject = new GameObject("ActiveItemQuickBar");
+                        quickBarObject.transform.SetParent(root.Hud.transform, false);
+                        _quickBar = quickBarObject.AddComponent<ActiveItemQuickBarView>();
+                    }
+                }
+            }
+
+            if (_quickBar == null || _inventory == null)
+            {
+                return;
+            }
+
+            var names = new string[4];
+            var quantities = new int[4];
+            for (var index = 0; index < 4; index++)
+            {
+                var itemId = _slotItemIds[index];
+                quantities[index] = string.IsNullOrWhiteSpace(itemId)
+                    ? 0
+                    : _inventory.GetTotalQuantity(itemId);
+                if (!string.IsNullOrWhiteSpace(itemId) &&
+                    _inventory.TryGetDefinition(itemId, out var definition))
+                {
+                    names[index] = definition.DisplayName;
+                }
+            }
+
+            _quickBar.Render(names, quantities);
+            var equipmentView = FindFirstObjectByType<EquipmentScreenView>(
+                FindObjectsInactive.Include);
+            equipmentView?.RenderActiveItemSlots(names, quantities);
         }
 
         private void BindPlayer()
@@ -83,6 +138,9 @@ namespace Train.Composition
             {
                 _input.ItemUsePerformed -= OnItemUsePerformed;
             }
+
+            _slotAssignmentSubscription?.Dispose();
+            _slotAssignmentSubscription = null;
 
             _input = player;
             _playerHealth = player != null
@@ -121,6 +179,11 @@ namespace Train.Composition
 
             if (_inventory.TryRemove(itemId, 1))
             {
+                if (_inventory.GetTotalQuantity(itemId) <= 0)
+                {
+                    _slotItemIds[slotIndex] = string.Empty;
+                }
+
                 _nextUseTimes[slotIndex] = Time.time + Mathf.Max(0f, config.Cooldown);
             }
         }

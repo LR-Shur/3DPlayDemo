@@ -282,6 +282,8 @@ namespace Train.EditorTools.UI
                     font,
                     out var inventoryButton,
                     out var equipmentButton);
+                var quickBarObject = CreateRect("ActiveItemQuickBar", rootRect);
+                quickBarObject.gameObject.AddComponent<ActiveItemQuickBarView>();
                 var inventory = CreateInventory(rootRect, font);
                 var equipment = CreateEquipment(rootRect, font);
                 var quests = CreateQuests(rootRect, font);

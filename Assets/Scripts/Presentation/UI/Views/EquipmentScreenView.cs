@@ -42,6 +42,8 @@ namespace Train.Presentation.UI.Views
         [SerializeField] private TMP_Text[] _statNames = Array.Empty<TMP_Text>();
         [SerializeField] private TMP_Text[] _statBaseValues = Array.Empty<TMP_Text>();
         [SerializeField] private TMP_Text[] _statFinalValues = Array.Empty<TMP_Text>();
+        private readonly TMP_Text[] _activeItemSlotLabels = new TMP_Text[4];
+        private readonly TMP_Text[] _activeItemSlotQuantities = new TMP_Text[4];
 
         /// <inheritdoc />
         public event Action<int> ItemSelected;
@@ -124,6 +126,88 @@ namespace Train.Presentation.UI.Views
             {
                 _screenRoot.SetActive(visible);
             }
+        }
+
+        /// <summary>渲染装备页面中的主动道具 1～4 槽位。</summary>
+        public void RenderActiveItemSlots(string[] itemNames, int[] quantities)
+        {
+            EnsureActiveItemSlots();
+            for (var index = 0; index < 4; index++)
+            {
+                var name = itemNames != null && index < itemNames.Length
+                    ? itemNames[index]
+                    : string.Empty;
+                var quantity = quantities != null && index < quantities.Length
+                    ? Mathf.Max(0, quantities[index])
+                    : 0;
+                _activeItemSlotLabels[index].text =
+                    $"主动道具 {index + 1}\n" +
+                    (string.IsNullOrWhiteSpace(name) ? "未装备" : name);
+                _activeItemSlotQuantities[index].text = quantity > 0
+                    ? $"×{quantity}"
+                    : "0";
+            }
+        }
+
+        private void EnsureActiveItemSlots()
+        {
+            if (_activeItemSlotLabels[0] != null)
+            {
+                return;
+            }
+
+            var parent = transform.Find("ActiveItemLoadout") as RectTransform;
+            if (parent == null)
+            {
+                var parentObject = new GameObject(
+                    "ActiveItemLoadout",
+                    typeof(RectTransform),
+                    typeof(HorizontalLayoutGroup));
+                parentObject.transform.SetParent(transform, false);
+                parent = parentObject.GetComponent<RectTransform>();
+                parent.anchorMin = new Vector2(0f, 0f);
+                parent.anchorMax = new Vector2(1f, 0f);
+                parent.pivot = new Vector2(.5f, 0f);
+                parent.anchoredPosition = new Vector2(0f, 26f);
+                parent.sizeDelta = new Vector2(-96f, 74f);
+                var layout = parent.GetComponent<HorizontalLayoutGroup>();
+                layout.spacing = 8f;
+                layout.childForceExpandWidth = true;
+                layout.childForceExpandHeight = true;
+            }
+
+            for (var index = 0; index < 4; index++)
+            {
+                var slot = new GameObject(
+                    $"ActiveItemSlot{index + 1}",
+                    typeof(RectTransform),
+                    typeof(Image));
+                slot.transform.SetParent(parent, false);
+                slot.GetComponent<Image>().color = new Color32(18, 40, 60, 245);
+                var label = CreateActiveSlotText(slot.transform, "Label");
+                var quantity = CreateActiveSlotText(slot.transform, "Quantity");
+                quantity.alignment = TextAlignmentOptions.BottomRight;
+                quantity.fontSize = 14f;
+                _activeItemSlotLabels[index] = label;
+                _activeItemSlotQuantities[index] = quantity;
+            }
+        }
+
+        private static TMP_Text CreateActiveSlotText(Transform parent, string name)
+        {
+            var child = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
+            child.transform.SetParent(parent, false);
+            var rect = child.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(4f, 4f);
+            rect.offsetMax = new Vector2(-4f, -4f);
+            var text = child.GetComponent<TMP_Text>();
+            text.alignment = TextAlignmentOptions.Center;
+            text.fontSize = 13f;
+            text.color = new Color32(244, 247, 251, 255);
+            text.raycastTarget = false;
+            return text;
         }
 
         /// <inheritdoc />

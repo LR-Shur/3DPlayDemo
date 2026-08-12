@@ -53,6 +53,7 @@ namespace Train.Composition.Progression
         private CancellationTokenSource _lifetime;
         private ProgressionOverlay _overlay;
         private string _returnSceneLocation;
+        private bool _shopPanelOpenedFromNpc;
 
         private void Awake()
         {
@@ -166,13 +167,15 @@ namespace Train.Composition.Progression
         public void OpenShopFromNpc()
         {
             TryInitialize();
+            _shopPanelOpenedFromNpc = true;
             _overlay?.ShowShopFromNpc();
         }
 
         /// <summary>从结算面板进入独立商店场景，并记住返回的战斗场景。</summary>
         private void OpenShopScene()
         {
-            _returnSceneLocation = SceneManager.GetActiveScene().path;
+            _shopPanelOpenedFromNpc = false;
+            _returnSceneLocation = ResolveCurrentSceneAddress();
             _overlay?.HideAllPanels();
             SceneManager.LoadSceneAsync(AssetLocations.ShopScene, LoadSceneMode.Single);
         }
@@ -180,15 +183,28 @@ namespace Train.Composition.Progression
         /// <summary>关闭商店后返回进入商店前的战斗场景。</summary>
         private async void ReturnFromShop()
         {
+            if (_shopPanelOpenedFromNpc)
+            {
+                _shopPanelOpenedFromNpc = false;
+                _overlay?.HideShopPanel();
+                return;
+            }
+
             var location = string.IsNullOrWhiteSpace(_returnSceneLocation)
-                ? AssetLocations.CombatArenaScene
+                ? ResolveCurrentSceneAddress()
                 : _returnSceneLocation;
             _overlay?.HideAllPanels();
-            var operation = SceneManager.LoadSceneAsync(location, LoadSceneMode.Single);
-            while (operation != null && !operation.isDone)
+            if (_assets == null)
             {
-                await Task.Yield();
+                Debug.LogError("返回战斗关卡需要已初始化的 YooAsset 服务。", this);
+                return;
             }
+
+            await _assets.LoadSceneAsync(
+                location,
+                LoadSceneMode.Single,
+                true,
+                _lifetime.Token);
 
             var level = FindFirstObjectByType<LevelRuntimeController>();
             if (level != null && level.IsWaitingForStart)
@@ -196,6 +212,20 @@ namespace Train.Composition.Progression
                 await level.PrepareAsync(_lifetime.Token);
                 level.StartLevel();
             }
+        }
+
+        private string ResolveCurrentSceneAddress()
+        {
+            if (_progression != null &&
+                _progression.TryGetNode(
+                    _progression.Snapshot.CurrentLevelId,
+                    out var node) &&
+                !string.IsNullOrWhiteSpace(node.ScenePath))
+            {
+                return node.ScenePath;
+            }
+
+            return AssetAddresses.CombatArenaScene;
         }
 
         /// <summary>从当前关卡 SO 读取奖励；旧场景未配置时使用最小兜底奖励。</summary>
@@ -667,6 +697,13 @@ namespace Train.Composition.Progression
         {
             ReleaseModal();
             _completion.SetActive(false);
+            _shop.SetActive(false);
+        }
+
+        /// <summary>关闭 NPC 打开的商店面板，但保留当前场景。</summary>
+        public void HideShopPanel()
+        {
+            ReleaseModal();
             _shop.SetActive(false);
         }
 

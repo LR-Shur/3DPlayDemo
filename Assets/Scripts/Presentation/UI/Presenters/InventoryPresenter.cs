@@ -21,6 +21,7 @@ namespace Train.Presentation.UI.Presenters
 
         private readonly IInventoryService _inventory;
         private readonly IEquipmentService _equipment;
+        private readonly IEventBus _events;
         private readonly IInventoryView _view;
         private readonly Action _onCloseRequested;
         private readonly IDisposable _inventoryChangedSubscription;
@@ -42,10 +43,7 @@ namespace Train.Presentation.UI.Presenters
             _inventory =
                 inventory ?? throw new ArgumentNullException(nameof(inventory));
             _equipment = equipment;
-            if (events == null)
-            {
-                throw new ArgumentNullException(nameof(events));
-            }
+            _events = events ?? throw new ArgumentNullException(nameof(events));
 
             _view = view ?? throw new ArgumentNullException(nameof(view));
             _onCloseRequested = onCloseRequested;
@@ -53,6 +51,7 @@ namespace Train.Presentation.UI.Presenters
             _view.SlotSelected += OnSlotSelected;
             _view.CategorySelected += OnCategorySelected;
             _view.DiscardRequested += OnDiscardRequested;
+            _view.ActiveItemSlotRequested += OnActiveItemSlotRequested;
             _view.CloseRequested += OnCloseRequested;
             _inventoryChangedSubscription =
                 events.Subscribe<InventoryChangedEvent>(OnInventoryChanged);
@@ -88,6 +87,7 @@ namespace Train.Presentation.UI.Presenters
             _view.SlotSelected -= OnSlotSelected;
             _view.CategorySelected -= OnCategorySelected;
             _view.DiscardRequested -= OnDiscardRequested;
+            _view.ActiveItemSlotRequested -= OnActiveItemSlotRequested;
             _view.CloseRequested -= OnCloseRequested;
             _inventoryChangedSubscription.Dispose();
             _equipmentChangedSubscription.Dispose();
@@ -161,6 +161,27 @@ namespace Train.Presentation.UI.Presenters
             }
 
             _inventory.TryRemove(detail.ItemId, detail.Quantity);
+        }
+
+        private void OnActiveItemSlotRequested(int slotIndex)
+        {
+            if (_disposed || _selectedSlotIndex < 0)
+            {
+                return;
+            }
+
+            var detail = BuildSelectedDetail();
+            if (detail == null ||
+                !detail.HasItem ||
+                detail.Category != ItemCategory.Consumable)
+            {
+                return;
+            }
+
+            _events.Publish(
+                new ActiveItemSlotAssignmentRequested(
+                    slotIndex,
+                    detail.ItemId));
         }
 
         private void Render()

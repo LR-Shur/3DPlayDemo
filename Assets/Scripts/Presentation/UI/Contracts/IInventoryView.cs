@@ -18,6 +18,9 @@ namespace Train.Presentation.UI.Contracts
         /// <summary>请求丢弃当前选中物品。</summary>
         event Action DiscardRequested;
 
+        /// <summary>请求把当前选中的消耗品装备到主动道具快捷槽。</summary>
+        event Action<int> ActiveItemSlotRequested;
+
         /// <summary>当玩家请求关闭背包界面时触发。</summary>
         event Action CloseRequested;
 

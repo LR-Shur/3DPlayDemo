@@ -184,6 +184,7 @@ namespace Train.Tests.UI
             public event Action<int> SlotSelected;
             public event Action<int> CategorySelected;
             public event Action DiscardRequested;
+            public event Action<int> ActiveItemSlotRequested;
             public event Action CloseRequested;
 
             public int RenderCount { get; private set; }
@@ -208,6 +209,11 @@ namespace Train.Tests.UI
             public void RequestDiscard()
             {
                 DiscardRequested?.Invoke();
+            }
+
+            public void RequestActiveItemSlot(int slotIndex)
+            {
+                ActiveItemSlotRequested?.Invoke(slotIndex);
             }
 
             public void RequestClose()

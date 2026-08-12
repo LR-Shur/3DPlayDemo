@@ -36,6 +36,7 @@ namespace Train.Presentation.UI.Views
         [SerializeField] private Image _detailIcon;
         [SerializeField] private Button _discardButton;
         private TMP_Text _discardLabel;
+        private readonly Button[] _activeItemSlotButtons = new Button[4];
 
         /// <inheritdoc />
         public event Action<int> SlotSelected;
@@ -45,6 +46,9 @@ namespace Train.Presentation.UI.Views
 
         /// <summary>丢弃当前选中物品的请求。</summary>
         public event Action DiscardRequested;
+
+        /// <summary>背包详情区域的主动道具槽按钮事件。</summary>
+        public event Action<int> ActiveItemSlotRequested;
 
         /// <inheritdoc />
         public event Action CloseRequested;
@@ -96,6 +100,7 @@ namespace Train.Presentation.UI.Views
             // 鏃у叾瀹氭湇浠剁殑 UI 鍦ㄦ暟鎹垵濮嬪寲鍚庢墠鑳芥壘鍒拌鎯呭瓧浣撱€傚湪 Configure 鍚庡啀纭繚涓㈠純鎸夐挳鍜屽瓧浣撳瓨鍦ㄣ€?
             EnsureDiscardButton();
             AttachDiscardListener();
+            EnsureActiveItemSlotButtons();
         }
 
         /// <summary>设置背包页面根节点的显示状态。</summary>
@@ -196,12 +201,23 @@ namespace Train.Presentation.UI.Views
 
             EnsureDiscardButton();
             AttachDiscardListener();
+            EnsureActiveItemSlotButtons();
         }
 
         private void OnDestroy()
         {
             _closeButton?.onClick.RemoveListener(HandleClose);
             _discardButton?.onClick.RemoveListener(HandleDiscard);
+            for (var index = 0; index < _activeItemSlotButtons.Length; index++)
+            {
+                var button = _activeItemSlotButtons[index];
+                if (button != null)
+                {
+                    var captured = index;
+                    button.onClick.RemoveListener(
+                        () => ActiveItemSlotRequested?.Invoke(captured));
+                }
+            }
         }
 
         private void HandleClose()
@@ -212,6 +228,78 @@ namespace Train.Presentation.UI.Views
         private void HandleDiscard()
         {
             DiscardRequested?.Invoke();
+        }
+
+        private void EnsureActiveItemSlotButtons()
+        {
+            if (_detailName == null)
+            {
+                return;
+            }
+
+            var detail = _detailName.transform.parent as RectTransform;
+            if (detail == null)
+            {
+                return;
+            }
+
+            var parent = detail.Find("ActiveItemSlots") as RectTransform;
+            if (parent == null)
+            {
+                var parentObject = new GameObject(
+                    "ActiveItemSlots",
+                    typeof(RectTransform));
+                parentObject.transform.SetParent(detail, false);
+                parent = parentObject.GetComponent<RectTransform>();
+                parent.anchorMin = new Vector2(0f, 0f);
+                parent.anchorMax = new Vector2(1f, 0f);
+                parent.pivot = new Vector2(.5f, 0f);
+                parent.anchoredPosition = new Vector2(0f, 82f);
+                parent.sizeDelta = new Vector2(-48f, 52f);
+                var layout = parent.gameObject.AddComponent<HorizontalLayoutGroup>();
+                layout.spacing = 6f;
+                layout.childForceExpandWidth = true;
+                layout.childForceExpandHeight = true;
+            }
+
+            for (var index = 0; index < _activeItemSlotButtons.Length; index++)
+            {
+                if (_activeItemSlotButtons[index] != null)
+                {
+                    continue;
+                }
+
+                var buttonObject = new GameObject(
+                    $"ActiveItemSlot{index + 1}",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(Button));
+                buttonObject.transform.SetParent(parent, false);
+                var image = buttonObject.GetComponent<Image>();
+                image.color = new Color32(27, 58, 78, 245);
+                var button = buttonObject.GetComponent<Button>();
+                var labelObject = new GameObject(
+                    "Label",
+                    typeof(RectTransform),
+                    typeof(TextMeshProUGUI));
+                labelObject.transform.SetParent(buttonObject.transform, false);
+                var labelRect = labelObject.GetComponent<RectTransform>();
+                labelRect.anchorMin = Vector2.zero;
+                labelRect.anchorMax = Vector2.one;
+                labelRect.offsetMin = Vector2.zero;
+                labelRect.offsetMax = Vector2.zero;
+                var label = labelObject.GetComponent<TMP_Text>();
+                label.text = $"主动道具 {index + 1}";
+                label.font = _detailName.font;
+                label.fontSize = 13f;
+                label.alignment = TextAlignmentOptions.Center;
+                label.color = Color.white;
+                label.raycastTarget = false;
+                var captured = index;
+                button.onClick.AddListener(
+                    () => ActiveItemSlotRequested?.Invoke(captured));
+                _activeItemSlotButtons[index] = button;
+            }
         }
 
         /// <summary>纭繚涓㈠純鎸夐挳鍙湁涓€涓湁鏁堢殑鐐瑰嚮鐩戝惉銆?/summary>
@@ -289,6 +377,7 @@ namespace Train.Presentation.UI.Views
             if (detail == null || !detail.HasItem)
             {
                 SetDiscardState(false, false, false);
+                SetActiveItemSlotState(false);
             }
 
             if (detail == null || !detail.HasItem)
@@ -313,12 +402,21 @@ namespace Train.Presentation.UI.Views
             _detailRarity.color = RarityColor(detail.Rarity);
             _detailDescription.text = detail.Description;
             SetDiscardState(true, detail.CanDiscard, detail.IsEquipped);
+            SetActiveItemSlotState(detail.Category == ItemCategory.Consumable);
             _detailQuantity.text =
                 $"持有  {detail.Quantity}    堆叠上限  {detail.MaxStack}";
             if (_detailIcon != null)
             {
                 _detailIcon.sprite = LoadItemIcon(detail.ItemId);
                 _detailIcon.gameObject.SetActive(_detailIcon.sprite != null);
+            }
+        }
+
+        private void SetActiveItemSlotState(bool visible)
+        {
+            for (var index = 0; index < _activeItemSlotButtons.Length; index++)
+            {
+                _activeItemSlotButtons[index]?.gameObject.SetActive(visible);
             }
         }
 
