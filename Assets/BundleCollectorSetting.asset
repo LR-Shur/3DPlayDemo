@@ -46,7 +46,7 @@ MonoBehaviour:
       - CollectPath: Assets/Data
         CollectorGUID: 756c6627143229e4db4a8844a009c530
         CollectorType: 0
-        AddressRuleName: AddressByFolderAndFileName
+        AddressRuleName: AddressByRelativePath
         PackRuleName: PackDirectory
         FilterRuleName: CollectAll
         AssetTags: 

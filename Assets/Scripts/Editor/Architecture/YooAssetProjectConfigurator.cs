@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System.IO;
 using System.Linq;
 using Train.Infrastructure.Assets;
 using UnityEditor;
@@ -78,7 +79,9 @@ namespace Train.EditorTools.Architecture
                     CollectPath = collectPath,
                     CollectorGUID = AssetDatabase.AssetPathToGUID(collectPath),
                     CollectorType = ECollectorType.MainAssetCollector,
-                    AddressRuleName = nameof(AddressByFolderAndFileName),
+                    AddressRuleName = collectPath == "Assets/Data"
+                        ? nameof(AddressByRelativePath)
+                        : nameof(AddressByFolderAndFileName),
                     PackRuleName = nameof(PackDirectory),
                     FilterRuleName = nameof(CollectAll)
                 };
@@ -111,7 +114,9 @@ namespace Train.EditorTools.Architecture
             var addressRulesAreCurrent = package.Groups
                 .SelectMany(group => group.Collectors)
                 .All(collector => collector.AddressRuleName ==
-                    nameof(AddressByFolderAndFileName));
+                    (collector.CollectPath == "Assets/Data"
+                        ? nameof(AddressByRelativePath)
+                        : nameof(AddressByFolderAndFileName)));
             return addressRulesAreCurrent && currentPaths.SequenceEqual(
                 desiredPaths.OrderBy(path => path));
         }
@@ -143,6 +148,26 @@ namespace Train.EditorTools.Architecture
             var name = path.Substring(slash + 1);
             EnsureFolder(parent);
             AssetDatabase.CreateFolder(parent, name);
+        }
+    }
+}
+
+namespace YooAsset.Editor
+{
+    /// <summary>按收集根目录下的相对路径生成唯一地址，避免同名配置资源冲突。</summary>
+    public sealed class AddressByRelativePath : IAddressRule
+    {
+        string IAddressRule.GetAssetAddress(AddressRuleData data)
+        {
+            var relativePath = data.AssetPath.Replace('\\', '/');
+            var collectPath = data.CollectPath.Replace('\\', '/').TrimEnd('/');
+            if (relativePath.StartsWith(collectPath + "/"))
+            {
+                relativePath = relativePath.Substring(collectPath.Length + 1);
+            }
+
+            return Path.ChangeExtension(relativePath, null)
+                .Replace('/', '_');
         }
     }
 }
