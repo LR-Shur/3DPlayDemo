@@ -6,6 +6,8 @@ using Train.Inventory.Application;
 using Train.Inventory.Data;
 using Train.Gameplay.Combat;
 using Train.Gameplay.Combat.Factions;
+using Train.Gameplay.Combat.Buffs;
+using Train.Buffs.Core;
 using Train.Gameplay.Player.Input;
 using UnityEngine;
 
@@ -149,13 +151,18 @@ namespace Train.Composition
                     _playerHealth.Heal(config.Value);
                     return true;
                 case cfg.game.EActiveItemEffect.GRENADE:
-                    return ApplyGrenade(config.Value, config.Radius);
+                    return ApplyGrenade(config);
+                case cfg.game.EActiveItemEffect.ELEMENTAL_GRENADE:
+                    return ApplyGrenade(config);
+                case cfg.game.EActiveItemEffect.SELF_BUFF:
+                    return ApplySelfBuff(config);
                 default:
                     return false;
             }
         }
 
-        private bool ApplyGrenade(float damage, float radius)
+        /// <summary>对范围内敌人造成指定元素伤害，并按配置附加 Buff。</summary>
+        private bool ApplyGrenade(cfg.game.ActiveItem config)
         {
             var origin = _input != null ? _input.transform.position : transform.position;
             var applied = false;
@@ -165,7 +172,7 @@ namespace Train.Composition
                 if (target == null ||
                     !target.IsAlive ||
                     target == _playerHealth ||
-                    Vector3.Distance(origin, target.transform.position) > radius)
+                    Vector3.Distance(origin, target.transform.position) > config.Radius)
                 {
                     continue;
                 }
@@ -176,17 +183,73 @@ namespace Train.Composition
                     continue;
                 }
 
-                var result = target.TakeDamage(new DamageInfo(
-                    damage,
-                    null,
-                    target.transform.position - Vector3.up * 0.4f,
-                    target.transform.position - origin,
-                    0f,
-                    DamageType.Fire));
+                var result = DamageHandler.Apply(
+                    target,
+                    new DamageInfo(
+                        config.Value,
+                        null,
+                        target.transform.position - Vector3.up * 0.4f,
+                        target.transform.position - origin,
+                        0f,
+                        ToDamageType(config.Element)),
+                    faction);
+                if (result.AppliedDamage > 0f &&
+                    !string.IsNullOrWhiteSpace(config.BuffId))
+                {
+                    var buffHandle = target.GetComponentInParent<BuffHandleComponent>();
+                    buffHandle?.Apply(new BuffInfo(
+                        config.BuffId,
+                        $"item.{config.ItemId}",
+                        Mathf.Max(0.1f, config.Duration),
+                        config.Magnitude,
+                        Mathf.Max(1, config.StackAmount),
+                        Mathf.Max(1, config.MaxStacks)));
+                }
+
                 applied |= result.AppliedDamage > 0f;
             }
 
             return applied;
+        }
+
+        /// <summary>为玩家自身附加配置的元素增益 Buff。</summary>
+        private bool ApplySelfBuff(cfg.game.ActiveItem config)
+        {
+            if (_playerHealth == null || !_playerHealth.IsAlive ||
+                string.IsNullOrWhiteSpace(config.BuffId))
+            {
+                return false;
+            }
+
+            var buffHandle = _playerHealth.GetComponentInParent<BuffHandleComponent>();
+            if (buffHandle == null)
+            {
+                return false;
+            }
+
+            buffHandle.Apply(new BuffInfo(
+                config.BuffId,
+                $"item.{config.ItemId}",
+                Mathf.Max(0.1f, config.Duration),
+                config.Magnitude,
+                Mathf.Max(1, config.StackAmount),
+                Mathf.Max(1, config.MaxStacks)));
+            return true;
+        }
+
+        /// <summary>将 Luban 元素枚举转换为战斗层伤害类型。</summary>
+        private static DamageType ToDamageType(cfg.game.EElement element)
+        {
+            return element switch
+            {
+                cfg.game.EElement.FIRE => DamageType.Fire,
+                cfg.game.EElement.WATER => DamageType.Water,
+                cfg.game.EElement.WIND => DamageType.Wind,
+                cfg.game.EElement.EARTH => DamageType.Earth,
+                cfg.game.EElement.ICE => DamageType.Ice,
+                cfg.game.EElement.ELECTRIC => DamageType.Electric,
+                _ => DamageType.Physical
+            };
         }
 
         private void OnDestroy()

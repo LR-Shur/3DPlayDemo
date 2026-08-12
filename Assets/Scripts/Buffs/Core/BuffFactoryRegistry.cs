@@ -147,6 +147,7 @@ namespace Train.Buffs.Core
             RegisterElemental(registry, "quake_step", DamageElement.Earth);
             RegisterElemental(registry, "fortify", DamageElement.Earth);
             RegisterElemental(registry, "shatter", DamageElement.Earth);
+            RegisterElemental(registry, "earth_guard", DamageElement.Earth);
             return registry;
         }
 

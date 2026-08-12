@@ -28,6 +28,14 @@ namespace cfg.game
         /// 手雷
         /// </summary>
         GRENADE = 2,
+        /// <summary>
+        /// 元素手雷
+        /// </summary>
+        ELEMENTAL_GRENADE = 3,
+        /// <summary>
+        /// 自身增益
+        /// </summary>
+        SELF_BUFF = 4,
     }
 
 } 

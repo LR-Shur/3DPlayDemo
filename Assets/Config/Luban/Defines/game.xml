@@ -10,6 +10,8 @@
         <var name="NONE" alias="无" value="0"/>
         <var name="HEAL" alias="回血" value="1"/>
         <var name="GRENADE" alias="手雷" value="2"/>
+        <var name="ELEMENTAL_GRENADE" alias="元素手雷" value="3"/>
+        <var name="SELF_BUFF" alias="自身增益" value="4"/>
     </enum>
 
     <enum name="EEquipmentSlot" comment="装备槽位">
@@ -54,9 +56,15 @@
         <var name="id" type="string"/>
         <var name="item_id" type="string"/>
         <var name="effect" type="EActiveItemEffect"/>
+        <var name="element" type="EElement"/>
         <var name="value" type="float"/>
         <var name="cooldown" type="float"/>
         <var name="radius" type="float"/>
+        <var name="buff_id" type="string"/>
+        <var name="duration" type="float"/>
+        <var name="magnitude" type="float"/>
+        <var name="stack_amount" type="int"/>
+        <var name="max_stacks" type="int"/>
     </bean>
     <table name="TbActiveItem" value="ActiveItem" input="active_items.csv" comment="主动道具表"/>
 

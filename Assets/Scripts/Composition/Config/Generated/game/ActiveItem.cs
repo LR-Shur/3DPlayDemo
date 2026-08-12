@@ -22,9 +22,15 @@ public sealed partial class ActiveItem : Luban.BeanBase
         Id = _buf.ReadString();
         ItemId = _buf.ReadString();
         Effect = (game.EActiveItemEffect)_buf.ReadInt();
+        Element = (game.EElement)_buf.ReadInt();
         Value = _buf.ReadFloat();
         Cooldown = _buf.ReadFloat();
         Radius = _buf.ReadFloat();
+        BuffId = _buf.ReadString();
+        Duration = _buf.ReadFloat();
+        Magnitude = _buf.ReadFloat();
+        StackAmount = _buf.ReadInt();
+        MaxStacks = _buf.ReadInt();
     }
 
     public static ActiveItem DeserializeActiveItem(ByteBuf _buf)
@@ -35,9 +41,15 @@ public sealed partial class ActiveItem : Luban.BeanBase
     public readonly string Id;
     public readonly string ItemId;
     public readonly game.EActiveItemEffect Effect;
+    public readonly game.EElement Element;
     public readonly float Value;
     public readonly float Cooldown;
     public readonly float Radius;
+    public readonly string BuffId;
+    public readonly float Duration;
+    public readonly float Magnitude;
+    public readonly int StackAmount;
+    public readonly int MaxStacks;
    
     public const int __ID__ = 82484949;
     public override int GetTypeId() => __ID__;
@@ -52,9 +64,15 @@ public sealed partial class ActiveItem : Luban.BeanBase
         + "id:" + Id + ","
         + "itemId:" + ItemId + ","
         + "effect:" + Effect + ","
+        + "element:" + Element + ","
         + "value:" + Value + ","
         + "cooldown:" + Cooldown + ","
         + "radius:" + Radius + ","
+        + "buffId:" + BuffId + ","
+        + "duration:" + Duration + ","
+        + "magnitude:" + Magnitude + ","
+        + "stackAmount:" + StackAmount + ","
+        + "maxStacks:" + MaxStacks + ","
         + "}";
     }
 }

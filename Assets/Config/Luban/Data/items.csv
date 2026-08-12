@@ -49,3 +49,8 @@
 ,neon_capacitor,霓虹电容,MATERIAL,2,50,Assets/Arts/UI/Icons/GameIcons/electric.png,城市能源装置掉落的强化材料
 ,emergency_core,应急核心,CONSUMABLE,4,5,Assets/Arts/UI/Icons/GameIcons/orbital.png,紧急恢复与任务兑换使用的核心道具
 ,training_grenade,训练手雷,CONSUMABLE,3,5,Assets/Arts/UI/Icons/GameIcons/orbital.png,对范围内敌人造成伤害的主动道具
+,flame_grenade,烈焰手雷,CONSUMABLE,4,5,Assets/Arts/UI/Icons/GameIcons/orbital.png,火属性范围伤害并叠加燃烧标记
+,tide_grenade,潮汐手雷,CONSUMABLE,4,5,Assets/Arts/UI/Icons/GameIcons/orbital.png,水属性范围伤害并施加潮湿标记
+,gale_grenade,风暴手雷,CONSUMABLE,4,5,Assets/Arts/UI/Icons/GameIcons/orbital.png,风属性范围伤害并叠加风痕
+,seismic_grenade,震岳手雷,CONSUMABLE,5,5,Assets/Arts/UI/Icons/GameIcons/orbital.png,地属性范围伤害并叠加破碎标记
+,earth_guard_kit,岩铠护符,CONSUMABLE,5,3,Assets/Arts/UI/Icons/GameIcons/globe-ring.png,短时间降低受到的地属性伤害

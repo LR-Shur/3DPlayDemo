@@ -1,6 +1,11 @@
-##var,id,item_id,effect,value,cooldown,radius
-##type,string,string,EActiveItemEffect,float,float,float
-##,id,item_id,effect,value,cooldown,radius
-,healing_canister_active,healing_canister,HEAL,35,2,0
-,training_grenade_active,training_grenade,GRENADE,80,4,4
-,emergency_core_active,emergency_core,HEAL,60,8,0
+##var,id,item_id,effect,element,value,cooldown,radius,buff_id,duration,magnitude,stack_amount,max_stacks
+##type,string,string,EActiveItemEffect,EElement,float,float,float,string,float,float,int,int
+##,id,item_id,effect,element,value,cooldown,radius,buff_id,duration,magnitude,stack_amount,max_stacks
+,healing_canister_active,healing_canister,HEAL,NONE,35,2,0,,0,0,1,1
+,training_grenade_active,training_grenade,GRENADE,FIRE,80,4,4,,0,0,1,1
+,emergency_core_active,emergency_core,HEAL,NONE,60,8,0,,0,0,1,1
+,flame_grenade_active,flame_grenade,ELEMENTAL_GRENADE,FIRE,90,5,4,burning,6,0.08,1,3
+,tide_grenade_active,tide_grenade,ELEMENTAL_GRENADE,WATER,75,4,4,wet,6,0.12,1,3
+,gale_grenade_active,gale_grenade,ELEMENTAL_GRENADE,WIND,70,4,5,wind_mark,6,0.1,1,3
+,seismic_grenade_active,seismic_grenade,ELEMENTAL_GRENADE,EARTH,100,6,3.5,fracture,6,0.1,1,3
+,earth_guard_kit_active,earth_guard_kit,SELF_BUFF,EARTH,0,10,0,earth_guard,8,-0.25,1,1

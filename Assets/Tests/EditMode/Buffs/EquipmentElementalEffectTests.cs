@@ -27,6 +27,12 @@ namespace Train.Tests.EditMode.Buffs
                     registry.Create(new BuffInfo(id, "test", 1f, 0.1f, 1, 1)),
                     Is.Not.Null);
             }
+
+            Assert.That(registry.Contains("earth_guard"), Is.True);
+            Assert.That(
+                registry.Create(new BuffInfo(
+                    "earth_guard", "item.earth_guard_kit", 8f, -0.25f, 1, 1)),
+                Is.Not.Null);
         }
     }
 }
