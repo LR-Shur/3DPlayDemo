@@ -317,6 +317,9 @@ namespace Train.Composition
             {
                 _input.ItemUsePerformed -= OnItemUsePerformed;
             }
+
+            _slotAssignmentSubscription?.Dispose();
+            _slotAssignmentSubscription = null;
         }
     }
 }
