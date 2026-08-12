@@ -156,6 +156,11 @@ namespace Train.Composition
                 gameObject.AddComponent<EquipmentCombatRuntimeController>();
             }
 
+            if (gameObject.GetComponent<ActiveItemRuntimeController>() == null)
+            {
+                gameObject.AddComponent<ActiveItemRuntimeController>();
+            }
+
             if (_initializationTask != null)
             {
                 return;

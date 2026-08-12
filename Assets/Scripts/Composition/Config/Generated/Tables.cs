@@ -18,6 +18,10 @@ public partial class Tables
     /// </summary>
     public game.TbItem TbItem {get; }
     /// <summary>
+    /// 主动道具表
+    /// </summary>
+    public game.TbActiveItem TbActiveItem {get; }
+    /// <summary>
     /// 装备表
     /// </summary>
     public game.TbEquipment TbEquipment {get; }
@@ -45,6 +49,7 @@ public partial class Tables
     public Tables(System.Func<string, ByteBuf> loader)
     {
         TbItem = new game.TbItem(loader("game_tbitem"));
+        TbActiveItem = new game.TbActiveItem(loader("game_tbactiveitem"));
         TbEquipment = new game.TbEquipment(loader("game_tbequipment"));
         TbEquipmentEffect = new game.TbEquipmentEffect(loader("game_tbequipmenteffect"));
         TbEnemyArchetype = new game.TbEnemyArchetype(loader("game_tbenemyarchetype"));
@@ -57,6 +62,7 @@ public partial class Tables
     private void ResolveRef()
     {
         TbItem.ResolveRef(this);
+        TbActiveItem.ResolveRef(this);
         TbEquipment.ResolveRef(this);
         TbEquipmentEffect.ResolveRef(this);
         TbEnemyArchetype.ResolveRef(this);

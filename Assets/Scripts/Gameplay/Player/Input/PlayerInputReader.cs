@@ -12,6 +12,9 @@ namespace Train.Gameplay.Player.Input
     {
         /// <summary>翻滚动作真正触发时通知组合层。</summary>
         public event System.Action DodgePerformed;
+
+        /// <summary>快捷道具按键触发时通知组合层，参数范围为 0 到 3。</summary>
+        public event System.Action<int> ItemUsePerformed;
         [SerializeField] private InputActionAsset _actionsAsset;
         [SerializeField] private string _actionMapName = "Player";
 
@@ -28,6 +31,10 @@ namespace Train.Gameplay.Player.Input
         private InputAction _startAction;
         private InputAction _previousAction;
         private InputAction _nextAction;
+        private InputAction _useItem1Action;
+        private InputAction _useItem2Action;
+        private InputAction _useItem3Action;
+        private InputAction _useItem4Action;
         private bool _attackPressed;
         private bool _dodgePressed;
         private bool _rushPressed;
@@ -95,6 +102,10 @@ namespace Train.Gameplay.Player.Input
             _startAction = _playerMap.FindAction("Start", false);
             _previousAction = _playerMap.FindAction("Previous", true);
             _nextAction = _playerMap.FindAction("Next", true);
+            _useItem1Action = _playerMap.FindAction("UseItem1", true);
+            _useItem2Action = _playerMap.FindAction("UseItem2", true);
+            _useItem3Action = _playerMap.FindAction("UseItem3", true);
+            _useItem4Action = _playerMap.FindAction("UseItem4", true);
         }
 
         /// <summary>
@@ -119,6 +130,10 @@ namespace Train.Gameplay.Player.Input
             }
             _previousAction.performed += OnPreviousPerformed;
             _nextAction.performed += OnNextPerformed;
+            _useItem1Action.performed += OnUseItem1Performed;
+            _useItem2Action.performed += OnUseItem2Performed;
+            _useItem3Action.performed += OnUseItem3Performed;
+            _useItem4Action.performed += OnUseItem4Performed;
             if (_externalInputBlocked)
             {
                 _startAction?.Enable();
@@ -151,6 +166,10 @@ namespace Train.Gameplay.Player.Input
             }
             _previousAction.performed -= OnPreviousPerformed;
             _nextAction.performed -= OnNextPerformed;
+            _useItem1Action.performed -= OnUseItem1Performed;
+            _useItem2Action.performed -= OnUseItem2Performed;
+            _useItem3Action.performed -= OnUseItem3Performed;
+            _useItem4Action.performed -= OnUseItem4Performed;
             _playerMap.Disable();
             _startAction?.Disable();
             ClearBufferedButtons();
@@ -361,5 +380,21 @@ namespace Train.Gameplay.Player.Input
         {
             _nextPressed = true;
         }
+
+        /// <summary>触发第一个快捷道具槽。</summary>
+        private void OnUseItem1Performed(InputAction.CallbackContext context) =>
+            ItemUsePerformed?.Invoke(0);
+
+        /// <summary>触发第二个快捷道具槽。</summary>
+        private void OnUseItem2Performed(InputAction.CallbackContext context) =>
+            ItemUsePerformed?.Invoke(1);
+
+        /// <summary>触发第三个快捷道具槽。</summary>
+        private void OnUseItem3Performed(InputAction.CallbackContext context) =>
+            ItemUsePerformed?.Invoke(2);
+
+        /// <summary>触发第四个快捷道具槽。</summary>
+        private void OnUseItem4Performed(InputAction.CallbackContext context) =>
+            ItemUsePerformed?.Invoke(3);
     }
 }

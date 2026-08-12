@@ -17,6 +17,7 @@ namespace Train.Composition.Config
         private static readonly string[] TableNames =
         {
             "game_tbitem",
+            "game_tbactiveitem",
             "game_tbequipment",
             "game_tbequipmenteffect",
             "game_tbenemyarchetype",

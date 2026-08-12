@@ -25,6 +25,18 @@ namespace Train.Composition.Config
             }
 
             var items = new List<ItemDefinition>();
+            var activeItems = new Dictionary<string, cfg.game.ActiveItem>(
+                StringComparer.Ordinal);
+            foreach (var activeItem in tables.TbActiveItem.DataList)
+            {
+                if (activeItem != null &&
+                    !string.IsNullOrWhiteSpace(activeItem.ItemId) &&
+                    !activeItems.ContainsKey(activeItem.ItemId))
+                {
+                    activeItems.Add(activeItem.ItemId, activeItem);
+                }
+            }
+
             foreach (var row in tables.TbItem.DataList)
             {
                 if (row == null || string.IsNullOrWhiteSpace(row.Id))
@@ -32,6 +44,7 @@ namespace Train.Composition.Config
                     continue;
                 }
 
+                activeItems.TryGetValue(row.Id, out var activeItem);
                 items.Add(ItemDefinition.CreateRuntime(
                     row.Id,
                     row.Name,
@@ -39,7 +52,12 @@ namespace Train.Composition.Config
                     ToItemCategory(row.Category),
                     ToItemRarity(row.Quality),
                     row.MaxStack,
-                    row.Icon));
+                    row.Icon,
+                    activeItem == null
+                        ? ActiveItemEffectType.None
+                        : ToActiveItemEffect(activeItem.Effect),
+                    activeItem != null ? activeItem.Value : 0f,
+                    activeItem != null ? activeItem.Cooldown : 0f));
             }
 
             return InventorySettings.CreateRuntime(
@@ -146,6 +164,17 @@ namespace Train.Composition.Config
                 cfg.game.EItemCategory.EQUIPMENT => ItemCategory.Equipment,
                 cfg.game.EItemCategory.QUEST => ItemCategory.Quest,
                 _ => ItemCategory.Material
+            };
+        }
+
+        private static ActiveItemEffectType ToActiveItemEffect(
+            cfg.game.EActiveItemEffect effect)
+        {
+            return effect switch
+            {
+                cfg.game.EActiveItemEffect.HEAL => ActiveItemEffectType.Heal,
+                cfg.game.EActiveItemEffect.GRENADE => ActiveItemEffectType.Grenade,
+                _ => ActiveItemEffectType.None
             };
         }
 

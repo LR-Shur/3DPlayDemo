@@ -1,0 +1,6 @@
+##var,id,item_id,effect,value,cooldown,radius
+##type,string,string,EActiveItemEffect,float,float,float
+##,id,item_id,effect,value,cooldown,radius
+,healing_canister_active,healing_canister,HEAL,35,2,0
+,training_grenade_active,training_grenade,GRENADE,80,4,4
+,emergency_core_active,emergency_core,HEAL,60,8,0

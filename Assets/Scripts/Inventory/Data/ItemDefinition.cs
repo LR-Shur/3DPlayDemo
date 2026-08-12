@@ -19,6 +19,9 @@ namespace Train.Inventory.Data
         [SerializeField, Min(1)] private int _maxStack = 99;
         [Tooltip("YooAsset location. Empty means the UI uses a generated fallback icon.")]
         [SerializeField] private string _iconLocation;
+        [SerializeField] private ActiveItemEffectType _activeEffect;
+        [SerializeField, Min(0f)] private float _activeEffectValue;
+        [SerializeField, Min(0f)] private float _activeEffectCooldown;
 
         /// <summary>获取物品的稳定标识。</summary>
         public string ItemId => _itemId;
@@ -41,6 +44,15 @@ namespace Train.Inventory.Data
         /// <summary>获取 YooAsset 图标定位地址。</summary>
         public string IconLocation => _iconLocation;
 
+        /// <summary>获取主动道具效果类型。</summary>
+        public ActiveItemEffectType ActiveEffect => _activeEffect;
+
+        /// <summary>获取主动道具效果数值。</summary>
+        public float ActiveEffectValue => _activeEffectValue;
+
+        /// <summary>获取主动道具冷却时间。</summary>
+        public float ActiveEffectCooldown => _activeEffectCooldown;
+
         /// <summary>根据 Luban 行创建运行时物品定义。</summary>
         public static ItemDefinition CreateRuntime(
             string itemId,
@@ -49,7 +61,10 @@ namespace Train.Inventory.Data
             ItemCategory category,
             ItemRarity rarity,
             int maxStack,
-            string iconLocation)
+            string iconLocation,
+            ActiveItemEffectType activeEffect = ActiveItemEffectType.None,
+            float activeEffectValue = 0f,
+            float activeEffectCooldown = 0f)
         {
             var definition = CreateInstance<ItemDefinition>();
             definition.name = $"LubanItem_{itemId}";
@@ -60,6 +75,9 @@ namespace Train.Inventory.Data
             definition._rarity = rarity;
             definition._maxStack = Mathf.Max(1, maxStack);
             definition._iconLocation = iconLocation;
+            definition._activeEffect = activeEffect;
+            definition._activeEffectValue = Mathf.Max(0f, activeEffectValue);
+            definition._activeEffectCooldown = Mathf.Max(0f, activeEffectCooldown);
             return definition;
         }
     }
