@@ -7,7 +7,6 @@ using Train.Composition;
 using Train.Gameplay.Camera;
 using Train.Gameplay.Player.Core;
 using Train.Gameplay.Player.Input;
-using Train.WorldInteraction.Runtime;
 using UnityEngine;
 
 namespace Train.Shop.Runtime
@@ -24,7 +23,6 @@ namespace Train.Shop.Runtime
             AssetLocations.PlayerPrefab;
         private const string CameraLocation =
             AssetLocations.PlayerCameraPrefab;
-        private const string NpcVisualLocation = "NPC/Shopkeeper_Casual2";
 
         private IInstanceLease _playerLease;
         private IInstanceLease _cameraLease;
@@ -45,57 +43,20 @@ namespace Train.Shop.Runtime
             _ = PrepareAsync(_lifetime.Token);
         }
 
-        /// <summary>生成商店地面、灯光和可交互 NPC。</summary>
+        /// <summary>
+        /// 校验场景中的静态商店内容。
+        /// 地面、灯光和 NPC 必须保存在 Shop.unity，方便不运行游戏时直接摆放和调试。
+        /// </summary>
         private void BuildStaticScene()
         {
-            if (GameObject.Find("Shopkeeper") == null)
+            var missing = string.IsNullOrWhiteSpace(GameObject.Find("ShopFloor")?.name) ||
+                          string.IsNullOrWhiteSpace(GameObject.Find("Shopkeeper")?.name) ||
+                          FindFirstObjectByType<Light>() == null;
+            if (missing)
             {
-                var npc = new GameObject("Shopkeeper");
-                npc.transform.position = new Vector3(0f, 0f, 2f);
-                var collider = npc.AddComponent<SphereCollider>();
-                collider.isTrigger = true;
-                collider.center = new Vector3(0f, 1f, 0f);
-                collider.radius = 1.35f;
-
-                var interactionPoint = new GameObject("InteractionPoint");
-                interactionPoint.transform.SetParent(npc.transform, false);
-                interactionPoint.transform.localPosition = new Vector3(0f, 1.1f, 0f);
-
-                var terminal = npc.AddComponent<WorldDialogueTerminal>();
-                terminal.Configure(
-                    "shopkeeper.main",
-                    "dialogue_shopkeeper",
-                    "补给商人",
-                    40,
-                    interactionPoint.transform,
-                    1.6f);
-                var bridge = npc.AddComponent<ShopkeeperDialogueBridge>();
-                bridge.Configure("dialogue_shopkeeper");
-
-                var visualPrefab = Resources.Load<GameObject>(NpcVisualLocation);
-                if (visualPrefab != null)
-                {
-                    var visual = Instantiate(visualPrefab, npc.transform, false);
-                    visual.name = "ShopkeeperVisual";
-                    visual.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
-                }
-            }
-
-            if (GameObject.Find("ShopFloor") == null)
-            {
-                var floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                floor.name = "ShopFloor";
-                floor.transform.position = new Vector3(0f, -0.15f, 2f);
-                floor.transform.localScale = new Vector3(16f, 0.3f, 12f);
-            }
-
-            if (FindFirstObjectByType<Light>() == null)
-            {
-                var lightObject = new GameObject("ShopLight");
-                var light = lightObject.AddComponent<Light>();
-                light.type = LightType.Directional;
-                light.intensity = 1.1f;
-                lightObject.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
+                Debug.LogError(
+                    "Shop 场景缺少静态内容。请在编辑模式确认 ShopFloor、Shopkeeper 和 ShopLight 已保存在场景中。",
+                    this);
             }
         }
 
@@ -146,7 +107,14 @@ namespace Train.Shop.Runtime
                 if (playerController != null)
                 {
                     playerController.enabled = true;
-                    playerController.InitializeRuntime();
+                    var mainCamera = UnityEngine.Camera.main ??
+                                      FindFirstObjectByType<UnityEngine.Camera>(
+                                          FindObjectsInactive.Include);
+                    if (!playerController.InitializeRuntime(mainCamera != null ? mainCamera.transform : null))
+                    {
+                        throw new InvalidOperationException(
+                            "商店场景玩家初始化失败：主相机未绑定或玩家状态机依赖不完整。请检查 Player 和 CM_PlayerCamera。" );
+                    }
                 }
                 IsReady = true;
             }

@@ -52,3 +52,196 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c3dd2a81c5a4d8e9f5a0d8f6f6b9f31, type: 3}
   m_Name:
   m_EditorClassIdentifier: Train.Shop::Train.Shop.Runtime.ShopSceneController
+
+--- !u!1 &200000001
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 200000002}
+  - component: {fileID: 200000003}
+  - component: {fileID: 200000004}
+  - component: {fileID: 200000005}
+  m_Layer: 0
+  m_Name: ShopFloor
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &200000002
+Transform:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_GameObject: {fileID: 200000001}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.15, z: 2}
+  m_LocalScale: {x: 16, y: 0.3, z: 12}
+  m_Children: []
+  m_Father: {fileID: 0}
+--- !u!33 &200000003
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 200000001}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &200000004
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 200000001}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_Materials:
+  - {fileID: 2100000, guid: 5ee5fc382d87075438fa74f43c55d204, type: 2}
+--- !u!65 &200000005
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 200000001}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+
+--- !u!1 &200000010
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 200000011}
+  - component: {fileID: 200000012}
+  m_Layer: 0
+  m_Name: ShopLight
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &200000011
+Transform:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_GameObject: {fileID: 200000010}
+  m_LocalRotation: {x: 0.3535534, y: -0.1464466, z: 0.1464466, w: 0.8535534}
+  m_LocalPosition: {x: 0, y: 6, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+--- !u!108 &200000012
+Light:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 200000010}
+  m_Enabled: 1
+  serializedVersion: 12
+  m_Type: 1
+  m_Color: {r: 0.72, g: 0.84, b: 1, a: 1}
+  m_Intensity: 1.1
+  m_Range: 10
+  m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
+  m_Cookie: {fileID: 0}
+  m_Shadows:
+    m_Type: 0
+    m_Resolution: 2
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 4
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_ShadowNearPlane: 0.1
+
+--- !u!1 &200000020
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 200000021}
+  - component: {fileID: 200000022}
+  - component: {fileID: 200000023}
+  - component: {fileID: 200000024}
+  - component: {fileID: 200000025}
+  m_Layer: 0
+  m_Name: Shopkeeper
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &200000021
+Transform:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_GameObject: {fileID: 200000020}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 200000031}
+  m_Father: {fileID: 0}
+--- !u!135 &200000022
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 200000020}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 1.35
+  m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &200000023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 200000020}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: d5f98e8656104af45b07f98af1894161, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Train.WorldInteraction::Train.WorldInteraction.Runtime.WorldDialogueTerminal
+  _interactionId: shopkeeper.main
+  _dialogueId: dialogue_shopkeeper
+  _displayName: 补给商人
+  _actionLabel: 对话
+  _priority: 40
+  _interactionRange: 1.6
+  _interactionPoint: {fileID: 200000031}
+--- !u!114 &200000024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 200000020}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: 6b0f8d5a6a95451e8e2e71d5a92fc2de, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Train.Shop::Train.Shop.Runtime.ShopkeeperDialogueBridge
+  _dialogueId: dialogue_shopkeeper
+--- !u!114 &200000025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 200000020}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: 7c8ed7a97bf04e6ca15d5ec8b9bba7c1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Train.WorldInteraction::Train.WorldInteraction.Runtime.DialogueNpcVisualLoader
+  _resourcePath: NPC/Shopkeeper_Casual2
+  _localPosition: {x: 0, y: 0, z: 0}
+  _localEulerAngles: {x: 0, y: 180, z: 0}
+  _localScale: 1
+--- !u!4 &200000031
+Transform:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_GameObject: {fileID: 200000030}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 200000021}
+--- !u!1 &200000030
+GameObject:
+  m_ObjectHideFlags: 0
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 200000031}
+  m_Layer: 0
+  m_Name: InteractionPoint
+  m_TagString: Untagged
+  m_IsActive: 1

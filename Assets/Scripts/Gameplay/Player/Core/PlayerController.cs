@@ -42,6 +42,16 @@ namespace Train.Gameplay.Player.Core
         }
 
         /// <summary>
+        /// 使用场景已经准备好的主相机初始化玩家状态机。
+        /// 商店等独立测试场景可能在玩家 Awake 之后才创建相机，显式传入可避免状态机一直等待相机依赖。
+        /// </summary>
+        public bool InitializeRuntime(Transform cameraTransform)
+        {
+            _cameraTransform = cameraTransform;
+            return TryInitialize();
+        }
+
+        /// <summary>
         /// 校验引用、配置相机相对移动，并进入移动状态。
         /// </summary>
         private void Awake()
