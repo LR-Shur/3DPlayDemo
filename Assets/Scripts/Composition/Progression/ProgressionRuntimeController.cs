@@ -872,7 +872,11 @@ namespace Train.Composition.Progression
 
         private static int GetItemPrice(ItemDefinition definition)
         {
-            var seed = Math.Abs(StringComparer.Ordinal.GetHashCode(definition.ItemId));
+            var seed = 0;
+            foreach (var character in definition.ItemId)
+            {
+                seed = (seed * 31 + character) & 0x7fffffff;
+            }
             return 60 + (int)definition.Rarity * 80 + seed % 140;
         }
 
