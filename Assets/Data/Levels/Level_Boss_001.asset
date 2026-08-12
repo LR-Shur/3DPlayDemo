@@ -16,6 +16,8 @@ MonoBehaviour:
   _displayName: "\u6838\u5FC3\u7194\u7089 \xB7 Rusk \u539F\u578B\u673A"
   _sceneLocation: Assets/Scenes/Playable/Level_Boss_001.unity
   _introSeconds: 1.5
+  _playerSpawnPosition: {x: -47, y: 0, z: -52}
+  _playerSpawnEulerAngles: {x: 0, y: 0, z: 0}
   _maxPlayerDeaths: 2
   _enemySpawns:
   - _spawnId: boss_rusk

@@ -3,7 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Train.Architecture.Assets;
 using Train.Architecture.Bootstrap;
+using Train.Composition;
 using Train.Gameplay.Camera;
+using Train.Gameplay.Player.Core;
 using Train.Gameplay.Player.Input;
 using Train.WorldInteraction.Runtime;
 using UnityEngine;
@@ -19,9 +21,9 @@ namespace Train.Shop.Runtime
     public sealed class ShopSceneController : MonoBehaviour
     {
         private const string PlayerLocation =
-            "Assets/Prefabs/Player/Player_Ellen.prefab";
+            AssetLocations.PlayerPrefab;
         private const string CameraLocation =
-            "Assets/Prefabs/CM_PlayerCamera.prefab";
+            AssetLocations.PlayerCameraPrefab;
         private const string NpcVisualLocation = "NPC/Shopkeeper_Casual2";
 
         private IInstanceLease _playerLease;
@@ -103,7 +105,9 @@ namespace Train.Shop.Runtime
             try
             {
                 var game = GameBootstrap.EnsureExists();
-                var assets = game.Context.Assets;
+                var assets = await WaitForApplicationAsync(
+                    game,
+                    cancellationToken);
                 await assets.InitializeAsync(cancellationToken);
 
                 var player = GameObject.FindGameObjectWithTag("Player");
@@ -131,7 +135,19 @@ namespace Train.Shop.Runtime
 
                 var input = player.GetComponent<PlayerInputReader>();
                 var target = player.transform.Find("PlayerCameraTarget") ?? player.transform;
-                PlayerCameraRuntimeBinder.TryBind(camera, target, input);
+                if (!PlayerCameraRuntimeBinder.TryBind(camera, target, input))
+                {
+                    throw new InvalidOperationException(
+                        "商店场景玩家相机绑定失败，请检查 CM_PlayerCamera 预制体。 ");
+                }
+
+                // 让控制器在相机绑定完成后的下一帧自动建立玩家状态机。
+                var playerController = player.GetComponent<PlayerController>();
+                if (playerController != null)
+                {
+                    playerController.enabled = true;
+                    playerController.InitializeRuntime();
+                }
                 IsReady = true;
             }
             catch (OperationCanceledException)
@@ -142,6 +158,32 @@ namespace Train.Shop.Runtime
             {
                 Debug.LogException(exception, this);
             }
+        }
+
+        /// <summary>
+        /// 等待 YooAsset 与应用层服务完成安装，确保独立打开场景时也具备输入、动画、对话和商店服务。
+        /// </summary>
+        private static async Task<IAssetService> WaitForApplicationAsync(
+            GameBootstrap game,
+            CancellationToken cancellationToken)
+        {
+            for (var frame = 0; frame < 600; frame++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (game.Context.Assets != null)
+                {
+                    var startup = game.GetComponent<GameApplicationStartup>();
+                    if (startup != null && startup.IsReady)
+                    {
+                        return game.Context.Assets;
+                    }
+                }
+
+                await Task.Yield();
+            }
+
+            throw new InvalidOperationException(
+                "商店场景等待应用服务超时，请确认 YooAssetRuntimeInstaller 和 GameApplicationStartup 已执行。 ");
         }
 
         private void OnDestroy()

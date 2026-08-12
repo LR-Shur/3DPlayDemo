@@ -19,6 +19,10 @@ namespace Train.GameFlow.Data
         [SerializeField] private string _sceneLocation;
         [SerializeField, Min(0f)] private float _introSeconds = 1.2f;
 
+        [Header("Player Spawn")]
+        [SerializeField] private Vector3 _playerSpawnPosition;
+        [SerializeField] private Vector3 _playerSpawnEulerAngles;
+
         [Header("Rules")]
         [Tooltip("0 表示无限复活。")]
         [SerializeField, Min(0)] private int _maxPlayerDeaths;
@@ -31,6 +35,9 @@ namespace Train.GameFlow.Data
         public string DisplayName => _displayName;
         public string SceneLocation => _sceneLocation;
         public float IntroSeconds => _introSeconds;
+        public Vector3 PlayerSpawnPosition => _playerSpawnPosition;
+        public Quaternion PlayerSpawnRotation =>
+            Quaternion.Euler(_playerSpawnEulerAngles);
         public int MaxPlayerDeaths => _maxPlayerDeaths;
         public IReadOnlyList<EnemySpawnDefinition> EnemySpawns => _enemySpawns;
 

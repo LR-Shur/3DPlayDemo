@@ -16,6 +16,8 @@ MonoBehaviour:
   _displayName: "\u7B2C 1 \u8BAD\u7EC3\u533A"
   _sceneLocation: Assets/Scenes/Playable/Level_Combat_001.unity
   _introSeconds: 1.2
+  _playerSpawnPosition: {x: -46.79, y: 0.984, z: -30.27817}
+  _playerSpawnEulerAngles: {x: 0, y: 0, z: 0}
   _maxPlayerDeaths: 0
   _enemySpawns:
   - _spawnId: knight_01

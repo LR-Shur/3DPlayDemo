@@ -34,6 +34,14 @@ namespace Train.Gameplay.Player.Core
         private bool _reportedMissingReferences;
 
         /// <summary>
+        /// 在运行时相机或 YooAsset 玩家实例晚于 Awake 完成时，主动重新绑定玩家状态机。
+        /// </summary>
+        public bool InitializeRuntime()
+        {
+            return TryInitialize();
+        }
+
+        /// <summary>
         /// 校验引用、配置相机相对移动，并进入移动状态。
         /// </summary>
         private void Awake()

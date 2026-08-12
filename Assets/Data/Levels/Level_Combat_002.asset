@@ -16,6 +16,8 @@ MonoBehaviour:
   _displayName: "\u7B2C 2 \u6218\u533A \xB7 \u65AD\u7535\u56DE\u5ECA"
   _sceneLocation: Assets/Scenes/Playable/Level_Combat_002.unity
   _introSeconds: 1.5
+  _playerSpawnPosition: {x: -45, y: 0, z: -49}
+  _playerSpawnEulerAngles: {x: 0, y: 0, z: 0}
   _maxPlayerDeaths: 2
   _enemySpawns:
   - _spawnId: scout_01

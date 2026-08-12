@@ -590,11 +590,24 @@ namespace Train.GameFlow.Runtime
                 return _playerSpawnPoint;
             }
 
+            // 关卡 SO 是运行时出生位置的唯一来源；场景点位只保留为旧场景兼容入口。
+            if (_definition != null)
+            {
+                var runtimePoint = new GameObject("[RuntimePlayerSpawn]");
+                runtimePoint.transform.SetParent(transform, false);
+                runtimePoint.transform.SetLocalPositionAndRotation(
+                    _definition.PlayerSpawnPosition,
+                    _definition.PlayerSpawnRotation);
+                _playerSpawnPoint = runtimePoint.transform;
+                return _playerSpawnPoint;
+            }
+
             var point = GetComponentInChildren<PlayerSpawnPoint>(true);
             _playerSpawnPoint = point != null
                 ? point.transform
                 : transform.Find("Spawns/PlayerSpawn") ??
                   transform.Find("Spawns/PlayerSpawnPoint");
+
             return _playerSpawnPoint;
         }
 
