@@ -32,6 +32,31 @@ namespace Train.WorldInteraction.Runtime
             _actionLabel = actionLabel;
             _onInteract = onInteract;
             _interactionPoint ??= transform;
+            EnsureVisual();
+        }
+
+        /// <summary>创建简单的青色传送门标记，便于关卡调试和玩家定位。</summary>
+        private void EnsureVisual()
+        {
+            if (transform.Find("PortalVisual") != null)
+            {
+                return;
+            }
+
+            var visual = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            visual.name = "PortalVisual";
+            visual.transform.SetParent(transform, false);
+            visual.transform.localPosition = new Vector3(0f, .04f, 0f);
+            visual.transform.localScale = new Vector3(1.4f, .04f, 1.4f);
+            var collider = visual.GetComponent<Collider>();
+            if (collider != null)
+            {
+                Destroy(collider);
+            }
+
+            var material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+            material.color = new Color(0.15f, .85f, 1f, .8f);
+            visual.GetComponent<Renderer>().sharedMaterial = material;
         }
 
         public InteractResult Interact()
