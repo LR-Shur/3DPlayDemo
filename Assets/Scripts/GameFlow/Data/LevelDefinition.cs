@@ -24,12 +24,18 @@ namespace Train.GameFlow.Data
         [SerializeField, Min(0)] private int _maxPlayerDeaths;
         [SerializeField] private List<EnemySpawnDefinition> _enemySpawns = new();
 
+        [Header("Rewards")]
+        [SerializeField] private List<LevelRewardDefinition> _rewards = new();
+
         public string LevelId => _levelId;
         public string DisplayName => _displayName;
         public string SceneLocation => _sceneLocation;
         public float IntroSeconds => _introSeconds;
         public int MaxPlayerDeaths => _maxPlayerDeaths;
         public IReadOnlyList<EnemySpawnDefinition> EnemySpawns => _enemySpawns;
+
+        /// <summary>本关完成后发放的奖励列表。</summary>
+        public IReadOnlyList<LevelRewardDefinition> Rewards => _rewards;
 
     }
 }

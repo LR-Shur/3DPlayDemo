@@ -13,6 +13,7 @@ using Train.Equipment.Core;
 using Train.Equipment.Data;
 using Train.GameFlow.Application.Events;
 using Train.GameFlow.Runtime;
+using Train.GameFlow.Data;
 using Train.Gameplay.Combat;
 using Train.Gameplay.Combat.Application.Events;
 using Train.Inventory.Application;
@@ -158,20 +159,24 @@ namespace Train.Composition.Progression
             _overlay?.RefreshBossBar();
         }
 
-        /// <summary>从 Luban 奖励表读取当前关卡奖励，旧表不可用时才使用兜底奖励。</summary>
+        /// <summary>从当前关卡 SO 读取奖励；旧场景未配置时使用最小兜底奖励。</summary>
         private List<RewardGrant> ResolveLevelRewards(string levelId, bool isBoss)
         {
             var result = new List<RewardGrant>();
-            if (_luban?.IsReady == true)
+            var levelRuntime = FindFirstObjectByType<LevelRuntimeController>();
+            if (levelRuntime != null &&
+                levelRuntime.Definition != null &&
+                string.Equals(levelRuntime.Definition.LevelId, levelId, StringComparison.Ordinal))
             {
-                foreach (var reward in _luban.Tables.TbReward.DataList)
+                foreach (var reward in levelRuntime.Definition.Rewards)
                 {
-                    if (reward != null &&
-                        IsSameLevelId(reward.LevelId, levelId))
+                    if (reward != null && !string.IsNullOrWhiteSpace(reward.ItemId))
                     {
                         result.Add(new RewardGrant(reward.ItemId, reward.Count));
                     }
                 }
+
+                return result;
             }
 
             if (result.Count == 0)
@@ -182,21 +187,6 @@ namespace Train.Composition.Progression
             }
 
             return result;
-        }
-
-        /// <summary>兼容 Luban 表的 combat_001 与运行时 level.combat.001 两种稳定 ID。</summary>
-        private static bool IsSameLevelId(string tableLevelId, string runtimeLevelId)
-        {
-            if (string.Equals(tableLevelId, runtimeLevelId, StringComparison.Ordinal))
-            {
-                return true;
-            }
-
-            var normalizedTableId = tableLevelId?.Replace('_', '.');
-            return string.Equals(
-                $"level.{normalizedTableId}",
-                runtimeLevelId,
-                StringComparison.Ordinal);
         }
 
         /// <summary>通过物品目录把稳定 ID 转成玩家可读的中文名称。</summary>

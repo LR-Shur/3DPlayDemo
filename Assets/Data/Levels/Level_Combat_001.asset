@@ -33,3 +33,10 @@ MonoBehaviour:
     _prefabLocation: Assets/Prefabs/Enemies/Enemy_KayKitKnight.prefab
     _position: {x: -42.8, y: 0, z: -28}
     _eulerAngles: {x: 0, y: 225, z: 0}
+  _rewards:
+  - _itemId: training_chip
+    _count: 5
+  - _itemId: upgrade_module
+    _count: 2
+  - _itemId: city_token
+    _count: 40

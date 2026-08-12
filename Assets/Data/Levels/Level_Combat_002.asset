@@ -48,3 +48,10 @@ MonoBehaviour:
     _prefabLocation: Assets/Prefabs/Enemies/Enemy_EliteKnight.prefab
     _position: {x: -47, y: 0, z: -40}
     _eulerAngles: {x: 0, y: 180, z: 0}
+  _rewards:
+  - _itemId: upgrade_module
+    _count: 4
+  - _itemId: training_chip
+    _count: 12
+  - _itemId: city_token
+    _count: 80

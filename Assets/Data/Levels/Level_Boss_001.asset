@@ -33,3 +33,8 @@ MonoBehaviour:
     _prefabLocation: Assets/Prefabs/Enemies/Enemy_EliteKnight.prefab
     _position: {x: -58, y: 0, z: -42}
     _eulerAngles: {x: 0, y: 135, z: 0}
+  _rewards:
+  - _itemId: upgrade_module
+    _count: 10
+  - _itemId: thunder_ring
+    _count: 1
