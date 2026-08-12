@@ -32,9 +32,33 @@ namespace Train.Composition
         private Health _playerHealth;
         private ActiveItemQuickBarView _quickBar;
         private IDisposable _slotAssignmentSubscription;
+        private string[] _pendingRestoreSlots;
 
         /// <summary>公开四个快捷槽的只读物品 ID。</summary>
         public IReadOnlyList<string> SlotItemIds => _slotItemIds;
+
+        /// <summary>捕获当前主动道具槽位，供 Run 存档使用。</summary>
+        public string[] CaptureSlots() => (string[])_slotItemIds.Clone();
+
+        /// <summary>恢复主动道具槽位；不存在或不可用的物品会被忽略。</summary>
+        public void RestoreSlots(IReadOnlyList<string> itemIds)
+        {
+            if (_inventory == null)
+            {
+                _pendingRestoreSlots = itemIds == null
+                    ? Array.Empty<string>()
+                    : new List<string>(itemIds).ToArray();
+                return;
+            }
+
+            for (var index = 0; index < _slotItemIds.Length; index++)
+            {
+                var itemId = itemIds != null && index < itemIds.Count
+                    ? itemIds[index]
+                    : string.Empty;
+                AssignSlot(index, itemId);
+            }
+        }
 
         private void Awake()
         {
@@ -76,6 +100,12 @@ namespace Train.Composition
             var bootstrap = GameBootstrap.EnsureExists();
             bootstrap.Context.Services.TryResolve(out _inventory);
             bootstrap.Context.Services.TryResolve(out _luban);
+            if (_inventory != null && _pendingRestoreSlots != null)
+            {
+                var pending = _pendingRestoreSlots;
+                _pendingRestoreSlots = null;
+                RestoreSlots(pending);
+            }
             if (_slotAssignmentSubscription == null)
             {
                 _slotAssignmentSubscription = bootstrap.Context.Events.Subscribe<
@@ -108,12 +138,14 @@ namespace Train.Composition
 
             var names = new string[4];
             var quantities = new int[4];
+            var cooldowns = new float[4];
             for (var index = 0; index < 4; index++)
             {
                 var itemId = _slotItemIds[index];
                 quantities[index] = string.IsNullOrWhiteSpace(itemId)
                     ? 0
                     : _inventory.GetTotalQuantity(itemId);
+                cooldowns[index] = Mathf.Max(0f, _nextUseTimes[index] - Time.time);
                 if (!string.IsNullOrWhiteSpace(itemId) &&
                     _inventory.TryGetDefinition(itemId, out var definition))
                 {
@@ -121,7 +153,7 @@ namespace Train.Composition
                 }
             }
 
-            _quickBar.Render(names, quantities);
+            _quickBar.Render(names, quantities, cooldowns);
             var equipmentView = FindFirstObjectByType<EquipmentScreenView>(
                 FindObjectsInactive.Include);
             equipmentView?.RenderActiveItemSlots(names, quantities);

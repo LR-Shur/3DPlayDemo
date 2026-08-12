@@ -107,7 +107,7 @@ namespace Train.Presentation.UI.Views
         }
 
         /// <summary>
-        /// 支持空格/回车继续、数字键 1-4 选择选项，和按钮操作等价。
+        /// 支持空格/回车继续、F1-F4 选择选项，数字键 1-4 保留给主动道具。
         /// </summary>
         private void Update()
         {
@@ -120,10 +120,10 @@ namespace Train.Presentation.UI.Views
             {
                 var keys = new[]
                 {
-                    Keyboard.current.digit1Key,
-                    Keyboard.current.digit2Key,
-                    Keyboard.current.digit3Key,
-                    Keyboard.current.digit4Key
+                    Keyboard.current.f1Key,
+                    Keyboard.current.f2Key,
+                    Keyboard.current.f3Key,
+                    Keyboard.current.f4Key
                 };
                 for (var index = 0; index < keys.Length; index++)
                 {

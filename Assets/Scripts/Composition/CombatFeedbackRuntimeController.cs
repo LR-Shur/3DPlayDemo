@@ -26,6 +26,13 @@ namespace Train.Composition
         private IDisposable _damageSubscription;
         private IDisposable _deathSubscription;
         private Material _particleMaterial;
+        private float _hitStopUntil;
+        private float _hitStopScale = 1f;
+        private float _previousTimeScale = 1f;
+        private float _shakeUntil;
+        private float _shakeStrength;
+        private Vector3 _lastShakeOffset;
+        private Camera _shakeCamera;
 
         private void Awake()
         {
@@ -37,6 +44,7 @@ namespace Train.Composition
 
         private void Update()
         {
+            UpdateHitStop();
             var camera = Camera.main;
             for (var i = _floatingTexts.Count - 1; i >= 0; i--)
             {
@@ -94,6 +102,66 @@ namespace Train.Composition
                 color,
                 message.Health);
             SpawnImpactBurst(message.Damage.HitPoint, color);
+            TriggerImpactFeedback(
+                message.Damage.HitPoint,
+                message.Result.AppliedDamage,
+                message.Damage.DamageType);
+        }
+
+        /// <summary>命中时短暂停顿并轻微震动镜头，强化动作游戏的命中确认感。</summary>
+        private void TriggerImpactFeedback(
+            Vector3 hitPoint,
+            float damage,
+            DamageType damageType)
+        {
+            var heavy = damage >= 40f || damageType == DamageType.Earth;
+            var hitStopSeconds = heavy ? .055f : .028f;
+            if (_hitStopUntil <= Time.unscaledTime)
+            {
+                _previousTimeScale = Mathf.Max(.01f, Time.timeScale);
+            }
+            _hitStopScale = heavy ? .035f : .06f;
+            _hitStopUntil = Mathf.Max(_hitStopUntil, Time.unscaledTime + hitStopSeconds);
+            Time.timeScale = _hitStopScale;
+            _shakeUntil = Mathf.Max(_shakeUntil, Time.unscaledTime + (heavy ? .12f : .075f));
+            _shakeStrength = Mathf.Max(_shakeStrength, heavy ? .075f : .035f);
+        }
+
+        private void UpdateHitStop()
+        {
+            if (_hitStopUntil > 0f && Time.unscaledTime >= _hitStopUntil)
+            {
+                Time.timeScale = _previousTimeScale;
+                _hitStopUntil = 0f;
+            }
+        }
+
+        private void LateUpdate()
+        {
+            var camera = Camera.main;
+            if (_shakeCamera != null && _shakeCamera != camera)
+            {
+                _shakeCamera.transform.position -= _lastShakeOffset;
+                _lastShakeOffset = Vector3.zero;
+            }
+
+            if (_shakeCamera == camera && _lastShakeOffset.sqrMagnitude > 0f)
+            {
+                camera.transform.position -= _lastShakeOffset;
+                _lastShakeOffset = Vector3.zero;
+            }
+
+            if (camera == null || Time.unscaledTime >= _shakeUntil)
+            {
+                _shakeStrength = 0f;
+                _shakeCamera = camera;
+                return;
+            }
+
+            _shakeCamera = camera;
+            var fade = Mathf.Clamp01((_shakeUntil - Time.unscaledTime) / .12f);
+            _lastShakeOffset = UnityEngine.Random.insideUnitSphere * (_shakeStrength * fade);
+            camera.transform.position += _lastShakeOffset;
         }
 
         /// <summary>敌人死亡时立即清理关联的浮动伤害数字。</summary>
@@ -203,6 +271,14 @@ namespace Train.Composition
 
         private void OnDestroy()
         {
+            if (_hitStopUntil > 0f)
+            {
+                Time.timeScale = _previousTimeScale;
+            }
+            if (_shakeCamera != null && _lastShakeOffset.sqrMagnitude > 0f)
+            {
+                _shakeCamera.transform.position -= _lastShakeOffset;
+            }
             _damageSubscription?.Dispose();
             _deathSubscription?.Dispose();
             if (_particleMaterial != null)

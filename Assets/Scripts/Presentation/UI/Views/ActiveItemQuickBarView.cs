@@ -10,6 +10,8 @@ namespace Train.Presentation.UI.Views
     {
         private readonly TMP_Text[] _labels = new TMP_Text[4];
         private readonly TMP_Text[] _quantities = new TMP_Text[4];
+        private readonly TMP_Text[] _cooldowns = new TMP_Text[4];
+        private readonly Image[] _slotImages = new Image[4];
 
         private void Awake()
         {
@@ -17,7 +19,7 @@ namespace Train.Presentation.UI.Views
         }
 
         /// <summary>刷新四个快捷槽的名称、数量和快捷键提示。</summary>
-        public void Render(string[] itemNames, int[] quantities)
+        public void Render(string[] itemNames, int[] quantities, float[] cooldowns = null)
         {
             Build();
             for (var index = 0; index < 4; index++)
@@ -31,9 +33,19 @@ namespace Train.Presentation.UI.Views
                 _labels[index].text = $"{index + 1}\n" +
                     (string.IsNullOrWhiteSpace(itemName) ? "空" : itemName);
                 _quantities[index].text = quantity > 0 ? $"×{quantity}" : "0";
+                var cooldown = cooldowns != null && index < cooldowns.Length
+                    ? Mathf.Max(0f, cooldowns[index])
+                    : 0f;
+                _cooldowns[index].text = cooldown > .05f ? $"{cooldown:0.0}s" : string.Empty;
+                _cooldowns[index].color = new Color32(120, 225, 255, 255);
                 _quantities[index].color = quantity > 0
                     ? new Color32(220, 235, 242, 255)
                     : new Color32(120, 135, 150, 220);
+                _slotImages[index].color = cooldown > .05f
+                    ? new Color32(20, 45, 66, 245)
+                    : quantity > 0
+                        ? new Color32(12, 48, 62, 245)
+                        : new Color32(10, 26, 43, 235);
             }
         }
 
@@ -64,7 +76,8 @@ namespace Train.Presentation.UI.Views
                     typeof(RectTransform),
                     typeof(Image));
                 slot.transform.SetParent(transform, false);
-                slot.GetComponent<Image>().color = new Color32(10, 26, 43, 235);
+                _slotImages[index] = slot.GetComponent<Image>();
+                _slotImages[index].color = new Color32(10, 26, 43, 235);
                 var label = CreateText(slot.transform, "Label");
                 label.alignment = TextAlignmentOptions.Center;
                 label.fontSize = 15f;
@@ -73,8 +86,13 @@ namespace Train.Presentation.UI.Views
                 quantity.alignment = TextAlignmentOptions.BottomRight;
                 quantity.fontSize = 14f;
                 quantity.color = new Color32(220, 235, 242, 255);
+                var cooldown = CreateText(slot.transform, "Cooldown");
+                cooldown.alignment = TextAlignmentOptions.BottomLeft;
+                cooldown.fontSize = 13f;
+                cooldown.color = new Color32(120, 225, 255, 255);
                 _labels[index] = label;
                 _quantities[index] = quantity;
+                _cooldowns[index] = cooldown;
             }
         }
 

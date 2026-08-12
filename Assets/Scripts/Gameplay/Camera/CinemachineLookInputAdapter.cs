@@ -71,6 +71,7 @@ namespace Train.Gameplay.Camera
             var verticalAxis = _orbitalFollow.VerticalAxis;
             verticalAxis.Value -= look.y * _lookSensitivity;
             _orbitalFollow.VerticalAxis = verticalAxis;
+
         }
 
         public void SetExternalLookBlocked(bool blocked)

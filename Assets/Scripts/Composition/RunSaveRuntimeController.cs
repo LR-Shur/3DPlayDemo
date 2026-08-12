@@ -32,6 +32,7 @@ namespace Train.Composition
         private ProgressionService _progression;
         private IInventoryService _inventory;
         private IEquipmentService _equipment;
+        private ActiveItemRuntimeController _activeItems;
         private bool _initialized;
         private bool _restoring;
         private bool _savePending;
@@ -78,12 +79,14 @@ namespace Train.Composition
                 return;
             }
 
+            _activeItems = GetComponent<ActiveItemRuntimeController>();
             LoadIfPresent();
             var events = bootstrap.Context.Events;
             _subscriptions.Add(events.Subscribe<CurrencyChangedEvent>(_ => RequestSave()));
             _subscriptions.Add(events.Subscribe<ProgressionChangedEvent>(_ => RequestSave()));
             _subscriptions.Add(events.Subscribe<InventoryChangedEvent>(_ => RequestSave()));
             _subscriptions.Add(events.Subscribe<EquipmentChangedEvent>(_ => RequestSave()));
+            _subscriptions.Add(events.Subscribe<ActiveItemSlotAssignmentRequested>(_ => RequestSave()));
             _initialized = true;
             SaveNow();
         }
@@ -121,6 +124,7 @@ namespace Train.Composition
                 _progression.RestoreState(data.Progression);
                 RestoreInventory(data.Inventory);
                 RestoreEquipment(data.Equipment);
+                _activeItems?.RestoreSlots(data.ActiveItemSlots);
                 _restoring = false;
             }
             catch (Exception exception)
@@ -204,6 +208,12 @@ namespace Train.Composition
                     Progression = _progression.CaptureState()
                 };
 
+                _activeItems ??= GetComponent<ActiveItemRuntimeController>();
+                if (_activeItems != null)
+                {
+                    data.ActiveItemSlots.AddRange(_activeItems.CaptureSlots());
+                }
+
                 var inventory = _inventory.Snapshot;
                 for (var i = 0; i < inventory.Slots.Count; i++)
                 {
@@ -266,6 +276,7 @@ namespace Train.Composition
         public ProgressionSaveData Progression = new();
         public List<InventorySaveEntry> Inventory = new();
         public List<EquipmentSaveEntry> Equipment = new();
+        public List<string> ActiveItemSlots = new();
     }
 
     [Serializable]
