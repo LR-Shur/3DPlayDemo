@@ -1,6 +1,9 @@
 using Train.Gameplay.Combat;
 using Train.Gameplay.Enemy.Abstractions;
 using Train.Gameplay.Enemy.Data;
+using Train.Gameplay.Enemy.Animation;
+using Train.Gameplay.Enemy.Presentation;
+using Train.Gameplay.Enemy.States;
 using UnityEngine;
 
 namespace Train.Gameplay.Enemy.Core
@@ -25,13 +28,23 @@ namespace Train.Gameplay.Enemy.Core
         private IEnemySensor _sensor;
         private EnemyStateMachine _stateMachine;
         private EnemyConfig _runtimeConfig;
+        private EnemyHitReaction _hitReaction;
+        private IEnemyMotor _motor;
+        private IEnemyCombat _combat;
+        private EnemyAnimator _enemyAnimator;
+        private EnemyFreezeVisual _freezeVisual;
+        private float _freezeUntil;
+        private bool _isFrozen;
 
         public string CurrentStateName => _currentStateName;
         public EnemyConfig Config => _config;
+        public bool IsFrozen => _isFrozen;
 
         private void Awake()
         {
             _health = GetComponent<Health>();
+            _hitReaction = GetComponent<EnemyHitReaction>() ?? gameObject.AddComponent<EnemyHitReaction>();
+            _freezeVisual = GetComponent<EnemyFreezeVisual>() ?? gameObject.AddComponent<EnemyFreezeVisual>();
             BuildStateMachine();
         }
 
@@ -55,6 +68,10 @@ namespace Train.Gameplay.Enemy.Core
                 return;
             }
 
+            _motor = motor;
+            _combat = combat;
+            _enemyAnimator = animation as EnemyAnimator;
+
             var context = new EnemyContext(
                 _sensor,
                 motor,
@@ -63,7 +80,8 @@ namespace Train.Gameplay.Enemy.Core
                 patrol,
                 lifecycle,
                 _health,
-                _config);
+                _config,
+                _hitReaction);
             _stateMachine = new EnemyStateMachine(context);
             _stateMachine.ChangeState(_stateMachine.Idle);
         }
@@ -95,6 +113,15 @@ namespace Train.Gameplay.Enemy.Core
 
         private void OnDisable()
         {
+            if (_isFrozen)
+            {
+                _isFrozen = false;
+                _freezeUntil = 0f;
+                _motor?.SetMovementEnabled(true);
+                _enemyAnimator?.SetPlaybackPaused(false);
+                _freezeVisual?.SetFrozen(false);
+            }
+
             if (_health == null)
             {
                 return;
@@ -115,21 +142,101 @@ namespace Train.Gameplay.Enemy.Core
 
         private void Update()
         {
+            if (_isFrozen)
+            {
+                if (Time.time >= _freezeUntil)
+                {
+                    ResumeFromFreeze();
+                }
+
+                return;
+            }
+
             _sensor?.Tick();
             _stateMachine?.Tick();
             _currentStateName = _stateMachine?.CurrentState?.GetType().Name ?? string.Empty;
+        }
+
+        /// <summary>冻结敌人指定秒数；重复命中会刷新结束时间。</summary>
+        public bool Freeze(float seconds)
+        {
+            if (_health == null || !_health.IsAlive || _stateMachine == null)
+            {
+                return false;
+            }
+
+            _freezeUntil = Mathf.Max(_freezeUntil, Time.time + Mathf.Max(.1f, seconds));
+            if (!_isFrozen)
+            {
+                _isFrozen = true;
+                _motor?.SetMovementEnabled(false);
+                _combat?.EndAttack();
+                _enemyAnimator?.SetPlaybackPaused(true);
+                _freezeVisual?.SetFrozen(true);
+            }
+
+            return true;
+        }
+
+        /// <summary>将敌人向主动道具中心拉近，位移在 EnemyMotor 的 LateUpdate 应用。</summary>
+        public void ApplyPull(Vector3 center, float strength)
+        {
+            if (_isFrozen || _health == null || !_health.IsAlive || _motor == null)
+            {
+                return;
+            }
+
+            var direction = center - transform.position;
+            direction.y = 0f;
+            if (direction.sqrMagnitude <= .01f)
+            {
+                return;
+            }
+
+            var distance = direction.magnitude;
+            _motor.ApplyExternalPull(direction.normalized * Mathf.Min(distance, Mathf.Max(0f, strength) * Time.deltaTime));
+        }
+
+        private void ResumeFromFreeze()
+        {
+            _isFrozen = false;
+            _freezeUntil = 0f;
+            if (_health == null || !_health.IsAlive)
+            {
+                return;
+            }
+
+            _motor?.SetMovementEnabled(true);
+            _enemyAnimator?.SetPlaybackPaused(false);
+            _freezeVisual?.SetFrozen(false);
+            _stateMachine.ChangeState(_sensor != null && _sensor.HasTarget
+                ? _stateMachine.Chase
+                : _stateMachine.Idle);
         }
 
         private void OnDamaged(DamageInfo damageInfo, DamageResult result)
         {
             if (_stateMachine != null && !result.Killed)
             {
-                _stateMachine.ChangeState(_stateMachine.Hit);
+                _hitReaction?.PlayHit(damageInfo.HitDirection);
+                if (_stateMachine.CurrentState is EnemyHitState hitState)
+                {
+                    hitState.Refresh();
+                }
+                else
+                {
+                    _stateMachine.ChangeState(_stateMachine.Hit);
+                }
             }
         }
 
         private void OnDied(DamageInfo damageInfo)
         {
+            _isFrozen = false;
+            _freezeUntil = 0f;
+            _motor?.SetMovementEnabled(true);
+            _enemyAnimator?.SetPlaybackPaused(false);
+            _freezeVisual?.SetFrozen(false);
             if (_stateMachine != null)
             {
                 _stateMachine.ChangeState(_stateMachine.Death);

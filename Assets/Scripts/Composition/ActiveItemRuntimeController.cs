@@ -9,6 +9,8 @@ using Train.Gameplay.Combat;
 using Train.Gameplay.Combat.Factions;
 using Train.Gameplay.Combat.Buffs;
 using Train.Buffs.Core;
+using Train.Gameplay.Enemy.Core;
+using Train.Gameplay.Combat.ActiveItems;
 using Train.Gameplay.Player.Input;
 using Train.Presentation.UI.Views;
 using UnityEngine;
@@ -215,9 +217,71 @@ namespace Train.Composition
                     return ApplyGrenade(config);
                 case cfg.game.EActiveItemEffect.SELF_BUFF:
                     return ApplySelfBuff(config);
+                case cfg.game.EActiveItemEffect.MAGNET:
+                    return ApplyMagnet(config);
+                case cfg.game.EActiveItemEffect.FREEZE:
+                    return ApplyFreeze(config);
                 default:
                     return false;
             }
+        }
+
+        /// <summary>在玩家前方投掷重力核心，落点生成短暂重力井并持续吸附敌人。</summary>
+        private bool ApplyMagnet(cfg.game.ActiveItem config)
+        {
+            if (_input == null)
+            {
+                return false;
+            }
+
+            var origin = _input.transform.position + Vector3.up * .9f;
+            var direction = _input.transform.forward;
+            direction.y = 0f;
+            if (direction.sqrMagnitude <= .001f)
+            {
+                direction = Vector3.forward;
+            }
+
+            // 投掷物和短暂范围特效是主动道具的运行时表现，不会写回或生成静态关卡物体。
+            var projectile = new GameObject("GravityCore_Projectile");
+            projectile.transform.position = origin;
+            projectile.transform.rotation = Quaternion.LookRotation(direction.normalized);
+            var gravityCore = projectile.AddComponent<ActiveGravityGrenade>();
+            gravityCore.Initialize(
+                direction.normalized,
+                Mathf.Max(1f, config.Radius),
+                Mathf.Max(0f, config.Magnitude),
+                Mathf.Max(.3f, config.Duration));
+            return true;
+        }
+
+        /// <summary>冻结玩家周围敌人，并创建一个短暂的冰霜脉冲表现。</summary>
+        private bool ApplyFreeze(cfg.game.ActiveItem config)
+        {
+            if (_input == null)
+            {
+                return false;
+            }
+
+            var origin = _input.transform.position;
+            var applied = false;
+            foreach (var enemy in FindObjectsByType<EnemyController>(FindObjectsSortMode.None))
+            {
+                if (enemy == null ||
+                    Vector3.Distance(origin, enemy.transform.position) > Mathf.Max(1f, config.Radius))
+                {
+                    continue;
+                }
+
+                applied |= enemy.Freeze(Mathf.Max(1f, config.Duration));
+            }
+
+            if (applied)
+            {
+                ActiveCryoPulseVisual.Spawn(origin, Mathf.Max(1f, config.Radius));
+            }
+
+            return applied;
         }
 
         /// <summary>对范围内敌人造成指定元素伤害，并按配置附加 Buff。</summary>

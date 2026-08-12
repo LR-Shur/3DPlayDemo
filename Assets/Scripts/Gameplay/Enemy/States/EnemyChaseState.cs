@@ -27,7 +27,7 @@ namespace Train.Gameplay.Enemy.States
 
             var targetPosition = Context.Sensor.Target.position;
             Context.Motor.Face(targetPosition, Context.Config.TurnSpeed);
-            if (Context.Sensor.DistanceToTarget <= Context.Config.AttackRange &&
+            if (Context.Sensor.DistanceToTarget <= Context.Combat.AttackRange &&
                 Context.Combat.CanStartAttack)
             {
                 EnemyMachine.ChangeState(EnemyMachine.Attack);

@@ -164,9 +164,23 @@ namespace Train.Gameplay.Player.States
         /// <param name="animationId">要播放的攻击动画标识。</param>
         private void PlayAnimation(PlayerAnimationId animationId)
         {
-            Context.Combat?.BeginAttack();
+            Context.Combat?.BeginAttack(IsPersistentWeaponAttack(animationId));
             ConfigureAnimationMovement(animationId);
             Context.Animation.PlayOneShot(animationId, OnAttackAnimationEnded);
+        }
+
+        /// <summary>第三段飞刃会在敌人身上停留一段时间，需要启用连续扫掠命中。</summary>
+        private static bool IsPersistentWeaponAttack(PlayerAnimationId animationId)
+        {
+            return animationId is
+                PlayerAnimationId.Attack_Normal_03_01 or
+                PlayerAnimationId.Attack_Normal_03_01_Back or
+                PlayerAnimationId.Attack_Normal_03_01_Back_Near or
+                PlayerAnimationId.Attack_Normal_03_01_Near or
+                PlayerAnimationId.Attack_Normal_03_02 or
+                PlayerAnimationId.Attack_Normal_03_02_Back or
+                PlayerAnimationId.Attack_Normal_03_02_Near or
+                PlayerAnimationId.Attack_Normal_03_02_Near_Back;
         }
 
         /// <summary>

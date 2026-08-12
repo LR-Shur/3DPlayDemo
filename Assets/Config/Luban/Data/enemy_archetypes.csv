@@ -6,3 +6,10 @@
 ,scout_knight,侦察骑士,Assets/Prefabs/Enemies/Enemy_ScoutKnight.prefab,90,12,2,4.6
 ,elite_knight,精英骑士,Assets/Prefabs/Enemies/Enemy_EliteKnight.prefab,340,30,8,3.6
 ,boss_rusk,Rusk 原型机,Assets/Prefabs/Enemies/Enemy_BossRuskPrototype.prefab,1200,44,18,3
+,arc_drone,弧光无人机,Assets/Prefabs/Enemies/Enemy_ArcDroneRobot.prefab,120,20,3,4.2
+,crawler_bot,熔岩爬行机,Assets/Prefabs/Enemies/Enemy_CrawlerBot.prefab,220,32,7,3.2
+,lobber_bot,晶簇投掷机,Assets/Prefabs/Enemies/Enemy_LobberBot.prefab,180,28,5,3.8
+,roller_bot,雷暴滚轮,Assets/Prefabs/Enemies/Enemy_RollerBot.prefab,150,24,4,4.8
+,human_duelist,人形疾刃决斗者,Assets/Prefabs/Enemies/Enemy_HumanDuelist.prefab,135,26,5,4.1
+,human_brute,人形赤铠重击者,Assets/Prefabs/Enemies/Enemy_HumanBrute.prefab,260,42,10,2.7
+,human_caster,人形晶核术士,Assets/Prefabs/Enemies/Enemy_HumanCaster.prefab,170,34,6,3.1

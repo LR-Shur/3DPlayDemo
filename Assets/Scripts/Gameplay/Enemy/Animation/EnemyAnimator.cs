@@ -11,6 +11,9 @@ namespace Train.Gameplay.Enemy.Animation
     {
         [SerializeField] private Animator _animator;
 
+        private EnemyAttackMotion _attackMotion;
+        private float _resumeSpeed = 1f;
+
         public Animator Animator => ResolveAnimator();
         public bool IsReady =>
             ResolveAnimator() != null &&
@@ -19,6 +22,7 @@ namespace Train.Gameplay.Enemy.Animation
         private void Awake()
         {
             ResolveAnimator();
+            _attackMotion = GetComponent<EnemyAttackMotion>();
             if (!IsReady)
             {
                 Debug.LogError(
@@ -29,6 +33,12 @@ namespace Train.Gameplay.Enemy.Animation
 
         public void Play(EnemyAnimationId animationId, float fadeSeconds = 0.12f)
         {
+            if (animationId == EnemyAnimationId.Attack)
+            {
+                _attackMotion ??= GetComponent<EnemyAttackMotion>();
+                _attackMotion?.PlayAttack();
+            }
+
             var animator = ResolveAnimator();
             if (animator == null || animator.runtimeAnimatorController == null)
             {
@@ -36,6 +46,26 @@ namespace Train.Gameplay.Enemy.Animation
             }
 
             animator.CrossFade(animationId.ToString(), Mathf.Max(0f, fadeSeconds), 0);
+        }
+
+        /// <summary>冻结时暂停 Animator，解除冻结后恢复原播放速度。</summary>
+        public void SetPlaybackPaused(bool paused)
+        {
+            var animator = ResolveAnimator();
+            if (animator == null)
+            {
+                return;
+            }
+
+            if (paused)
+            {
+                _resumeSpeed = Mathf.Max(0.01f, animator.speed);
+                animator.speed = 0f;
+            }
+            else
+            {
+                animator.speed = _resumeSpeed;
+            }
         }
 
         private Animator ResolveAnimator()

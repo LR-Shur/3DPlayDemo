@@ -8,6 +8,10 @@ namespace Train.Inventory.Data
         /// <summary>恢复生命。</summary>
         Heal = 1,
         /// <summary>范围伤害。</summary>
-        Grenade = 2
+        Grenade = 2,
+        /// <summary>投掷后持续吸附敌人。</summary>
+        Magnet = 5,
+        /// <summary>冻结范围内敌人。</summary>
+        Freeze = 6
     }
 }

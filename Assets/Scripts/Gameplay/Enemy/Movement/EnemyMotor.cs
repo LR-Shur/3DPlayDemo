@@ -14,6 +14,7 @@ namespace Train.Gameplay.Enemy.Movement
         [SerializeField, Min(0.01f)] private float _fallbackStoppingDistance = 0.15f;
 
         private Vector3 _destination;
+        private Vector3 _externalPull;
         private bool _movementEnabled = true;
 
         public Vector3 Position => transform.position;
@@ -98,6 +99,35 @@ namespace Train.Gameplay.Enemy.Movement
             {
                 Stop();
             }
+        }
+
+        /// <summary>累积本帧由主动道具施加的位移，在状态机移动之后统一应用。</summary>
+        public void ApplyExternalPull(Vector3 displacement)
+        {
+            if (_movementEnabled)
+            {
+                _externalPull += displacement;
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (!_movementEnabled || _externalPull.sqrMagnitude <= 0.000001f)
+            {
+                _externalPull = Vector3.zero;
+                return;
+            }
+
+            if (CanUseAgent)
+            {
+                _agent.Move(_externalPull);
+            }
+            else
+            {
+                transform.position += _externalPull;
+            }
+
+            _externalPull = Vector3.zero;
         }
 
         private bool CanUseAgent =>

@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace Train.Gameplay.Enemy.Abstractions
 {
     /// <summary>
@@ -6,6 +8,8 @@ namespace Train.Gameplay.Enemy.Abstractions
     public interface IEnemyCombat
     {
         bool CanStartAttack { get; }
+        float AttackRange { get; }
+        void SetAttackTarget(Transform target);
         void BeginAttack();
         void SetDamageActive(bool active);
         void EndAttack();

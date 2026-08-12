@@ -12,6 +12,8 @@
         <var name="GRENADE" alias="手雷" value="2"/>
         <var name="ELEMENTAL_GRENADE" alias="元素手雷" value="3"/>
         <var name="SELF_BUFF" alias="自身增益" value="4"/>
+        <var name="MAGNET" alias="聚怪" value="5"/>
+        <var name="FREEZE" alias="冻结" value="6"/>
     </enum>
 
     <enum name="EEquipmentSlot" comment="装备槽位">

@@ -272,3 +272,42 @@ Unity 报告 `Luban`、`ByteBuf` 类型不存在。Luban 包已经嵌入并导�
 - 新增 `BossPhaseController`：Boss 在 66%/33% 生命阈值进入第二/第三阶段，调整攻击伤害与冷却、缩放和发光材质。
 - 新增 Progression EditMode 测试；远端文档记录的最新结果为 EditMode 205/205、PlayMode 7/7，本次拉取没有重跑 Unity 测试。
 - 当前工作区仍保留一个未跟踪的空目录遗留文件 `Assets/Scripts/Infrastructure/Config.meta`，没有纳入版本库。
+
+## 15. 2026-08-12 能源中继站与过载哨兵
+
+- 新增 `OverloadSentinelController`：过载哨兵每 4.2 秒施放一次电弧范围攻击，先显示约 0.95 秒的环形预警，再对 3.8 米范围内玩家造成一次 34 点电属性伤害。
+- 新增 `Assets/Prefabs/Enemies/Enemy_OverloadSentinel.prefab`，基于现有精英骑士预制体，体型放大并挂接过载技能。
+- 新增 `Assets/Scenes/Playable/Level_EnergyRelay.unity` 和 `Assets/Data/Levels/Level_EnergyRelay.asset`，包含能源核心、警戒灯、新刷怪点和 4 名敌人。
+- 新关卡已加入 `DefaultProgressionSettings.asset`，位于断电回廊之后、核心熔炉之前。
+- Unity 实际运行验证：进入 Play 成功，运行时生成 4 名敌人，其中 1 名包含 `OverloadSentinelController`；控制台新增错误 0 条、警告 0 条；已生成 `Assets/Screenshots/energy-relay-playtest.png` 和 `Assets/Screenshots/energy-relay-combat.png`。
+- 当前仍有本地未提交的第三方素材 `.meta`、玩家/训练假人预制体和 `QualitySettings.asset` 改动，未擅自清理。
+
+## 16. 2026-08-12 中继脉冲场地机制
+
+- 新增 `RelayPulseController` 并挂到能源中继站的 `EnergyRelayCore`。
+- 中继核心每 7 秒释放一次脉冲：提前 1.4 秒显示逐渐扩大的环形预警，随后对 6 米范围内对象结算一次电属性伤害。
+- 场地脉冲只会伤害玩家阵营，核心本身设为 Neutral，不会误伤敌人。
+- Unity 时间序列验证通过：玩家生命值从 1000 降到约 977，再降到约 963；控制台新增错误 0 条、警告 0 条。
+- 新增截图：`Assets/Screenshots/relay-pulse-warning.png`、`Assets/Screenshots/relay-pulse-window.png`。
+
+## 17. 2026-08-12 两个新关卡与 VFX 素材
+
+- 下载并保留 `Assets/Arts/ThirdParty/VFX/kenney_particlePack.zip` 和 `kenney_space-kit.zip`。
+- Particle Pack 来源为 Kenney/OpenGameArt，CC0；包含电击、火花、烟雾、爆炸等粒子贴图和旧版 Unity 示例。
+- Space Kit 来源为 Kenney，CC0；包含太空、货运和工业场景参考资源。
+- 新增 `Level_OrbitalCargo`：轨道装卸港 · 电磁爆破；5 名敌人、3 个电磁危险点。
+- 新增 `Level_CryoGarden`：冷却花园 · 冻结警戒；4 名敌人、3 个冰霜危险点。
+- 新增 `FieldHazardController`：通用场地危险区，包含范围预警、粒子爆发、动态灯光和元素伤害。
+- 两关均已接入流程，Unity 运行时确认危险点和敌人正常生成。
+- 修正粒子初始化和 Billboard 材质问题；编译后无 Unity 编译错误，轨道装卸港复测无项目控制台错误/警告。冷却花园截图已复核，视觉正常。
+- 截图：`Assets/Screenshots/orbital-cargo.png`、`Assets/Screenshots/cryo-garden-fixed-1.png`。
+
+## 18. 2026-08-12 商店、敌人和大场景重做
+
+- 商店界面改为宽屏卡片式布局：卡片显示物品名称、品质、买入价和卖出价，买入/卖出按钮分色，关闭按钮固定在右下角。
+- 新增 `arc_drone` 弧光无人机和 `cryo_hound` 冰晶猎手两种敌人，均有独立配置、预制体、特殊范围预警和元素攻击表现。
+- 轨道装卸港加入工厂主题地标：起重机、输送带、舱门、集装箱、吊轨和装卸塔。
+- 冷却花园加入自然主题地标：大型悬崖、岩石、针叶树、冰晶群、冻结桥和冰雾环境。
+- 工厂包与自然包的代表性模型已复制到 `Assets/Resources/ThemeModels/`，由两张关卡运行时直接加载；原始素材包和授权说明仍保留在 `Assets/Arts/ThirdParty/Environment/`。
+- 两关刷怪已更新：轨道装卸港新增 2 架弧光无人机，冷却花园新增 2 只冰晶猎手。
+- 最新 Unity 编译检查：新增代码编译错误 0 条；项目原有测试文件未使用事件警告 1 条。

@@ -17,7 +17,8 @@ namespace Train.Gameplay.Enemy.Core
             IEnemyPatrol patrol,
             IEnemyLifecycle lifecycle,
             Health health,
-            EnemyConfig config)
+            EnemyConfig config,
+            Train.Gameplay.Enemy.Animation.EnemyHitReaction hitReaction)
         {
             Sensor = sensor;
             Motor = motor;
@@ -27,6 +28,7 @@ namespace Train.Gameplay.Enemy.Core
             Lifecycle = lifecycle;
             Health = health;
             Config = config;
+            HitReaction = hitReaction;
         }
 
         public IEnemySensor Sensor { get; }
@@ -37,5 +39,6 @@ namespace Train.Gameplay.Enemy.Core
         public IEnemyLifecycle Lifecycle { get; }
         public Health Health { get; }
         public EnemyConfig Config { get; }
+        public Train.Gameplay.Enemy.Animation.EnemyHitReaction HitReaction { get; }
     }
 }

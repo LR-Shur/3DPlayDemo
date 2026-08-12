@@ -23,6 +23,14 @@ namespace Train.Gameplay.Enemy.States
             Context.Animation.Play(EnemyAnimationId.Hit, 0.05f);
         }
 
+        /// <summary>连续飞刃再次命中时延长僵直，但不重启整套状态和攻击动画。</summary>
+        public void Refresh()
+        {
+            _elapsed = 0f;
+            Context.Motor.Stop();
+            Context.Combat.EndAttack();
+        }
+
         public override void Tick()
         {
             _elapsed += Time.deltaTime;

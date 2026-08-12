@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fa487d9e66730b4e8d37ae1a87a717a, type: 3}
+  m_Name: Level_CryoGarden
+  m_EditorClassIdentifier: Train.GameFlow::Train.GameFlow.Data.LevelDefinition
+  _levelId: level.cryo.garden
+  _displayName: "\u51B7\u5374\u82B1\u56ED \xB7 \u51BB\u7ED3\u8B66\u6212"
+  _sceneLocation: Playable_Level_CryoGarden
+  _introSeconds: 1.8
+  _playerSpawnPosition: {x: -46.79, y: 0.984, z: -30.27817}
+  _playerSpawnEulerAngles: {x: 0, y: 0, z: 0}
+  _maxPlayerDeaths: 2
+  _enemySpawns:
+  - _spawnId: sentinel_01
+    _archetypeId: elite_knight
+    _prefabLocation: Enemies_Enemy_OverloadSentinel
+    _position: {x: -47, y: 0, z: -36}
+    _eulerAngles: {x: 0, y: 180, z: 0}
+  - _spawnId: scout_01
+    _archetypeId: human_brute
+    _prefabLocation: Enemies_Enemy_HumanBrute
+    _position: {x: -38, y: 0, z: -38}
+    _eulerAngles: {x: 0, y: 160, z: 0}
+  - _spawnId: scout_02
+    _archetypeId: human_duelist
+    _prefabLocation: Enemies_Enemy_HumanDuelist
+    _position: {x: -56, y: 0, z: -38}
+    _eulerAngles: {x: 0, y: 20, z: 0}
+  - _spawnId: elite_01
+    _archetypeId: human_caster
+    _prefabLocation: Enemies_Enemy_HumanCaster
+    _position: {x: -42, y: 0, z: -46}
+    _eulerAngles: {x: 0, y: 180, z: 0}
+  - _spawnId: hound_01
+    _archetypeId: roller_bot
+    _prefabLocation: Enemies_Enemy_RollerBot
+    _position: {x: -60, y: 0, z: -49}
+    _eulerAngles: {x: 0, y: 45, z: 0}
+  - _spawnId: hound_02
+    _archetypeId: lobber_bot
+    _prefabLocation: Enemies_Enemy_LobberBot
+    _position: {x: -34, y: 0, z: -49}
+    _eulerAngles: {x: 0, y: -45, z: 0}
+  _rewards:
+  - _itemId: upgrade_module
+    _count: 10
+  - _itemId: training_chip
+    _count: 24
+  - _itemId: city_token
+    _count: 200

@@ -13,5 +13,6 @@ namespace Train.Gameplay.Enemy.Abstractions
         void Face(Vector3 worldPosition, float turnSpeed);
         void Stop();
         void SetMovementEnabled(bool enabled);
+        void ApplyExternalPull(Vector3 displacement);
     }
 }

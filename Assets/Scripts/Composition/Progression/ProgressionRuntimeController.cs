@@ -506,6 +506,17 @@ namespace Train.Composition.Progression
         private readonly Button _completionCloseButton;
         private readonly GameObject _shop;
         private readonly TMP_Text _shopStatus;
+        private readonly TMP_Text _shopBalance;
+        private readonly TMP_Text _shopDetailName;
+        private readonly TMP_Text _shopDetailDescription;
+        private readonly TMP_Text _shopDetailStats;
+        private readonly TMP_Text _shopDetailRarity;
+        private readonly Button _shopAction;
+        private readonly Button _shopSellAction;
+        private readonly Image _shopDetailIcon;
+        private readonly ShopOverlayMotion _shopMotion;
+        private ItemDefinition _selectedShopItem;
+        private int _selectedShopCost;
         private readonly GameObject _bossBar;
         private readonly Image _bossFill;
         private readonly TMP_Text _bossLabel;
@@ -582,13 +593,96 @@ namespace Train.Composition.Progression
             _completionCloseButton.onClick.AddListener(CloseCompletion);
 
             _shop = CreatePanel(_root.transform, "[Shop]");
-            SetRect(_shop.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(860f, 650f));
-            var shopTitle = CreateLabel(_shop.transform, "战地商店", 32, TextAlignmentOptions.Top);
-            SetRect(shopTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(.5f, 1f), new Vector2(0f, -50f), new Vector2(0f, 50f));
+            SetRect(_shop.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(1540f, 900f));
+            _shop.GetComponent<Image>().color = new Color32(7, 13, 25, 250);
+            _shop.AddComponent<CanvasGroup>();
+            _shopMotion = _shop.AddComponent<ShopOverlayMotion>();
+            _shopMotion.Configure(_shop.GetComponent<RectTransform>());
+            var shopTopLine = CreatePanel(_shop.transform, "TopLine");
+            SetRect(shopTopLine.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(.5f, 1f), new Vector2(0f, -86f), new Vector2(0f, 3f));
+            shopTopLine.GetComponent<Image>().color = new Color32(75, 219, 226, 255);
+            var shopTitle = CreateLabel(_shop.transform, "补给站", 36, TextAlignmentOptions.MidlineLeft);
+            SetRect(shopTitle.rectTransform, new Vector2(0f, 1f), new Vector2(.45f, 1f), new Vector2(0f, 1f), new Vector2(52f, -32f), new Vector2(0f, 50f));
+            shopTitle.fontStyle = FontStyles.Bold;
+            var shopSubtitle = CreateLabel(_shop.transform, "战场资源 · 装备补给 · 可持续作战", 17, TextAlignmentOptions.MidlineLeft);
+            SetRect(shopSubtitle.rectTransform, new Vector2(0f, 1f), new Vector2(.55f, 1f), new Vector2(0f, 1f), new Vector2(54f, -69f), new Vector2(0f, 28f));
+            shopSubtitle.color = new Color32(133, 164, 184, 255);
+            var balancePlate = CreatePanel(_shop.transform, "BalancePlate");
+            SetRect(balancePlate.GetComponent<RectTransform>(), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-150f, -28f), new Vector2(240f, 46f));
+            balancePlate.GetComponent<Image>().color = new Color32(21, 38, 53, 255);
+            _shopBalance = CreateLabel(balancePlate.transform, string.Empty, 21, TextAlignmentOptions.Center);
+            SetRect(_shopBalance.rectTransform, Vector2.zero, Vector2.one, new Vector2(.5f, .5f), Vector2.zero, Vector2.zero);
+            _shopBalance.color = new Color32(255, 216, 118, 255);
+
+            var catalogPanel = CreatePanel(_shop.transform, "CatalogPanel");
+            SetRect(catalogPanel.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(.64f, 1f), new Vector2(0f, .5f), new Vector2(42f, 24f), new Vector2(-30f, -172f));
+            catalogPanel.GetComponent<Image>().color = new Color32(12, 24, 39, 235);
+            var catalogTitle = CreateLabel(catalogPanel.transform, "商品目录", 20, TextAlignmentOptions.MidlineLeft);
+            SetRect(catalogTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(22f, -18f), new Vector2(-44f, 32f));
+            catalogTitle.color = new Color32(117, 231, 235, 255);
+            var viewportObject = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(Mask));
+            viewportObject.transform.SetParent(catalogPanel.transform, false);
+            var viewport = viewportObject.GetComponent<RectTransform>();
+            SetRect(viewport, Vector2.zero, Vector2.one, new Vector2(.5f, .5f), new Vector2(18f, -42f), new Vector2(-36f, -74f));
+            viewportObject.GetComponent<Image>().color = new Color32(8, 16, 29, 120);
+            viewportObject.GetComponent<Mask>().showMaskGraphic = false;
+            var cardsObject = new GameObject("Cards", typeof(RectTransform), typeof(GridLayoutGroup), typeof(ContentSizeFitter));
+            cardsObject.transform.SetParent(viewportObject.transform, false);
+            var cardsRect = cardsObject.GetComponent<RectTransform>();
+            SetRect(cardsRect, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(.5f, 1f), new Vector2(0f, -12f), new Vector2(-28f, 0f));
+            var grid = cardsObject.GetComponent<GridLayoutGroup>();
+            grid.cellSize = new Vector2(252f, 154f);
+            grid.spacing = new Vector2(14f, 14f);
+            grid.padding = new RectOffset(14, 14, 14, 14);
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = 3;
+            grid.childAlignment = TextAnchor.UpperLeft;
+            cardsObject.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var scroll = catalogPanel.AddComponent<ScrollRect>();
+            scroll.viewport = viewport;
+            scroll.content = cardsRect;
+            scroll.vertical = true;
+            scroll.horizontal = false;
+            scroll.movementType = ScrollRect.MovementType.Elastic;
+            scroll.scrollSensitivity = 34f;
+
+            var detailPanel = CreatePanel(_shop.transform, "DetailPanel");
+            SetRect(detailPanel.GetComponent<RectTransform>(), new Vector2(.64f, 0f), new Vector2(1f, 1f), new Vector2(0f, .5f), new Vector2(12f, 24f), new Vector2(-42f, -172f));
+            detailPanel.GetComponent<Image>().color = new Color32(18, 33, 50, 245);
+            var detailHeader = CreateLabel(detailPanel.transform, "商品详情", 20, TextAlignmentOptions.MidlineLeft);
+            SetRect(detailHeader.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(28f, -18f), new Vector2(-56f, 32f));
+            detailHeader.color = new Color32(117, 231, 235, 255);
+            var iconPlate = CreatePanel(detailPanel.transform, "ItemIcon");
+            SetRect(iconPlate.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(28f, -104f), new Vector2(100f, 100f));
+            iconPlate.GetComponent<Image>().color = new Color32(30, 63, 80, 255);
+            _shopDetailIcon = iconPlate.GetComponent<Image>();
+            var iconPulse = iconPlate.AddComponent<GraphicPulse>();
+            iconPulse.Configure(.92f, 1.05f, .8f);
+            _shopDetailName = CreateLabel(detailPanel.transform, "选择一个商品", 28, TextAlignmentOptions.MidlineLeft);
+            SetRect(_shopDetailName.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(150f, -78f), new Vector2(-178f, 42f));
+            _shopDetailName.fontStyle = FontStyles.Bold;
+            _shopDetailRarity = CreateLabel(detailPanel.transform, string.Empty, 16, TextAlignmentOptions.MidlineLeft);
+            SetRect(_shopDetailRarity.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(150f, -111f), new Vector2(-178f, 28f));
+            _shopDetailDescription = CreateLabel(detailPanel.transform, string.Empty, 18, TextAlignmentOptions.TopLeft);
+            _shopDetailDescription.textWrappingMode = TextWrappingModes.Normal;
+            SetRect(_shopDetailDescription.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(28f, -236f), new Vector2(-56f, 105f));
+            _shopDetailDescription.color = new Color32(185, 202, 216, 255);
+            _shopDetailStats = CreateLabel(detailPanel.transform, string.Empty, 17, TextAlignmentOptions.TopLeft);
+            SetRect(_shopDetailStats.rectTransform, new Vector2(0f, 0f), new Vector2(1f, .36f), new Vector2(0f, 1f), new Vector2(28f, 0f), new Vector2(-56f, -16f));
+            _shopDetailStats.color = new Color32(117, 231, 235, 255);
+            _shopAction = CreateButton(detailPanel.transform, "购买", 19);
+            SetRect(_shopAction.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(.5f, 0f), new Vector2(28f, 28f), new Vector2(-56f, 54f));
+            _shopAction.GetComponent<Image>().color = new Color32(22, 128, 145, 255);
+            _shopAction.onClick.AddListener(BuySelected);
+            _shopSellAction = CreateButton(detailPanel.transform, "出售", 17);
+            SetRect(_shopSellAction.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(.5f, 0f), new Vector2(.5f, 0f), new Vector2(28f, -32f), new Vector2(-42f, 44f));
+            _shopSellAction.GetComponent<Image>().color = new Color32(82, 57, 99, 255);
+            _shopSellAction.onClick.AddListener(SellSelected);
             _shopStatus = CreateLabel(_shop.transform, string.Empty, 18, TextAlignmentOptions.Center);
-            SetRect(_shopStatus.rectTransform, new Vector2(.08f, .08f), new Vector2(.92f, .18f), new Vector2(.5f, .13f), Vector2.zero, Vector2.zero);
-            var close = CreateButton(_shop.transform, "返回", 20);
-            SetRect(close.GetComponent<RectTransform>(), new Vector2(.32f, .18f), new Vector2(.68f, .28f), new Vector2(.5f, .23f), Vector2.zero, Vector2.zero);
+            SetRect(_shopStatus.rectTransform, new Vector2(.05f, 0f), new Vector2(.72f, 0f), new Vector2(.5f, 0f), new Vector2(0f, 32f), new Vector2(0f, 42f));
+            _shopStatus.color = new Color32(140, 235, 220, 255);
+            var close = CreateButton(_shop.transform, "关闭商店", 20);
+            SetRect(close.GetComponent<RectTransform>(), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-42f, 28f), new Vector2(140f, 50f));
             close.onClick.AddListener(HideShop);
 
             _bossBar = CreatePanel(_root.transform, "[BossHealth]");
@@ -810,36 +904,114 @@ namespace Train.Composition.Progression
             AcquireModal();
             _completion.SetActive(false);
             _shop.SetActive(true);
-            _shopStatus.text = $"金币 {_progression.Snapshot.Coins:0000} | 购买或出售物品（出售价为购买价的一半）";
-            var oldRows = _shop.transform.Find("Rows");
-            if (oldRows != null) UnityEngine.Object.Destroy(oldRows.gameObject);
-            var rows = new GameObject("Rows", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
-            rows.transform.SetParent(_shop.transform, false);
-            SetRect(rows.GetComponent<RectTransform>(), new Vector2(.06f, .25f), new Vector2(.94f, .84f), new Vector2(.5f, .54f), Vector2.zero, Vector2.zero);
-            var layout = rows.GetComponent<VerticalLayoutGroup>();
-            layout.spacing = 8f;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
-            rows.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            _shopMotion.Restart();
+            _shopBalance.text = $"金币  {_progression.Snapshot.Coins:0000}";
+            _shopStatus.text = "选择商品查看详情；购买和出售都会即时更新钱包。";
+            var cards = _shop.transform.Find("CatalogPanel/Viewport/Cards");
+            if (cards == null)
+            {
+                return;
+            }
+            for (var i = cards.childCount - 1; i >= 0; i--)
+            {
+                UnityEngine.Object.Destroy(cards.GetChild(i).gameObject);
+            }
+
+            _selectedShopItem = null;
+            _selectedShopCost = 0;
+            RefreshShopDetail();
             foreach (var definition in _inventory.Catalog)
             {
                 if (definition == null) continue;
                 var cost = GetItemPrice(definition);
-                var row = new GameObject($"ShopRow_{definition.ItemId}", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
-                row.transform.SetParent(rows.transform, false);
-                row.GetComponent<LayoutElement>().preferredHeight = 48f;
-                row.GetComponent<HorizontalLayoutGroup>().spacing = 6f;
-                var text = CreateLabel(row.transform, $"{definition.DisplayName}  购买 {cost}  出售 {cost / 2}", 15, TextAlignmentOptions.MidlineLeft);
-                text.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
-                var buy = CreateButton(row.transform, "购买", 15);
-                buy.gameObject.AddComponent<LayoutElement>().preferredWidth = 96f;
-                buy.interactable = CanStore(definition.ItemId, 1) && _progression.Snapshot.Coins >= cost;
-                buy.onClick.AddListener(() => Buy(definition, cost));
-                var sell = CreateButton(row.transform, "出售", 15);
-                sell.gameObject.AddComponent<LayoutElement>().preferredWidth = 96f;
-                sell.interactable = _inventory.GetTotalQuantity(definition.ItemId) > 0 && !IsEquipped(definition.ItemId);
-                sell.onClick.AddListener(() => Sell(definition, cost / 2));
+                CreateShopCard(definition, cost, cards);
             }
+        }
+
+        private void CreateShopCard(ItemDefinition definition, int cost, Transform parent)
+        {
+            var card = new GameObject($"ShopCard_{definition.ItemId}", typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
+            card.transform.SetParent(parent, false);
+            var image = card.GetComponent<Image>();
+            image.color = GetShopCardColor(definition.Rarity);
+            var button = card.GetComponent<Button>();
+            var colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color32(110, 231, 235, 255);
+            colors.pressedColor = new Color32(160, 245, 238, 255);
+            colors.selectedColor = new Color32(110, 231, 235, 255);
+            button.colors = colors;
+            button.onClick.AddListener(() => SelectShopItem(definition, cost));
+
+            var accent = CreatePanel(card.transform, "Accent");
+            SetRect(accent.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, .5f), Vector2.zero, new Vector2(5f, 0f));
+            accent.GetComponent<Image>().color = GetRarityColor(definition.Rarity);
+            var icon = CreatePanel(card.transform, "Icon");
+            SetRect(icon.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(18f, -18f), new Vector2(46f, 46f));
+            icon.GetComponent<Image>().color = new Color32(12, 24, 39, 220);
+            var iconText = CreateLabel(icon.transform, GetItemGlyph(definition.Category), 21, TextAlignmentOptions.Center);
+            SetRect(iconText.rectTransform, Vector2.zero, Vector2.one, new Vector2(.5f, .5f), Vector2.zero, Vector2.zero);
+            iconText.color = GetRarityColor(definition.Rarity);
+            var name = CreateLabel(card.transform, definition.DisplayName, 18, TextAlignmentOptions.MidlineLeft);
+            SetRect(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(78f, -18f), new Vector2(-90f, 34f));
+            name.fontStyle = FontStyles.Bold;
+            var rarity = CreateLabel(card.transform, $"{GetRarityName(definition.Rarity)}  ·  {definition.Category}", 13, TextAlignmentOptions.MidlineLeft);
+            SetRect(rarity.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(78f, -47f), new Vector2(-90f, 24f));
+            rarity.color = new Color32(170, 194, 207, 255);
+            var price = CreateLabel(card.transform, $"买入  {cost}  金币", 14, TextAlignmentOptions.MidlineLeft);
+            SetRect(price.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(18f, 15f), new Vector2(-36f, 25f));
+            price.color = new Color32(255, 216, 118, 255);
+            var owned = CreateLabel(card.transform, $"持有  {_inventory.GetTotalQuantity(definition.ItemId)}", 13, TextAlignmentOptions.MidlineRight);
+            SetRect(owned.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-18f, 15f), new Vector2(-116f, 25f));
+            owned.color = new Color32(170, 194, 207, 255);
+        }
+
+        private void SelectShopItem(ItemDefinition definition, int cost)
+        {
+            _selectedShopItem = definition;
+            _selectedShopCost = cost;
+            RefreshShopDetail();
+            _shopStatus.text = $"已选择：{definition.DisplayName}";
+        }
+
+        private void RefreshShopDetail()
+        {
+            if (_selectedShopItem == null)
+            {
+                _shopDetailName.text = "选择一个商品";
+                _shopDetailRarity.text = "商品信息将在这里显示";
+                _shopDetailDescription.text = "从左侧目录选择补给品、材料或装备。\n\n这里会显示用途、价格和当前持有数量。";
+                _shopDetailStats.text = string.Empty;
+                _shopDetailIcon.color = new Color32(30, 63, 80, 255);
+                _shopAction.interactable = false;
+                _shopSellAction.interactable = false;
+                return;
+            }
+
+            _shopDetailName.text = _selectedShopItem.DisplayName;
+            _shopDetailRarity.text = $"{GetRarityName(_selectedShopItem.Rarity)}  ·  {_selectedShopItem.Category}";
+            _shopDetailRarity.color = GetRarityColor(_selectedShopItem.Rarity);
+            _shopDetailDescription.text = string.IsNullOrWhiteSpace(_selectedShopItem.Description) ? "战场补给物资。" : _selectedShopItem.Description;
+            _shopDetailStats.text = $"买入价格    {_selectedShopCost} 金币\n卖出价格    {_selectedShopCost / 2} 金币\n当前持有    {_inventory.GetTotalQuantity(_selectedShopItem.ItemId)}\n\n{(_selectedShopItem.MaxStack > 1 ? "可堆叠物品" : "不可堆叠物品")}";
+            _shopDetailIcon.color = GetShopCardColor(_selectedShopItem.Rarity);
+            _shopAction.interactable = CanStore(_selectedShopItem.ItemId, 1) && _progression.Snapshot.Coins >= _selectedShopCost;
+            _shopSellAction.interactable = _inventory.GetTotalQuantity(_selectedShopItem.ItemId) > 0 && !IsEquipped(_selectedShopItem.ItemId);
+        }
+
+        private void BuySelected()
+        {
+            if (_selectedShopItem == null) return;
+            Buy(_selectedShopItem, _selectedShopCost);
+            _shopBalance.text = $"金币  {_progression.Snapshot.Coins:0000}";
+            RefreshShopDetail();
+        }
+
+        private void SellSelected()
+        {
+            if (_selectedShopItem == null) return;
+            Sell(_selectedShopItem, _selectedShopCost / 2);
+            _shopBalance.text = $"金币  {_progression.Snapshot.Coins:0000}";
+            RefreshShopDetail();
         }
 
         private void Buy(ItemDefinition definition, int cost)
@@ -1047,8 +1219,10 @@ namespace Train.Composition.Progression
             label.transform.SetParent(parent, false);
             var tmp = label.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
+            tmp.font = TMP_Settings.defaultFontAsset;
             tmp.fontSize = size;
             tmp.alignment = alignment;
+            tmp.enableWordWrapping = true;
             tmp.color = new Color32(220, 235, 242, 255);
             return tmp;
         }
@@ -1081,6 +1255,60 @@ namespace Train.Composition.Progression
             };
         }
 
+        private static Color GetShopItemColor(ItemRarity rarity)
+        {
+            return rarity switch
+            {
+                ItemRarity.Rare => new Color32(28, 76, 120, 255),
+                ItemRarity.Elite => new Color32(73, 45, 112, 255),
+                ItemRarity.Epic => new Color32(112, 45, 91, 255),
+                ItemRarity.Legendary => new Color32(132, 74, 24, 255),
+                _ => new Color32(30, 67, 78, 255)
+            };
+        }
+
+        private static Color GetShopCardColor(ItemRarity rarity)
+        {
+            var baseColor = GetShopItemColor(rarity);
+            return new Color(baseColor.r * .7f, baseColor.g * .7f, baseColor.b * .7f, .98f);
+        }
+
+        private static Color GetRarityColor(ItemRarity rarity)
+        {
+            return rarity switch
+            {
+                ItemRarity.Rare => new Color32(76, 181, 255, 255),
+                ItemRarity.Elite => new Color32(177, 117, 255, 255),
+                ItemRarity.Epic => new Color32(255, 105, 200, 255),
+                ItemRarity.Legendary => new Color32(255, 188, 78, 255),
+                _ => new Color32(180, 202, 214, 255)
+            };
+        }
+
+        private static string GetRarityName(ItemRarity rarity)
+        {
+            return rarity switch
+            {
+                ItemRarity.Rare => "稀有",
+                ItemRarity.Elite => "精英",
+                ItemRarity.Epic => "史诗",
+                ItemRarity.Legendary => "传说",
+                _ => "普通"
+            };
+        }
+
+        private static string GetItemGlyph(ItemCategory category)
+        {
+            return category switch
+            {
+                ItemCategory.Consumable => "+",
+                ItemCategory.Equipment => "◆",
+                ItemCategory.Material => "◇",
+                ItemCategory.Quest => "!",
+                _ => "·"
+            };
+        }
+
         private static void SetRect(RectTransform rect, Vector2 min, Vector2 max, Vector2 pivot, Vector2 position, Vector2 size)
         {
             rect.anchorMin = min;
@@ -1088,6 +1316,63 @@ namespace Train.Composition.Progression
             rect.pivot = pivot;
             rect.anchoredPosition = position;
             rect.sizeDelta = size;
+        }
+    }
+
+    /// <summary>商店打开时的轻量缩放和透明度过渡，避免界面突然出现。</summary>
+    internal sealed class ShopOverlayMotion : MonoBehaviour
+    {
+        private RectTransform _rect;
+        private CanvasGroup _group;
+        private float _startedAt;
+
+        public void Configure(RectTransform rect)
+        {
+            _rect = rect;
+            _group = GetComponent<CanvasGroup>();
+            Restart();
+        }
+
+        public void Restart()
+        {
+            _startedAt = Time.unscaledTime;
+            if (_rect != null) _rect.localScale = Vector3.one * .965f;
+            if (_group != null) _group.alpha = .2f;
+        }
+
+        private void Update()
+        {
+            if (_rect == null || _group == null) return;
+            var progress = Mathf.Clamp01((Time.unscaledTime - _startedAt) / .28f);
+            var eased = 1f - Mathf.Pow(1f - progress, 3f);
+            _rect.localScale = Vector3.one * Mathf.Lerp(.965f, 1f, eased);
+            _group.alpha = Mathf.Lerp(.2f, 1f, eased);
+        }
+    }
+
+    /// <summary>商品详情图标的微弱呼吸效果，保持信息层级而不干扰操作。</summary>
+    internal sealed class GraphicPulse : MonoBehaviour
+    {
+        private Image _image;
+        private float _min;
+        private float _max;
+        private float _speed;
+
+        public void Configure(float min, float max, float speed)
+        {
+            _image = GetComponent<Image>();
+            _min = min;
+            _max = max;
+            _speed = speed;
+        }
+
+        private void Update()
+        {
+            if (_image == null) return;
+            var alpha = Mathf.Lerp(_min, _max, (Mathf.Sin(Time.unscaledTime * _speed * Mathf.PI) + 1f) * .5f);
+            var color = _image.color;
+            color.a = alpha;
+            _image.color = color;
         }
     }
 }

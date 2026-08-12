@@ -36,6 +36,14 @@ namespace cfg.game
         /// 自身增益
         /// </summary>
         SELF_BUFF = 4,
+        /// <summary>
+        /// 聚怪
+        /// </summary>
+        MAGNET = 5,
+        /// <summary>
+        /// 冻结
+        /// </summary>
+        FREEZE = 6,
     }
 
 } 

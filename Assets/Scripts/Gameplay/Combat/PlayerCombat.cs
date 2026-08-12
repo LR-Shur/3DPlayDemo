@@ -26,9 +26,9 @@ namespace Train.Gameplay.Combat
             _swordHitbox?.EndAttack();
         }
 
-        public void BeginAttack()
+        public void BeginAttack(bool continuousHitbox = false)
         {
-            _swordHitbox?.BeginAttack();
+            _swordHitbox?.BeginAttack(continuousHitbox);
         }
 
         public void EndAttack()

@@ -1,4 +1,5 @@
 using Train.Gameplay.Enemy.Core;
+using Train.Gameplay.Enemy.Abstractions;
 using UnityEngine;
 
 namespace Train.Gameplay.Enemy.States
@@ -21,7 +22,12 @@ namespace Train.Gameplay.Enemy.States
             _elapsed = 0f;
             _damageActive = false;
             Context.Motor.Stop();
+            Context.Combat.SetAttackTarget(Context.Sensor.Target);
             Context.Combat.BeginAttack();
+            if (Context.Combat is IEnemyAttackTelegraph telegraph)
+            {
+                telegraph.BeginTelegraph(Context.Config.HitboxStartTime, Context.Combat.AttackRange);
+            }
             Context.Animation.Play(EnemyAnimationId.Attack, 0.08f);
         }
 
@@ -40,6 +46,10 @@ namespace Train.Gameplay.Enemy.States
             {
                 _damageActive = shouldDamage;
                 Context.Combat.SetDamageActive(_damageActive);
+                if (_damageActive && Context.Combat is IEnemyAttackTelegraph telegraph)
+                {
+                    telegraph.EndTelegraph();
+                }
             }
 
             if (_elapsed < Context.Config.AttackDuration)

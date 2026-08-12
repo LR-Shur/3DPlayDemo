@@ -17,8 +17,8 @@ MonoBehaviour:
   _turnSpeed: 10
   _idleSeconds: 1.5
   _attackRange: 0.9
-  _attackDuration: 0.9
-  _hitboxStartTime: 0.22
-  _hitboxEndTime: 0.55
+  _attackDuration: 1.25
+  _hitboxStartTime: 0.72
+  _hitboxEndTime: 1.02
   _hitReactionDuration: 0.45
   _deathDespawnDelay: 2.2

@@ -245,6 +245,8 @@ namespace Train.Composition.Config
             {
                 cfg.game.EActiveItemEffect.HEAL => ActiveItemEffectType.Heal,
                 cfg.game.EActiveItemEffect.GRENADE => ActiveItemEffectType.Grenade,
+                cfg.game.EActiveItemEffect.MAGNET => ActiveItemEffectType.Magnet,
+                cfg.game.EActiveItemEffect.FREEZE => ActiveItemEffectType.Freeze,
                 _ => ActiveItemEffectType.None
             };
         }

@@ -54,3 +54,5 @@
 ,gale_grenade,风暴手雷,CONSUMABLE,4,5,Assets/Arts/UI/Icons/GameIcons/orbital.png,风属性范围伤害并叠加风痕
 ,seismic_grenade,震岳手雷,CONSUMABLE,5,5,Assets/Arts/UI/Icons/GameIcons/orbital.png,地属性范围伤害并叠加破碎标记
 ,earth_guard_kit,岩铠护符,CONSUMABLE,5,3,Assets/Arts/UI/Icons/GameIcons/globe-ring.png,短时间降低受到的地属性伤害
+,gravity_core,重力诱导器,CONSUMABLE,4,3,Assets/Arts/UI/Icons/GameIcons/orbital.png,投掷后生成重力井，把附近敌人持续拉向中心
+,cryo_beacon,极寒信标,CONSUMABLE,5,3,Assets/Arts/UI/Icons/GameIcons/globe-ring.png,释放冰霜脉冲，冻结范围内敌人五秒

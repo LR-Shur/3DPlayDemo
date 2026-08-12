@@ -494,7 +494,13 @@ namespace Train.GameFlow.Runtime
 
             stats.SetDefense(data.Defense);
             var melee = instance.GetComponentInChildren<EnemyMeleeCombat>(true);
-            melee?.ConfigureDamage(data.Attack);
+            if (melee != null)
+            {
+                melee.ConfigureDamage(data.Attack);
+            }
+
+            var ranged = instance.GetComponentInChildren<EnemyRangedCombat>(true);
+            ranged?.ConfigureDamage(data.Attack);
 
             var runtimeConfig = EnemyConfig.CreateRuntime(
                 controller.Config,

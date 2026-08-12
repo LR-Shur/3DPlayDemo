@@ -23,6 +23,21 @@ MonoBehaviour:
     _scenePath: Playable_Level_Combat_002
     _isBoss: 0
     _clearBonus: 300
+  - _levelId: level.energy.relay
+    _displayName: "能源中继站 · 过载警戒"
+    _scenePath: Playable_Level_EnergyRelay
+    _isBoss: 0
+    _clearBonus: 480
+  - _levelId: level.orbital.cargo
+    _displayName: "轨道装卸港 · 电磁爆破"
+    _scenePath: Playable_Level_OrbitalCargo
+    _isBoss: 0
+    _clearBonus: 620
+  - _levelId: level.cryo.garden
+    _displayName: "冷却花园 · 冻结警戒"
+    _scenePath: Playable_Level_CryoGarden
+    _isBoss: 0
+    _clearBonus: 760
   - _levelId: level.boss.001
     _displayName: "核心熔炉 · Rusk 原型机"
     _scenePath: Playable_Level_Boss_001

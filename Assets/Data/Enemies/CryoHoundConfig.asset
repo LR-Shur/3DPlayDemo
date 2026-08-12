@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ee7c309cf88f3b4a80eab82a9cc84d1, type: 3}
+  m_Name: CryoHoundConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Train.Gameplay.Enemy.Data.EnemyConfig
+  _patrolSpeed: 1.8
+  _chaseSpeed: 3.2
+  _turnSpeed: 12
+  _idleSeconds: 1.1
+  _attackRange: 1.25
+  _attackDuration: 1.15
+  _hitboxStartTime: 0.68
+  _hitboxEndTime: 0.96
+  _hitReactionDuration: 0.4
+  _deathDespawnDelay: 2

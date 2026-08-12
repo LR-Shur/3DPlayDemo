@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Train.Gameplay.Combat
 {
     /// <summary>
-    /// 剑的触发器伤害源。同一次攻击对同一生命体最多造成一次伤害。
+    /// 剑的触发器伤害源。普通攻击同段只命中一次，飞刃段使用连续扫掠并按间隔重复伤害。
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Collider))]
@@ -17,12 +17,14 @@ namespace Train.Gameplay.Combat
     {
         [SerializeField, Min(0f)] private float _damage = 25f;
         [SerializeField, Min(0f)] private float _impactForce = 2f;
+        [SerializeField, Min(0.02f)] private float _continuousDamageInterval = 0.1f;
         [SerializeField] private DamageType _damageType = DamageType.Physical;
         [SerializeField] private Transform _ownerTransform;
         [SerializeField] private CombatFaction _faction = CombatFaction.Player;
         [SerializeField] private string _weaponNodeName = "0005_Ellen_Weapon";
 
         private readonly HashSet<IDamageable> _hitTargets = new();
+        private readonly Dictionary<IDamageable, float> _nextContinuousHitTimes = new();
         private Collider _trigger;
         private Collider _localCollider;
         private IWeaponHitEffect[] _hitEffects = Array.Empty<IWeaponHitEffect>();
@@ -34,6 +36,9 @@ namespace Train.Gameplay.Combat
         private int _runtimeBuffMaxStacks = 1;
         private float _runtimeBuffCooldown;
         private float _runtimeBuffNextTime;
+        private bool _continuousHitbox;
+        private bool _hasPreviousSweepCenter;
+        private Vector3 _previousSweepCenter;
 
         /// <summary>伤害来源位置使用真实武器节点，便于命中特效和击退方向贴合刀身。</summary>
         public Transform SourceTransform => _trigger != null ? _trigger.transform : transform;
@@ -76,6 +81,18 @@ namespace Train.Gameplay.Combat
         private void OnDisable()
         {
             _hitTargets.Clear();
+            _nextContinuousHitTimes.Clear();
+            _hasPreviousSweepCenter = false;
+        }
+
+        private void FixedUpdate()
+        {
+            if (!IsDamageActive || !_continuousHitbox || _trigger == null)
+            {
+                return;
+            }
+
+            SweepContinuousHitbox();
         }
 
         private void OnTriggerEnter(Collider other)
@@ -88,9 +105,12 @@ namespace Train.Gameplay.Combat
             TryDamage(other);
         }
 
-        public void BeginAttack()
+        public void BeginAttack(bool continuousHitbox = false)
         {
             _hitTargets.Clear();
+            _nextContinuousHitTimes.Clear();
+            _continuousHitbox = continuousHitbox;
+            _hasPreviousSweepCenter = false;
             if (_trigger == null)
             {
                 _trigger = ResolveWeaponCollider();
@@ -108,6 +128,9 @@ namespace Train.Gameplay.Combat
             {
                 _trigger.enabled = false;
             }
+
+            _continuousHitbox = false;
+            _hasPreviousSweepCenter = false;
         }
 
         public void Configure(Transform ownerTransform, float damage, float impactForce = 2f)
@@ -334,9 +357,19 @@ namespace Train.Gameplay.Combat
             var behaviours = other.GetComponentsInParent<MonoBehaviour>(true);
             foreach (var behaviour in behaviours)
             {
-                if (behaviour is not IDamageable damageable ||
-                    !damageable.IsAlive ||
-                    _hitTargets.Contains(damageable))
+                if (behaviour is not IDamageable damageable || !damageable.IsAlive)
+                {
+                    continue;
+                }
+
+                if (!_continuousHitbox && _hitTargets.Contains(damageable))
+                {
+                    continue;
+                }
+
+                if (_continuousHitbox &&
+                    _nextContinuousHitTimes.TryGetValue(damageable, out var nextHitTime) &&
+                         Time.time < nextHitTime)
                 {
                     continue;
                 }
@@ -345,6 +378,11 @@ namespace Train.Gameplay.Combat
                 if (!DamagePolicy.CanDamage(this, targetFaction))
                 {
                     break;
+                }
+
+                if (!_continuousHitbox)
+                {
+                    _hitTargets.Add(damageable);
                 }
 
                 var sourcePosition = SourceTransform.position;
@@ -358,14 +396,62 @@ namespace Train.Gameplay.Combat
                     _impactForce,
                     _damageType);
 
-                _hitTargets.Add(damageable);
                 var result = DamageHandler.Apply(
                     damageable,
                     damageInfo,
                     targetFaction);
+                if (_continuousHitbox && result.AppliedDamage > 0f)
+                {
+                    _nextContinuousHitTimes[damageable] =
+                        Time.time + Mathf.Max(0.02f, _continuousDamageInterval);
+                }
                 NotifyHitEffects(damageable, damageInfo, result);
                 break;
             }
+        }
+
+        /// <summary>补齐高速飞刃穿过敌人时漏掉的触发器回调。</summary>
+        private void SweepContinuousHitbox()
+        {
+            var bounds = _trigger.bounds;
+            var center = bounds.center;
+            var extents = bounds.extents;
+            var rotation = _trigger.transform.rotation;
+
+            var overlaps = Physics.OverlapBox(
+                center,
+                extents,
+                rotation,
+                Physics.AllLayers,
+                QueryTriggerInteraction.Collide);
+            foreach (var overlap in overlaps)
+            {
+                TryDamage(overlap);
+            }
+
+            if (_hasPreviousSweepCenter)
+            {
+                var delta = center - _previousSweepCenter;
+                var distance = delta.magnitude;
+                if (distance > 0.001f)
+                {
+                    var swept = Physics.BoxCastAll(
+                        _previousSweepCenter,
+                        extents,
+                        delta / distance,
+                        rotation,
+                        distance,
+                        Physics.AllLayers,
+                        QueryTriggerInteraction.Collide);
+                    foreach (var hit in swept)
+                    {
+                        TryDamage(hit.collider);
+                    }
+                }
+            }
+
+            _previousSweepCenter = center;
+            _hasPreviousSweepCenter = true;
         }
 
         /// <summary>
