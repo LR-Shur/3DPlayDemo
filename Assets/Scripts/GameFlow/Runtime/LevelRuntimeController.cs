@@ -608,7 +608,7 @@ namespace Train.GameFlow.Runtime
             }
         }
 
-        /// <summary>读取 LevelRuntimeRoot/Spawns 下的玩家出生点。</summary>
+        /// <summary>读取关卡 SO 中配置的世界出生点，旧场景没有 SO 时才读取场景点位。</summary>
         private Transform ResolvePlayerSpawnPoint()
         {
             if (_playerSpawnPoint != null)
@@ -616,12 +616,12 @@ namespace Train.GameFlow.Runtime
                 return _playerSpawnPoint;
             }
 
-            // 关卡 SO 是运行时出生位置的唯一来源；场景点位只保留为旧场景兼容入口。
+            // SO 保存的是世界坐标，不能使用 SetLocalPosition，否则会叠加 LevelRuntimeRoot 的场景偏移。
             if (_definition != null)
             {
                 var runtimePoint = new GameObject("[RuntimePlayerSpawn]");
                 runtimePoint.transform.SetParent(transform, false);
-                runtimePoint.transform.SetLocalPositionAndRotation(
+                runtimePoint.transform.SetPositionAndRotation(
                     _definition.PlayerSpawnPosition,
                     _definition.PlayerSpawnRotation);
                 _playerSpawnPoint = runtimePoint.transform;
@@ -633,8 +633,12 @@ namespace Train.GameFlow.Runtime
                 ? point.transform
                 : transform.Find("Spawns/PlayerSpawn") ??
                   transform.Find("Spawns/PlayerSpawnPoint");
+            if (_playerSpawnPoint != null)
+            {
+                return _playerSpawnPoint;
+            }
 
-            return _playerSpawnPoint;
+            return null;
         }
 
         private void ValidatePlayer()

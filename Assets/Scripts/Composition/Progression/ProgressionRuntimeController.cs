@@ -437,6 +437,16 @@ namespace Train.Composition.Progression
                 }
 
                 await _assets.LoadSceneAsync(address, LoadSceneMode.Single, true, _lifetime.Token);
+                await Task.Yield();
+                var level = FindFirstObjectByType<LevelRuntimeController>();
+                if (level != null)
+                {
+                    await level.PrepareAsync(_lifetime.Token);
+                    if (level.IsWaitingForStart)
+                    {
+                        level.StartLevel();
+                    }
+                }
             }
             catch (OperationCanceledException)
             {
