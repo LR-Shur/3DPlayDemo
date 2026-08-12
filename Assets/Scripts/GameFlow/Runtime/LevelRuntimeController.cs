@@ -276,13 +276,14 @@ namespace Train.GameFlow.Runtime
             EnemySpawnDefinition spawn,
             CancellationToken cancellationToken)
         {
+            var spawnTransform = ResolveEnemySpawnTransform(spawn);
             try
             {
                 return await assets.InstantiateAsync(
                     spawn.PrefabLocation,
                     _spawnedActorsRoot,
-                    spawn.Position,
-                    spawn.Rotation,
+                    spawnTransform.Position,
+                    spawnTransform.Rotation,
                     cancellationToken);
             }
             catch (Exception exception)
@@ -295,8 +296,8 @@ namespace Train.GameFlow.Runtime
                 {
                     var instance = UnityEngine.Object.Instantiate(
                         prefab,
-                        spawn.Position,
-                        spawn.Rotation,
+                        spawnTransform.Position,
+                        spawnTransform.Rotation,
                         _spawnedActorsRoot);
                     Debug.Log(
                         $"训练场资源服务未就绪，已使用编辑器直接实例化敌人：" +
@@ -309,6 +310,31 @@ namespace Train.GameFlow.Runtime
 #endif
                 throw;
             }
+        }
+
+        /// <summary>
+        /// 优先读取场景中同 SpawnId 的 EnemySpawnPoint Transform；
+        /// 没有场景点位时回退到关卡 SO 保存的数值坐标。
+        /// </summary>
+        private (Vector3 Position, Quaternion Rotation) ResolveEnemySpawnTransform(
+            EnemySpawnDefinition spawn)
+        {
+            var points = FindObjectsByType<EnemySpawnPoint>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+            foreach (var point in points)
+            {
+                if (point == null ||
+                    point.gameObject.scene != gameObject.scene ||
+                    !string.Equals(point.SpawnId, spawn.SpawnId, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                return (point.transform.position, point.transform.rotation);
+            }
+
+            return (spawn.Position, spawn.Rotation);
         }
 
         /// <summary>
