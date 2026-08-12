@@ -20,12 +20,7 @@ namespace Train.Composition.Config
             "game_tbactiveitem",
             "game_tbequipment",
             "game_tbequipmenteffect",
-            "game_tbenemyarchetype",
-            // Luban Tables 生成器当前仍声明这些旧表，保留读取避免构造 cfg.Tables 失败；
-            // 关卡运行时已改为只读取 LevelDefinition SO。
-            "game_tblevel",
-            "game_tblevelspawn",
-            "game_tbreward"
+            "game_tbenemyarchetype"
         };
 
         private readonly Dictionary<string, byte[]> _buffers = new();
