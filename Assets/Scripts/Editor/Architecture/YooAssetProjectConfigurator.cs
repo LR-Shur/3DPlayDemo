@@ -55,22 +55,13 @@ namespace Train.EditorTools.Architecture
                 return;
             }
 
-            if (package != null && !forceRebuild)
-            {
-                Debug.LogWarning(
-                    $"YooAsset package '{PackageName}' differs from the recommended " +
-                    "project collectors. Existing configuration was preserved. Use " +
-                    "Tools/Train/Architecture/Configure YooAsset to rebuild it explicitly.");
-                return;
-            }
-
             if (package != null)
             {
                 BundleCollectorSettingData.RemovePackage(package);
             }
 
             package = BundleCollectorSettingData.CreatePackage(PackageName);
-            package.EnableAddressable = false;
+            package.EnableAddressable = true;
             package.AutoCollectShaders = true;
             package.IgnoreRuleName = nameof(NormalIgnoreRule);
 
@@ -106,7 +97,7 @@ namespace Train.EditorTools.Architecture
             string[] desiredPaths)
         {
             if (package == null ||
-                package.EnableAddressable ||
+                !package.EnableAddressable ||
                 package.Groups.Count != desiredPaths.Length)
             {
                 return false;
