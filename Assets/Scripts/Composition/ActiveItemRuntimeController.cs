@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Train.Architecture.Events;
 using Train.Architecture.Bootstrap;
 using Train.Composition.Config;
 using Train.Inventory.Application;

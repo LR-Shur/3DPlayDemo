@@ -1,5 +1,3 @@
-using System;
-
 namespace Train.Inventory.Events
 {
     /// <summary>请求把背包中的消耗品绑定到主动道具快捷槽。</summary>
