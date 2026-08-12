@@ -79,7 +79,7 @@ namespace Train.EditorTools.Architecture
                     CollectPath = collectPath,
                     CollectorGUID = AssetDatabase.AssetPathToGUID(collectPath),
                     CollectorType = ECollectorType.MainAssetCollector,
-                    AddressRuleName = collectPath == "Assets/Data"
+                    AddressRuleName = UsesRelativeAddress(collectPath)
                         ? nameof(AddressByRelativePath)
                         : nameof(AddressByFolderAndFileName),
                     PackRuleName = nameof(PackDirectory),
@@ -114,7 +114,7 @@ namespace Train.EditorTools.Architecture
             var addressRulesAreCurrent = package.Groups
                 .SelectMany(group => group.Collectors)
                 .All(collector => collector.AddressRuleName ==
-                    (collector.CollectPath == "Assets/Data"
+                    (UsesRelativeAddress(collector.CollectPath)
                         ? nameof(AddressByRelativePath)
                         : nameof(AddressByFolderAndFileName)));
             return addressRulesAreCurrent && currentPaths.SequenceEqual(
@@ -168,6 +168,12 @@ namespace YooAsset.Editor
 
             return Path.ChangeExtension(relativePath, null)
                 .Replace('/', '_');
+        }
+
+        private static bool UsesRelativeAddress(string collectPath)
+        {
+            return collectPath == "Assets/Data" ||
+                   collectPath == "Assets/Arts/Characters";
         }
     }
 }
