@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Train.Buffs.Core;
+using Train.Gameplay.Combat.Buffs;
 using Train.Gameplay.Combat.Factions;
 using Train.Gameplay.Combat.HitEffects;
 using UnityEngine;
@@ -24,6 +26,14 @@ namespace Train.Gameplay.Combat
         private Collider _trigger;
         private Collider _localCollider;
         private IWeaponHitEffect[] _hitEffects = Array.Empty<IWeaponHitEffect>();
+        private string _runtimeBuffId;
+        private string _runtimeBuffSourceId = "weapon.equipped";
+        private float _runtimeBuffDuration;
+        private float _runtimeBuffMagnitude;
+        private int _runtimeBuffStackAmount = 1;
+        private int _runtimeBuffMaxStacks = 1;
+        private float _runtimeBuffCooldown;
+        private float _runtimeBuffNextTime;
 
         /// <summary>伤害来源位置使用真实武器节点，便于命中特效和击退方向贴合刀身。</summary>
         public Transform SourceTransform => _trigger != null ? _trigger.transform : transform;
@@ -120,6 +130,32 @@ namespace Train.Gameplay.Combat
         public void ConfigureDamageType(DamageType damageType)
         {
             _damageType = damageType;
+        }
+
+        /// <summary>
+        /// 由装备运行时控制器绑定当前武器的元素命中 Buff。
+        /// </summary>
+        public void ConfigureElementalEffect(
+            string buffId,
+            float duration,
+            float magnitude,
+            int stackAmount,
+            int maxStacks,
+            float cooldown,
+            string sourceId = "weapon.equipped")
+        {
+            _runtimeBuffId = string.IsNullOrWhiteSpace(buffId)
+                ? string.Empty
+                : buffId;
+            _runtimeBuffDuration = Mathf.Max(0.1f, duration);
+            _runtimeBuffMagnitude = magnitude;
+            _runtimeBuffStackAmount = Mathf.Max(1, stackAmount);
+            _runtimeBuffMaxStacks = Mathf.Max(1, maxStacks);
+            _runtimeBuffCooldown = Mathf.Max(0f, cooldown);
+            _runtimeBuffSourceId = string.IsNullOrWhiteSpace(sourceId)
+                ? "weapon.equipped"
+                : sourceId;
+            _runtimeBuffNextTime = 0f;
         }
 
         /// <summary>
@@ -367,6 +403,30 @@ namespace Train.Gameplay.Combat
             {
                 hitEffect.OnDamageApplied(target, damageInfo, result);
             }
+
+            if (string.IsNullOrWhiteSpace(_runtimeBuffId) ||
+                Time.time < _runtimeBuffNextTime ||
+                target is not Component targetComponent)
+            {
+                return;
+            }
+
+            var buffHandle = targetComponent
+                .GetComponentInParent<BuffHandleComponent>();
+            if (buffHandle == null)
+            {
+                return;
+            }
+
+            buffHandle.Apply(
+                new BuffInfo(
+                    _runtimeBuffId,
+                    _runtimeBuffSourceId,
+                    _runtimeBuffDuration,
+                    _runtimeBuffMagnitude,
+                    _runtimeBuffStackAmount,
+                    _runtimeBuffMaxStacks));
+            _runtimeBuffNextTime = Time.time + _runtimeBuffCooldown;
         }
     }
 

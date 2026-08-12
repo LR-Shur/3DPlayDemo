@@ -21,6 +21,14 @@ namespace Train.Equipment.Data
             EquipmentRarity.Common;
         [SerializeField] private EquipmentItemCategory _category;
         [SerializeField] private string _setId;
+        [SerializeField] private string _elementId;
+        [SerializeField] private string _effectTriggerId;
+        [SerializeField] private string _onHitBuffId;
+        [SerializeField, Min(0f)] private float _effectDuration;
+        [SerializeField] private float _effectMagnitude;
+        [SerializeField, Min(1)] private int _effectStackAmount = 1;
+        [SerializeField, Min(1)] private int _effectMaxStacks = 1;
+        [SerializeField, Min(0f)] private float _effectCooldown;
         [SerializeField] private Sprite _icon;
         [SerializeField]
         private List<EquipmentStatModifierDefinition> _modifiers = new();
@@ -42,6 +50,30 @@ namespace Train.Equipment.Data
 
         /// <summary>获取套装稳定标识；空字符串表示不属于套装。</summary>
         public string SetId => _setId;
+
+        /// <summary>装备绑定的元素 ID，例如 FIRE、WATER、WIND 或 EARTH。</summary>
+        public string ElementId => _elementId;
+
+        /// <summary>装备效果触发时机，例如 ON_HIT、ON_DODGE 或 ON_TAKE_DAMAGE。</summary>
+        public string EffectTriggerId => _effectTriggerId;
+
+        /// <summary>装备命中时申请的 Buff ID。</summary>
+        public string OnHitBuffId => _onHitBuffId;
+
+        /// <summary>命中 Buff 持续时间。</summary>
+        public float EffectDuration => _effectDuration;
+
+        /// <summary>命中 Buff 每层强度。</summary>
+        public float EffectMagnitude => _effectMagnitude;
+
+        /// <summary>命中 Buff 每次增加的层数。</summary>
+        public int EffectStackAmount => Mathf.Max(1, _effectStackAmount);
+
+        /// <summary>命中 Buff 最大层数。</summary>
+        public int EffectMaxStacks => Mathf.Max(1, _effectMaxStacks);
+
+        /// <summary>命中效果冷却时间。</summary>
+        public float EffectCooldown => Mathf.Max(0f, _effectCooldown);
 
         /// <summary>获取装备界面使用的图标。</summary>
         public Sprite Icon => _icon;
@@ -120,7 +152,15 @@ namespace Train.Equipment.Data
             string displayName,
             EquipmentRarity rarity,
             EquipmentItemCategory category,
-            IReadOnlyList<EquipmentStatModifierDefinition> modifiers)
+            IReadOnlyList<EquipmentStatModifierDefinition> modifiers,
+            string elementId = "NONE",
+            string effectTriggerId = "",
+            string onHitBuffId = "",
+            float effectDuration = 0f,
+            float effectMagnitude = 0f,
+            int effectStackAmount = 1,
+            int effectMaxStacks = 1,
+            float effectCooldown = 0f)
         {
             var definition = CreateInstance<EquipmentItemDefinition>();
             definition.name = $"LubanEquipment_{itemId}";
@@ -130,6 +170,14 @@ namespace Train.Equipment.Data
             definition._rarity = rarity;
             definition._category = category;
             definition._setId = string.Empty;
+            definition._elementId = elementId ?? "NONE";
+            definition._effectTriggerId = effectTriggerId ?? string.Empty;
+            definition._onHitBuffId = onHitBuffId ?? string.Empty;
+            definition._effectDuration = Mathf.Max(0f, effectDuration);
+            definition._effectMagnitude = effectMagnitude;
+            definition._effectStackAmount = Mathf.Max(1, effectStackAmount);
+            definition._effectMaxStacks = Mathf.Max(1, effectMaxStacks);
+            definition._effectCooldown = Mathf.Max(0f, effectCooldown);
             definition._modifiers = modifiers != null
                 ? new List<EquipmentStatModifierDefinition>(modifiers)
                 : new List<EquipmentStatModifierDefinition>();

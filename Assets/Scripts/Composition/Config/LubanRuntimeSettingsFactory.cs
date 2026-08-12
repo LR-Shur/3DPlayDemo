@@ -73,6 +73,18 @@ namespace Train.Composition.Config
             }
 
             var items = new List<EquipmentItemDefinition>();
+            var effectsByEquipment = new Dictionary<string, cfg.game.EquipmentEffect>(
+                StringComparer.Ordinal);
+            foreach (var effect in tables.TbEquipmentEffect.DataList)
+            {
+                if (effect != null &&
+                    !string.IsNullOrWhiteSpace(effect.EquipmentId) &&
+                    !effectsByEquipment.ContainsKey(effect.EquipmentId))
+                {
+                    effectsByEquipment.Add(effect.EquipmentId, effect);
+                }
+            }
+
             foreach (var row in tables.TbEquipment.DataList)
             {
                 if (row == null || string.IsNullOrWhiteSpace(row.Id))
@@ -84,12 +96,21 @@ namespace Train.Composition.Config
                 AddFlatModifier(modifiers, StatType.Attack, row.Attack);
                 AddFlatModifier(modifiers, StatType.Defense, row.Defense);
                 AddFlatModifier(modifiers, StatType.MaxHealth, row.MaxHealth);
+                effectsByEquipment.TryGetValue(row.Id, out var effect);
                 items.Add(EquipmentItemDefinition.CreateRuntime(
                     row.Id,
                     row.Name,
                     ToEquipmentRarity(row.Quality),
                     ToEquipmentCategory(row.Slot),
-                    modifiers));
+                    modifiers,
+                    effect != null ? effect.Element.ToString() : "NONE",
+                    effect != null ? effect.Trigger.ToString() : string.Empty,
+                    effect != null ? effect.BuffId : string.Empty,
+                    effect != null ? effect.Duration : 0f,
+                    effect != null ? effect.Magnitude : 0f,
+                    effect != null ? effect.StackAmount : 1,
+                    effect != null ? effect.MaxStacks : 1,
+                    effect != null ? effect.Cooldown : 0f));
             }
 
             return EquipmentSettings.CreateRuntime(baseStats, items);

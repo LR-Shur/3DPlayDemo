@@ -10,6 +10,8 @@ namespace Train.Gameplay.Player.Input
     /// </summary>
     public sealed class PlayerInputReader : MonoBehaviour
     {
+        /// <summary>翻滚动作真正触发时通知组合层。</summary>
+        public event System.Action DodgePerformed;
         [SerializeField] private InputActionAsset _actionsAsset;
         [SerializeField] private string _actionMapName = "Player";
 
@@ -303,6 +305,7 @@ namespace Train.Gameplay.Player.Input
         private void OnDodgePerformed(InputAction.CallbackContext context)
         {
             _dodgePressed = true;
+            DodgePerformed?.Invoke();
         }
 
         /// <summary>

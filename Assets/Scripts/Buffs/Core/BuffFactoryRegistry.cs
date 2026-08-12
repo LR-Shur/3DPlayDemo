@@ -131,7 +131,32 @@ namespace Train.Buffs.Core
                 new ElementalDamageModifierBuffFactory(
                     ElementalBuffIds.Fracture,
                     DamageElement.Physical));
+            RegisterElemental(registry, "heat_guard", DamageElement.Fire);
+            RegisterElemental(registry, "afterburn", DamageElement.Fire);
+            RegisterElemental(registry, "scorch", DamageElement.Fire);
+            RegisterElemental(registry, "phoenix_guard", DamageElement.Fire);
+            RegisterElemental(registry, "abyssal_guard", DamageElement.Water);
+            RegisterElemental(registry, "flow", DamageElement.Water);
+            RegisterElemental(registry, "mist", DamageElement.Water);
+            RegisterElemental(registry, "tide_echo", DamageElement.Water);
+            RegisterElemental(registry, "air_current", DamageElement.Wind);
+            RegisterElemental(registry, "zephyr", DamageElement.Wind);
+            RegisterElemental(registry, "gale_expose", DamageElement.Wind);
+            RegisterElemental(registry, "cyclone", DamageElement.Wind);
+            RegisterElemental(registry, "bastion", DamageElement.Earth);
+            RegisterElemental(registry, "quake_step", DamageElement.Earth);
+            RegisterElemental(registry, "fortify", DamageElement.Earth);
+            RegisterElemental(registry, "shatter", DamageElement.Earth);
             return registry;
+        }
+
+        private static void RegisterElemental(
+            BuffFactoryRegistry registry,
+            string buffId,
+            DamageElement element)
+        {
+            registry.Register(
+                new ElementalDamageModifierBuffFactory(buffId, element));
         }
 
         private static void ValidateCreatedBuff(

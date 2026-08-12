@@ -15,6 +15,24 @@
         <var name="ACCESSORY" alias="饰品" value="6"/>
     </enum>
 
+    <enum name="EElement" comment="伤害元素">
+        <var name="NONE" alias="无" value="0"/>
+        <var name="FIRE" alias="火" value="1"/>
+        <var name="WATER" alias="水" value="2"/>
+        <var name="WIND" alias="风" value="3"/>
+        <var name="EARTH" alias="地" value="4"/>
+        <var name="ICE" alias="冰" value="5"/>
+        <var name="ELECTRIC" alias="雷" value="6"/>
+    </enum>
+
+    <enum name="EEquipmentEffectTrigger" comment="装备效果触发时机">
+        <var name="ON_HIT" alias="命中" value="1"/>
+        <var name="ON_DODGE" alias="闪避" value="2"/>
+        <var name="ON_TAKE_DAMAGE" alias="受击" value="3"/>
+        <var name="ON_LOW_HEALTH" alias="低生命" value="4"/>
+        <var name="ON_MARK_REACHED" alias="标记满层" value="5"/>
+    </enum>
+
     <bean name="Item" comment="背包物品基础配置">
         <var name="id" type="string" comment="稳定物品 ID"/>
         <var name="name" type="string" comment="显示名称"/>
@@ -37,6 +55,20 @@
         <var name="icon" type="string"/>
     </bean>
     <table name="TbEquipment" value="Equipment" input="equipment.csv" comment="装备表"/>
+
+    <bean name="EquipmentEffect" comment="装备元素与 Buff 效果">
+        <var name="id" type="string"/>
+        <var name="equipment_id" type="string"/>
+        <var name="trigger" type="EEquipmentEffectTrigger"/>
+        <var name="element" type="EElement"/>
+        <var name="buff_id" type="string"/>
+        <var name="duration" type="float"/>
+        <var name="magnitude" type="float"/>
+        <var name="stack_amount" type="int"/>
+        <var name="max_stacks" type="int"/>
+        <var name="cooldown" type="float"/>
+    </bean>
+    <table name="TbEquipmentEffect" value="EquipmentEffect" input="equipment_effects.csv" comment="装备效果表"/>
 
     <bean name="EnemyArchetype" comment="敌人原型数值">
         <var name="id" type="string"/>

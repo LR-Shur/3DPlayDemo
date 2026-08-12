@@ -9,6 +9,7 @@
     "Train.Dialogue.Core",
     "Train.GameFlow",
     "Train.Gameplay",
+    "Train.Buffs.Core",
     "Train.Inventory",
     "Train.Inventory.Core",
     "Train.Equipment",

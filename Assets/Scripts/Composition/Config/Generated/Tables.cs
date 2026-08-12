@@ -22,6 +22,10 @@ public partial class Tables
     /// </summary>
     public game.TbEquipment TbEquipment {get; }
     /// <summary>
+    /// 装备效果表
+    /// </summary>
+    public game.TbEquipmentEffect TbEquipmentEffect {get; }
+    /// <summary>
     /// 敌人原型表
     /// </summary>
     public game.TbEnemyArchetype TbEnemyArchetype {get; }
@@ -42,6 +46,7 @@ public partial class Tables
     {
         TbItem = new game.TbItem(loader("game_tbitem"));
         TbEquipment = new game.TbEquipment(loader("game_tbequipment"));
+        TbEquipmentEffect = new game.TbEquipmentEffect(loader("game_tbequipmenteffect"));
         TbEnemyArchetype = new game.TbEnemyArchetype(loader("game_tbenemyarchetype"));
         TbLevel = new game.TbLevel(loader("game_tblevel"));
         TbLevelSpawn = new game.TbLevelSpawn(loader("game_tblevelspawn"));
@@ -53,6 +58,7 @@ public partial class Tables
     {
         TbItem.ResolveRef(this);
         TbEquipment.ResolveRef(this);
+        TbEquipmentEffect.ResolveRef(this);
         TbEnemyArchetype.ResolveRef(this);
         TbLevel.ResolveRef(this);
         TbLevelSpawn.ResolveRef(this);

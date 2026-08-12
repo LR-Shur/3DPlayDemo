@@ -41,5 +41,29 @@ namespace Train.Gameplay.Combat
             _faction = faction;
             _swordHitbox?.ConfigureFaction(faction);
         }
+
+        /// <summary>
+        /// 绑定装备系统解析出的武器元素和命中 Buff。
+        /// </summary>
+        public void ConfigureEquippedWeapon(
+            DamageType damageType,
+            string buffId,
+            float duration,
+            float magnitude,
+            int stackAmount,
+            int maxStacks,
+            float cooldown,
+            string sourceId)
+        {
+            _swordHitbox?.ConfigureDamageType(damageType);
+            _swordHitbox?.ConfigureElementalEffect(
+                buffId,
+                duration,
+                magnitude,
+                stackAmount,
+                maxStacks,
+                cooldown,
+                sourceId);
+        }
     }
 }

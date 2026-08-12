@@ -18,6 +18,7 @@ namespace Train.Composition.Config
         {
             "game_tbitem",
             "game_tbequipment",
+            "game_tbequipmenteffect",
             "game_tbenemyarchetype",
             "game_tblevel",
             "game_tblevelspawn",

@@ -120,12 +120,12 @@ namespace Train.Buffs.Core
                     nameof(info));
             }
 
-            if (info.Magnitude < 0f)
+            if (info.Magnitude < -1f)
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(info),
                     info.Magnitude,
-                    "元素 Buff 强度不能小于零。");
+                    "元素 Buff 强度不能小于 -1。");
             }
         }
 
