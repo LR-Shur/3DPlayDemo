@@ -136,6 +136,12 @@ namespace Train.EditorTools.Architecture
             AssetDatabase.SaveAssets();
         }
 
+        private static bool UsesRelativeAddress(string collectPath)
+        {
+            return collectPath == "Assets/Data" ||
+                   collectPath == "Assets/Arts/Characters";
+        }
+
         private static void EnsureFolder(string path)
         {
             if (AssetDatabase.IsValidFolder(path))
@@ -170,11 +176,6 @@ namespace YooAsset.Editor
                 .Replace('/', '_');
         }
 
-        private static bool UsesRelativeAddress(string collectPath)
-        {
-            return collectPath == "Assets/Data" ||
-                   collectPath == "Assets/Arts/Characters";
-        }
     }
 }
 #endif
