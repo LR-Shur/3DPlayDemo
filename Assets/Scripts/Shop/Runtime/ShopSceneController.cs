@@ -20,9 +20,9 @@ namespace Train.Shop.Runtime
     public sealed class ShopSceneController : MonoBehaviour
     {
         private const string PlayerLocation =
-            AssetLocations.PlayerPrefab;
+            AssetAddresses.PlayerPrefab;
         private const string CameraLocation =
-            AssetLocations.PlayerCameraPrefab;
+            AssetAddresses.PlayerCameraPrefab;
 
         private IInstanceLease _playerLease;
         private IInstanceLease _cameraLease;

@@ -37,7 +37,8 @@ namespace Train.Equipment.Data
         /// <summary>创建由 Luban 装备表驱动的运行时配置，默认不穿戴任何装备。</summary>
         public static EquipmentSettings CreateRuntime(
             IReadOnlyList<EquipmentBaseStatDefinition> baseStats,
-            IReadOnlyList<EquipmentItemDefinition> items)
+            IReadOnlyList<EquipmentItemDefinition> items,
+            IReadOnlyList<EquipmentSetDefinition> sets = null)
         {
             var settings = CreateInstance<EquipmentSettings>();
             settings.name = "LubanEquipmentSettings";
@@ -47,7 +48,9 @@ namespace Train.Equipment.Data
             settings._items = items != null
                 ? new List<EquipmentItemDefinition>(items)
                 : new List<EquipmentItemDefinition>();
-            settings._sets = new List<EquipmentSetDefinition>();
+            settings._sets = sets != null
+                ? new List<EquipmentSetDefinition>(sets)
+                : new List<EquipmentSetDefinition>();
             settings._startingEquipment = new List<StartingEquipmentDefinition>();
             return settings;
         }

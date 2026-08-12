@@ -35,7 +35,7 @@ namespace Train.Composition.Progression
     public sealed class ProgressionRuntimeController : MonoBehaviour
     {
         private const string PickupLocation =
-            "Assets/Prefabs/World/WorldItemPickup.prefab";
+            AssetAddresses.WorldItemPickupPrefab;
 
         private readonly List<IInstanceLease> _lootLeases = new();
         private readonly HashSet<string> _rewardedLevels = new(
@@ -329,7 +329,29 @@ namespace Train.Composition.Progression
 
             ClearLootLeases();
             _overlay?.HideAllPanels();
-            SceneManager.LoadSceneAsync(node.ScenePath, LoadSceneMode.Single);
+            LoadSceneByAddressAsync(node.ScenePath);
+        }
+
+        /// <summary>通过统一资源服务按 YooAsset 地址加载下一关，流程层不直接调用 SceneManager。</summary>
+        private async void LoadSceneByAddressAsync(string address)
+        {
+            try
+            {
+                if (_assets == null)
+                {
+                    throw new InvalidOperationException("关卡切换需要已初始化的 YooAsset 服务。");
+                }
+
+                await _assets.LoadSceneAsync(address, LoadSceneMode.Single, true, _lifetime.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // 场景切换或退出 PlayMode 时正常取消。
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception, this);
+            }
         }
 
         private void ClearLootLeases()

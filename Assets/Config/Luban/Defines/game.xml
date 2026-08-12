@@ -41,6 +41,21 @@
         <var name="ON_MARK_REACHED" alias="标记满层" value="5"/>
     </enum>
 
+    <enum name="EStatType" comment="装备和套装修改的属性">
+        <var name="MAX_HEALTH" alias="最大生命" value="0"/>
+        <var name="ATTACK" alias="攻击" value="1"/>
+        <var name="DEFENSE" alias="防御" value="2"/>
+        <var name="CRIT_RATE" alias="暴击率" value="3"/>
+        <var name="CRIT_DAMAGE" alias="暴击伤害" value="4"/>
+        <var name="ELECTRIC_DAMAGE_BONUS" alias="雷属性伤害" value="5"/>
+    </enum>
+
+    <enum name="EStatModifierOperation" comment="属性词条运算方式">
+        <var name="FLAT" alias="固定值" value="0"/>
+        <var name="ADDITIVE_PERCENT" alias="加算百分比" value="1"/>
+        <var name="MULTIPLICATIVE_PERCENT" alias="乘算百分比" value="2"/>
+    </enum>
+
     <bean name="Item" comment="背包物品基础配置">
         <var name="id" type="string" comment="稳定物品 ID"/>
         <var name="name" type="string" comment="显示名称"/>
@@ -79,6 +94,29 @@
         <var name="icon" type="string"/>
     </bean>
     <table name="TbEquipment" value="Equipment" input="equipment.csv" comment="装备表"/>
+
+    <bean name="EquipmentSet" comment="装备套装基础信息">
+        <var name="id" type="string"/>
+        <var name="name" type="string"/>
+    </bean>
+    <table name="TbEquipmentSet" value="EquipmentSet" input="equipment_sets.csv" comment="装备套装表"/>
+
+    <bean name="EquipmentSetMember" comment="装备与套装关系">
+        <var name="id" type="string"/>
+        <var name="equipment_id" type="string"/>
+        <var name="set_id" type="string"/>
+    </bean>
+    <table name="TbEquipmentSetMember" value="EquipmentSetMember" input="equipment_set_members.csv" comment="装备套装关系表"/>
+
+    <bean name="EquipmentSetBonus" comment="套装件数奖励词条；一行对应一个属性词条">
+        <var name="id" type="string"/>
+        <var name="set_id" type="string"/>
+        <var name="required_piece_count" type="int"/>
+        <var name="stat_type" type="EStatType"/>
+        <var name="operation" type="EStatModifierOperation"/>
+        <var name="value" type="float"/>
+    </bean>
+    <table name="TbEquipmentSetBonus" value="EquipmentSetBonus" input="equipment_set_bonuses.csv" comment="套装奖励词条表"/>
 
     <bean name="EquipmentEffect" comment="装备元素与 Buff 效果">
         <var name="id" type="string"/>

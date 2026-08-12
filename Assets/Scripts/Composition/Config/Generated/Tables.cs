@@ -26,6 +26,18 @@ public partial class Tables
     /// </summary>
     public game.TbEquipment TbEquipment {get; }
     /// <summary>
+    /// 装备套装表
+    /// </summary>
+    public game.TbEquipmentSet TbEquipmentSet {get; }
+    /// <summary>
+    /// 装备套装关系表
+    /// </summary>
+    public game.TbEquipmentSetMember TbEquipmentSetMember {get; }
+    /// <summary>
+    /// 套装奖励词条表
+    /// </summary>
+    public game.TbEquipmentSetBonus TbEquipmentSetBonus {get; }
+    /// <summary>
     /// 装备效果表
     /// </summary>
     public game.TbEquipmentEffect TbEquipmentEffect {get; }
@@ -39,6 +51,9 @@ public partial class Tables
         TbItem = new game.TbItem(loader("game_tbitem"));
         TbActiveItem = new game.TbActiveItem(loader("game_tbactiveitem"));
         TbEquipment = new game.TbEquipment(loader("game_tbequipment"));
+        TbEquipmentSet = new game.TbEquipmentSet(loader("game_tbequipmentset"));
+        TbEquipmentSetMember = new game.TbEquipmentSetMember(loader("game_tbequipmentsetmember"));
+        TbEquipmentSetBonus = new game.TbEquipmentSetBonus(loader("game_tbequipmentsetbonus"));
         TbEquipmentEffect = new game.TbEquipmentEffect(loader("game_tbequipmenteffect"));
         TbEnemyArchetype = new game.TbEnemyArchetype(loader("game_tbenemyarchetype"));
         ResolveRef();
@@ -49,6 +64,9 @@ public partial class Tables
         TbItem.ResolveRef(this);
         TbActiveItem.ResolveRef(this);
         TbEquipment.ResolveRef(this);
+        TbEquipmentSet.ResolveRef(this);
+        TbEquipmentSetMember.ResolveRef(this);
+        TbEquipmentSetBonus.ResolveRef(this);
         TbEquipmentEffect.ResolveRef(this);
         TbEnemyArchetype.ResolveRef(this);
     }

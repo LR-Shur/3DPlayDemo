@@ -1,0 +1,8 @@
+##var,id,set_id,required_piece_count,stat_type,operation,value
+##type,string,string,int,EStatType,EStatModifierOperation,float
+##,id,set_id,required_piece_count,stat_type,operation,value
+,storm_2,storm_protocol,2,ELECTRIC_DAMAGE_BONUS,FLAT,0.15
+,storm_4_attack,storm_protocol,4,ATTACK,ADDITIVE_PERCENT,0.2
+,guard_2_defense,street_guard,2,DEFENSE,ADDITIVE_PERCENT,0.2
+,guard_4_health,street_guard,4,MAX_HEALTH,ADDITIVE_PERCENT,0.15
+,guard_4_flat_defense,street_guard,4,DEFENSE,FLAT,25

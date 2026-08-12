@@ -14,32 +14,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: Train.GameFlow::Train.GameFlow.Data.LevelDefinition
   _levelId: combat_001
   _displayName: "\u7B2C 1 \u8BAD\u7EC3\u533A"
-  _sceneLocation: Assets/Scenes/Playable/MainScenes.unity
+  _sceneLocation: Playable_MainScenes
   _introSeconds: 1.2
   _maxPlayerDeaths: 3
   _enemySpawns:
   - _spawnId: enemy_01
     _archetypeId: kaykit_knight
-    _prefabLocation: Assets/Prefabs/Enemies/Enemy_KayKitKnight.prefab
+    _prefabLocation: Enemies_Enemy_KayKitKnight
     _position: {x: 14.869999, y: -1.5, z: 18.590038}
     _eulerAngles: {x: 0, y: 0, z: 0}
   - _spawnId: enemy_02
     _archetypeId: kaykit_knight
-    _prefabLocation: Assets/Prefabs/Enemies/Enemy_KayKitKnight.prefab
+    _prefabLocation: Enemies_Enemy_KayKitKnight
     _position: {x: -6.6900005, y: -1.5, z: 24.13004}
     _eulerAngles: {x: 0, y: 0, z: 0}
   - _spawnId: enemy_03
     _archetypeId: kaykit_knight
-    _prefabLocation: Assets/Prefabs/Enemies/Enemy_KayKitKnight.prefab
+    _prefabLocation: Enemies_Enemy_KayKitKnight
     _position: {x: -0.65999985, y: -1.5, z: 24.13004}
     _eulerAngles: {x: 0, y: 0, z: 0}
   - _spawnId: enemy_04
     _archetypeId: kaykit_knight
-    _prefabLocation: Assets/Prefabs/Enemies/Enemy_KayKitKnight.prefab
+    _prefabLocation: Enemies_Enemy_KayKitKnight
     _position: {x: 14.869999, y: -1.5, z: 13.26004}
     _eulerAngles: {x: 0, y: 0, z: 0}
   - _spawnId: enemy_05
     _archetypeId: kaykit_knight
-    _prefabLocation: Assets/Prefabs/Enemies/Enemy_KayKitKnight.prefab
+    _prefabLocation: Enemies_Enemy_KayKitKnight
     _position: {x: 14.869999, y: -1.5, z: 0.54003906}
     _eulerAngles: {x: 0, y: 0, z: 0}

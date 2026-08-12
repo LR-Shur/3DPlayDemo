@@ -15,6 +15,20 @@ namespace Train.Equipment.Data
         [SerializeField]
         private List<EquipmentStatModifierDefinition> _modifiers = new();
 
+        /// <summary>创建由 Luban 套装奖励表生成的运行时奖励档位。</summary>
+        public static EquipmentSetBonusDefinition CreateRuntime(
+            int requiredPieceCount,
+            IReadOnlyList<EquipmentStatModifierDefinition> modifiers)
+        {
+            return new EquipmentSetBonusDefinition
+            {
+                _requiredPieceCount = Mathf.Max(2, requiredPieceCount),
+                _modifiers = modifiers != null
+                    ? new List<EquipmentStatModifierDefinition>(modifiers)
+                    : new List<EquipmentStatModifierDefinition>()
+            };
+        }
+
         /// <summary>获取激活本档奖励需要的装备件数。</summary>
         public int RequiredPieceCount => _requiredPieceCount;
 

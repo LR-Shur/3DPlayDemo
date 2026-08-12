@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 208a0425e59383940a599390ee94d8a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Train.GameFlow::Train.GameFlow.Runtime.LevelSceneLauncher
-  _levelDefinitionLocation: Assets/Data/Levels/Level_Combat_001.asset
+  _levelDefinitionLocation: Levels_Level_Combat_001
 --- !u!4 &1572403989
 Transform:
   m_ObjectHideFlags: 0

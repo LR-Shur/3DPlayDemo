@@ -18,6 +18,22 @@ namespace Train.Equipment.Data
         [SerializeField]
         private List<EquipmentSetBonusDefinition> _bonuses = new();
 
+        /// <summary>创建由 Luban 套装表生成的运行时套装定义。</summary>
+        public static EquipmentSetDefinition CreateRuntime(
+            string setId,
+            string displayName,
+            IReadOnlyList<EquipmentSetBonusDefinition> bonuses)
+        {
+            var definition = CreateInstance<EquipmentSetDefinition>();
+            definition.name = $"LubanEquipmentSet_{setId}";
+            definition._setId = setId ?? string.Empty;
+            definition._displayName = displayName ?? string.Empty;
+            definition._bonuses = bonuses != null
+                ? new List<EquipmentSetBonusDefinition>(bonuses)
+                : new List<EquipmentSetBonusDefinition>();
+            return definition;
+        }
+
         /// <summary>获取套装稳定标识。</summary>
         public string SetId => _setId;
 

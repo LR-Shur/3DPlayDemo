@@ -91,6 +91,52 @@ namespace Train.Composition.Config
             }
 
             var items = new List<EquipmentItemDefinition>();
+            var setMembers = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var member in tables.TbEquipmentSetMember.DataList)
+            {
+                if (member != null && !string.IsNullOrWhiteSpace(member.EquipmentId))
+                {
+                    setMembers[member.EquipmentId] = member.SetId;
+                }
+            }
+
+            var sets = new List<EquipmentSetDefinition>();
+            foreach (var set in tables.TbEquipmentSet.DataList)
+            {
+                if (set == null || string.IsNullOrWhiteSpace(set.Id))
+                {
+                    continue;
+                }
+
+                var bonuses = new List<EquipmentSetBonusDefinition>();
+                var modifiersByPiece = new Dictionary<int, List<EquipmentStatModifierDefinition>>();
+                foreach (var bonus in tables.TbEquipmentSetBonus.DataList)
+                {
+                    if (bonus == null || !string.Equals(bonus.SetId, set.Id, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    if (!modifiersByPiece.TryGetValue(bonus.RequiredPieceCount, out var modifiers))
+                    {
+                        modifiers = new List<EquipmentStatModifierDefinition>();
+                        modifiersByPiece.Add(bonus.RequiredPieceCount, modifiers);
+                    }
+
+                    modifiers.Add(EquipmentStatModifierDefinition.CreateRuntime(
+                        ToStatType(bonus.StatType),
+                        ToStatOperation(bonus.Operation),
+                        bonus.Value));
+                }
+
+                foreach (var pair in modifiersByPiece)
+                {
+                    bonuses.Add(EquipmentSetBonusDefinition.CreateRuntime(pair.Key, pair.Value));
+                }
+
+                sets.Add(EquipmentSetDefinition.CreateRuntime(set.Id, set.Name, bonuses));
+            }
+
             var effectsByEquipment = new Dictionary<string, cfg.game.EquipmentEffect>(
                 StringComparer.Ordinal);
             foreach (var effect in tables.TbEquipmentEffect.DataList)
@@ -121,6 +167,7 @@ namespace Train.Composition.Config
                     ToEquipmentRarity(row.Quality),
                     ToEquipmentCategory(row.Slot),
                     modifiers,
+                    setMembers.TryGetValue(row.Id, out var setId) ? setId : string.Empty,
                     effect != null ? effect.Element.ToString() : "NONE",
                     effect != null ? effect.Trigger.ToString() : string.Empty,
                     effect != null ? effect.BuffId : string.Empty,
@@ -131,7 +178,31 @@ namespace Train.Composition.Config
                     effect != null ? effect.Cooldown : 0f));
             }
 
-            return EquipmentSettings.CreateRuntime(baseStats, items);
+            return EquipmentSettings.CreateRuntime(baseStats, items, sets);
+        }
+
+        private static StatType ToStatType(cfg.game.EStatType statType)
+        {
+            return statType switch
+            {
+                cfg.game.EStatType.ATTACK => StatType.Attack,
+                cfg.game.EStatType.DEFENSE => StatType.Defense,
+                cfg.game.EStatType.CRIT_RATE => StatType.CritRate,
+                cfg.game.EStatType.CRIT_DAMAGE => StatType.CritDamage,
+                cfg.game.EStatType.ELECTRIC_DAMAGE_BONUS => StatType.ElectricDamageBonus,
+                _ => StatType.MaxHealth
+            };
+        }
+
+        private static StatModifierOperation ToStatOperation(
+            cfg.game.EStatModifierOperation operation)
+        {
+            return operation switch
+            {
+                cfg.game.EStatModifierOperation.ADDITIVE_PERCENT => StatModifierOperation.AdditivePercent,
+                cfg.game.EStatModifierOperation.MULTIPLICATIVE_PERCENT => StatModifierOperation.MultiplicativePercent,
+                _ => StatModifierOperation.Flat
+            };
         }
 
         /// <summary>创建运行时 ScriptableObject 的资源租约，统一回收生成对象。</summary>

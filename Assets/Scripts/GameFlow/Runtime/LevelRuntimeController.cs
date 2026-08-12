@@ -47,9 +47,9 @@ namespace Train.GameFlow.Runtime
         [SerializeField] private Health _playerHealth;
         [SerializeField] private Transform _playerSpawnPoint;
         [SerializeField] private string _playerPrefabLocation =
-            AssetLocations.PlayerPrefab;
+            AssetAddresses.PlayerPrefab;
         [SerializeField] private string _cameraPrefabLocation =
-            AssetLocations.PlayerCameraPrefab;
+            AssetAddresses.PlayerCameraPrefab;
         [SerializeField] private bool _autoStart;
 
         [Header("Runtime diagnostics")]
@@ -466,7 +466,7 @@ namespace Train.GameFlow.Runtime
 
             await assets.InitializeAsync(cancellationToken);
             _ownedDefinitionLease = await assets.LoadAsync<LevelDefinition>(
-                AssetLocations.CombatArenaDefinition,
+                AssetAddresses.CombatArenaDefinition,
                 cancellationToken);
             _definition = _ownedDefinitionLease.Asset;
         }
@@ -545,7 +545,7 @@ namespace Train.GameFlow.Runtime
                 _playerCombat == null)
             {
                 var location = string.IsNullOrWhiteSpace(_playerPrefabLocation)
-                    ? AssetLocations.PlayerPrefab
+                    ? AssetAddresses.PlayerPrefab
                     : _playerPrefabLocation;
                 _playerLease = await assets.InstantiateAsync(
                     location,
@@ -589,7 +589,7 @@ namespace Train.GameFlow.Runtime
             if (virtualCamera == null)
             {
                 var location = string.IsNullOrWhiteSpace(_cameraPrefabLocation)
-                    ? AssetLocations.PlayerCameraPrefab
+                    ? AssetAddresses.PlayerCameraPrefab
                     : _cameraPrefabLocation;
                 _cameraLease = await assets.InstantiateAsync(
                     location,

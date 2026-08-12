@@ -15,16 +15,16 @@ MonoBehaviour:
   _nodes:
   - _levelId: level.combat.001
     _displayName: "第 1 训练区 · 霓虹外环"
-    _scenePath: Assets/Scenes/Playable/Level_Combat_001.unity
+    _scenePath: Playable_Level_Combat_001
     _isBoss: 0
     _clearBonus: 180
   - _levelId: level.combat.002
     _displayName: "第 2 战区 · 断电回廊"
-    _scenePath: Assets/Scenes/Playable/Level_Combat_002.unity
+    _scenePath: Playable_Level_Combat_002
     _isBoss: 0
     _clearBonus: 300
   - _levelId: level.boss.001
     _displayName: "核心熔炉 · Rusk 原型机"
-    _scenePath: Assets/Scenes/Playable/Level_Boss_001.unity
+    _scenePath: Playable_Level_Boss_001
     _isBoss: 1
     _clearBonus: 800

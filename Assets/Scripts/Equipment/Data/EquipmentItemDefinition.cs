@@ -153,6 +153,7 @@ namespace Train.Equipment.Data
             EquipmentRarity rarity,
             EquipmentItemCategory category,
             IReadOnlyList<EquipmentStatModifierDefinition> modifiers,
+            string setId = "",
             string elementId = "NONE",
             string effectTriggerId = "",
             string onHitBuffId = "",
@@ -169,7 +170,7 @@ namespace Train.Equipment.Data
             definition._description = $"由 Luban 配置的 {displayName}。";
             definition._rarity = rarity;
             definition._category = category;
-            definition._setId = string.Empty;
+            definition._setId = setId ?? string.Empty;
             definition._elementId = elementId ?? "NONE";
             definition._effectTriggerId = effectTriggerId ?? string.Empty;
             definition._onHitBuffId = onHitBuffId ?? string.Empty;

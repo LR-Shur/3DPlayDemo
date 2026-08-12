@@ -17,7 +17,6 @@ namespace Train.EditorTools.Equipment
     {
         private const string RootFolder = "Assets/Data/Equipment";
         private const string ItemFolder = RootFolder + "/Items";
-        private const string SetFolder = RootFolder + "/Sets";
         private const string SettingsPath =
             RootFolder + "/DefaultEquipmentSettings.asset";
         private const string IconFolder =
@@ -31,62 +30,6 @@ namespace Train.EditorTools.Equipment
         {
             EnsureFolder(RootFolder);
             EnsureFolder(ItemFolder);
-            EnsureFolder(SetFolder);
-
-            var stormSet = CreateOrUpdateSet(
-                new SetSeed(
-                    "storm_protocol",
-                    "风暴协议",
-                    new[]
-                    {
-                        new SetBonusSeed(
-                            2,
-                            new[]
-                            {
-                                Modifier(
-                                    StatType.ElectricDamageBonus,
-                                    StatModifierOperation.Flat,
-                                    0.15f)
-                            }),
-                        new SetBonusSeed(
-                            4,
-                            new[]
-                            {
-                                Modifier(
-                                    StatType.Attack,
-                                    StatModifierOperation.AdditivePercent,
-                                    0.2f)
-                            })
-                    }));
-            var streetSet = CreateOrUpdateSet(
-                new SetSeed(
-                    "street_guard",
-                    "街区守卫",
-                    new[]
-                    {
-                        new SetBonusSeed(
-                            2,
-                            new[]
-                            {
-                                Modifier(
-                                    StatType.Defense,
-                                    StatModifierOperation.AdditivePercent,
-                                    0.2f)
-                            }),
-                        new SetBonusSeed(
-                            4,
-                            new[]
-                            {
-                                Modifier(
-                                    StatType.MaxHealth,
-                                    StatModifierOperation.AdditivePercent,
-                                    0.15f),
-                                Modifier(
-                                    StatType.Defense,
-                                    StatModifierOperation.Flat,
-                                    25f)
-                            })
-                    }));
 
             var seeds = CreateEquipmentSeeds();
             var items = new EquipmentItemDefinition[seeds.Length];
@@ -112,7 +55,7 @@ namespace Train.EditorTools.Equipment
             ConfigureSettings(
                 settings,
                 items,
-                new[] { stormSet, streetSet },
+                Array.Empty<EquipmentSetDefinition>(),
                 itemById);
             EditorUtility.SetDirty(settings);
             AssetDatabase.SaveAssets();
@@ -517,7 +460,9 @@ namespace Train.EditorTools.Equipment
                 (int)seed.Rarity - 1;
             serialized.FindProperty("_category").enumValueIndex =
                 (int)seed.Category;
-            serialized.FindProperty("_setId").stringValue = seed.SetId;
+            // 套装关系由 Luban 的 equipment_set_members.csv 管理，
+            // 静态 SO 不再写入第二份套装来源。
+            serialized.FindProperty("_setId").stringValue = string.Empty;
             serialized.FindProperty("_icon").objectReferenceValue =
                 LoadSprite(seed.IconFileName);
             WriteModifiers(
@@ -526,40 +471,6 @@ namespace Train.EditorTools.Equipment
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(item);
             return item;
-        }
-
-        private static EquipmentSetDefinition CreateOrUpdateSet(
-            SetSeed seed)
-        {
-            var path = $"{SetFolder}/{seed.SetId}.asset";
-            var set =
-                AssetDatabase.LoadAssetAtPath<EquipmentSetDefinition>(path);
-            if (set == null)
-            {
-                set =
-                    ScriptableObject.CreateInstance<EquipmentSetDefinition>();
-                AssetDatabase.CreateAsset(set, path);
-            }
-
-            var serialized = new SerializedObject(set);
-            serialized.FindProperty("_setId").stringValue = seed.SetId;
-            serialized.FindProperty("_displayName").stringValue =
-                seed.DisplayName;
-            var bonuses = serialized.FindProperty("_bonuses");
-            bonuses.arraySize = seed.Bonuses.Count;
-            for (var i = 0; i < seed.Bonuses.Count; i++)
-            {
-                var target = bonuses.GetArrayElementAtIndex(i);
-                target.FindPropertyRelative("_requiredPieceCount").intValue =
-                    seed.Bonuses[i].RequiredPieceCount;
-                WriteModifiers(
-                    target.FindPropertyRelative("_modifiers"),
-                    seed.Bonuses[i].Modifiers);
-            }
-
-            serialized.ApplyModifiedPropertiesWithoutUndo();
-            EditorUtility.SetDirty(set);
-            return set;
         }
 
         private static void WriteModifiers(
@@ -692,49 +603,6 @@ namespace Train.EditorTools.Equipment
             public string IconFileName { get; }
 
             /// <summary>获取属性词条。</summary>
-            public IReadOnlyList<ModifierSeed> Modifiers { get; }
-        }
-
-        /// <summary>保存构建一套套装资产所需的确定性内容。</summary>
-        private readonly struct SetSeed
-        {
-            /// <summary>创建一套套装内容记录。</summary>
-            public SetSeed(
-                string setId,
-                string displayName,
-                IReadOnlyList<SetBonusSeed> bonuses)
-            {
-                SetId = setId;
-                DisplayName = displayName;
-                Bonuses = bonuses;
-            }
-
-            /// <summary>获取套装稳定标识。</summary>
-            public string SetId { get; }
-
-            /// <summary>获取套装显示名称。</summary>
-            public string DisplayName { get; }
-
-            /// <summary>获取套装奖励档位。</summary>
-            public IReadOnlyList<SetBonusSeed> Bonuses { get; }
-        }
-
-        /// <summary>保存一档套装件数奖励。</summary>
-        private readonly struct SetBonusSeed
-        {
-            /// <summary>创建一档套装件数奖励。</summary>
-            public SetBonusSeed(
-                int requiredPieceCount,
-                IReadOnlyList<ModifierSeed> modifiers)
-            {
-                RequiredPieceCount = requiredPieceCount;
-                Modifiers = modifiers;
-            }
-
-            /// <summary>获取激活奖励需要的件数。</summary>
-            public int RequiredPieceCount { get; }
-
-            /// <summary>获取奖励词条。</summary>
             public IReadOnlyList<ModifierSeed> Modifiers { get; }
         }
 

@@ -19,7 +19,7 @@ namespace Train.GameFlow.Runtime
     public sealed class LevelSceneLauncher : MonoBehaviour
     {
         [SerializeField] private string _levelDefinitionLocation =
-            AssetLocations.CombatArenaDefinition;
+            AssetAddresses.CombatArenaDefinition;
 
         private static LevelSceneLauncher _instance;
         private CancellationTokenSource _lifetime;
@@ -84,7 +84,7 @@ namespace Train.GameFlow.Runtime
             }
 
             var location = string.IsNullOrWhiteSpace(_levelDefinitionLocation)
-                ? AssetLocations.CombatArenaDefinition
+                ? AssetAddresses.CombatArenaDefinition
                 : _levelDefinitionLocation;
             await LoadLevelAsync(location, cancellationToken);
         }

@@ -33,7 +33,7 @@ MonoBehaviour:
       - CollectPath: Assets/Prefabs
         CollectorGUID: bff24b5b1ce829547a48371df4aeb02b
         CollectorType: 0
-        AddressRuleName: AddressDisable
+        AddressRuleName: AddressByFolderAndFileName
         PackRuleName: PackDirectory
         FilterRuleName: CollectAll
         AssetTags: 
@@ -46,7 +46,7 @@ MonoBehaviour:
       - CollectPath: Assets/Data
         CollectorGUID: 756c6627143229e4db4a8844a009c530
         CollectorType: 0
-        AddressRuleName: AddressDisable
+        AddressRuleName: AddressByFolderAndFileName
         PackRuleName: PackDirectory
         FilterRuleName: CollectAll
         AssetTags: 
@@ -59,7 +59,7 @@ MonoBehaviour:
       - CollectPath: Assets/Scenes/Playable
         CollectorGUID: f0623607030dd044887f258d35dbdc2b
         CollectorType: 0
-        AddressRuleName: AddressDisable
+        AddressRuleName: AddressByFolderAndFileName
         PackRuleName: PackDirectory
         FilterRuleName: CollectAll
         AssetTags: 

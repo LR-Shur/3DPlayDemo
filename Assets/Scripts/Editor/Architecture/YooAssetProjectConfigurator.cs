@@ -87,7 +87,7 @@ namespace Train.EditorTools.Architecture
                     CollectPath = collectPath,
                     CollectorGUID = AssetDatabase.AssetPathToGUID(collectPath),
                     CollectorType = ECollectorType.MainAssetCollector,
-                    AddressRuleName = nameof(AddressDisable),
+                    AddressRuleName = nameof(AddressByFolderAndFileName),
                     PackRuleName = nameof(PackDirectory),
                     FilterRuleName = nameof(CollectAll)
                 };
@@ -117,7 +117,11 @@ namespace Train.EditorTools.Architecture
                 .Select(collector => collector.CollectPath)
                 .OrderBy(path => path)
                 .ToArray();
-            return currentPaths.SequenceEqual(
+            var addressRulesAreCurrent = package.Groups
+                .SelectMany(group => group.Collectors)
+                .All(collector => collector.AddressRuleName ==
+                    nameof(AddressByFolderAndFileName));
+            return addressRulesAreCurrent && currentPaths.SequenceEqual(
                 desiredPaths.OrderBy(path => path));
         }
 

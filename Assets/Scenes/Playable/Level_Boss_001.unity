@@ -1062,8 +1062,8 @@ MonoBehaviour:
   _playerCombat: {fileID: 1205814533425356386}
   _playerHealth: {fileID: 1205814533425356385}
   _playerSpawnPoint: {fileID: 0}
-  _playerPrefabLocation: Assets/Prefabs/Player/Player_Ellen.prefab
-  _cameraPrefabLocation: Assets/Prefabs/CM_PlayerCamera.prefab
+  _playerPrefabLocation: Player_Player_Ellen
+  _cameraPrefabLocation: Prefabs_CM_PlayerCamera
   _autoStart: 1
   _currentPhaseName: 
   _defeatedEnemyCount: 0

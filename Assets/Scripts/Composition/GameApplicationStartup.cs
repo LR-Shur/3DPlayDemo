@@ -256,7 +256,7 @@ namespace Train.Composition
             {
                 settingsLease =
                     await assets.LoadAsync<EquipmentSettings>(
-                        AssetLocations.EquipmentSettings,
+                        AssetAddresses.EquipmentSettings,
                         cancellationToken);
                 if (game.Context.Services.TryResolve<ILubanConfigService>(
                         out var luban) &&
@@ -310,7 +310,7 @@ namespace Train.Composition
             try
             {
                 rootLease = await assets.InstantiateAsync(
-                    AssetLocations.GameUiRoot,
+                    AssetAddresses.GameUiRoot,
                     cancellationToken: cancellationToken);
                 var service = new UIService(
                     rootLease,
@@ -375,7 +375,7 @@ namespace Train.Composition
             {
                 settingsLease =
                     await assets.LoadAsync<QuestSettings>(
-                        AssetLocations.QuestSettings,
+                        AssetAddresses.QuestSettings,
                         cancellationToken);
                 var service = new QuestService(
                     settingsLease.Asset,
@@ -417,7 +417,7 @@ namespace Train.Composition
             {
                 settingsLease =
                     await assets.LoadAsync<CharacterSettings>(
-                        AssetLocations.CharacterSettings,
+                        AssetAddresses.CharacterSettings,
                         cancellationToken);
                 var service = new CharacterRosterService(
                     settingsLease.Asset,
@@ -461,7 +461,7 @@ namespace Train.Composition
             {
                 settingsLease =
                     await assets.LoadAsync<DialogueSettings>(
-                        AssetLocations.DialogueSettings,
+                        AssetAddresses.DialogueSettings,
                         cancellationToken);
                 var service = new DialogueService(
                     settingsLease.Asset,
@@ -496,7 +496,7 @@ namespace Train.Composition
             {
                 settingsLease =
                     await assets.LoadAsync<InventorySettings>(
-                        AssetLocations.InventorySettings,
+                        AssetAddresses.InventorySettings,
                         cancellationToken);
                 if (game.Context.Services.TryResolve<ILubanConfigService>(
                         out var luban) &&

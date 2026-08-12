@@ -19,6 +19,9 @@ namespace Train.Composition.Config
             "game_tbitem",
             "game_tbactiveitem",
             "game_tbequipment",
+            "game_tbequipmentset",
+            "game_tbequipmentsetmember",
+            "game_tbequipmentsetbonus",
             "game_tbequipmenteffect",
             "game_tbenemyarchetype"
         };
