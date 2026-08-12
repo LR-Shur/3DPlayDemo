@@ -127,8 +127,12 @@ namespace Train.Composition
 
             if (!services.TryResolve<IProgressionService>(out _))
             {
+                var progressionSettings = Resources.Load<ProgressionSettings>(
+                    ProgressionSettings.ResourcesLocation);
                 services.Install<IProgressionService>(
-                    new ProgressionService(GameBootstrap.Instance.Context.Events));
+                    new ProgressionService(
+                        GameBootstrap.Instance.Context.Events,
+                        progressionSettings));
             }
 
             if (gameObject.GetComponent<ProgressionRuntimeController>() == null)

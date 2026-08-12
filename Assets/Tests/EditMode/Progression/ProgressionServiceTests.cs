@@ -10,6 +10,17 @@ namespace Train.Tests.EditMode.Progression
     public sealed class ProgressionServiceTests
     {
         [Test]
+        public void DefaultSettings_ProvidesOrderedRunNodes()
+        {
+            var service = new ProgressionService(new EventBus());
+
+            Assert.That(service.Nodes.Count, Is.GreaterThanOrEqualTo(3));
+            Assert.That(service.Nodes[0].LevelId, Is.EqualTo("level.combat.001"));
+            Assert.That(service.Nodes[1].LevelId, Is.EqualTo("level.combat.002"));
+            Assert.That(service.Nodes[2].LevelId, Is.EqualTo("level.boss.001"));
+        }
+
+        [Test]
         public void CompleteLegacyLevelId_UnlocksNextNodeAndAddsClearBonus()
         {
             var service = new ProgressionService(new EventBus());

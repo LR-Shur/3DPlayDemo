@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c12f0d7e4a9b4f21a8e6c3d5b7f90124, type: 3}
+  m_Name: DefaultProgressionSettings
+  m_EditorClassIdentifier: Train.Composition::Train.Composition.Progression.ProgressionSettings
+  _nodes:
+  - _levelId: level.combat.001
+    _displayName: "第 1 训练区 · 霓虹外环"
+    _scenePath: Assets/Scenes/Playable/Level_Combat_001.unity
+    _isBoss: 0
+    _clearBonus: 180
+  - _levelId: level.combat.002
+    _displayName: "第 2 战区 · 断电回廊"
+    _scenePath: Assets/Scenes/Playable/Level_Combat_002.unity
+    _isBoss: 0
+    _clearBonus: 300
+  - _levelId: level.boss.001
+    _displayName: "核心熔炉 · Rusk 原型机"
+    _scenePath: Assets/Scenes/Playable/Level_Boss_001.unity
+    _isBoss: 1
+    _clearBonus: 800

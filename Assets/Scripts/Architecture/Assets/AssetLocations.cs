@@ -65,5 +65,9 @@ namespace Train.Architecture.Assets
         /// <summary>独立商店场景的完整资源路径。</summary>
         public const string ShopScene =
             "Assets/Scenes/Shop/Shop.unity";
+
+        /// <summary>运行流程顺序 ScriptableObject 的资源路径。</summary>
+        public const string ProgressionSettings =
+            "Assets/Resources/Progression/DefaultProgressionSettings.asset";
     }
 }
