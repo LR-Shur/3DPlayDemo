@@ -9,6 +9,7 @@ using Train.Equipment.Data;
 using Train.Equipment.Events;
 using Train.Inventory.Application;
 using Train.Inventory.Events;
+using Train.Inventory.Data;
 using Train.Presentation.UI.Contracts;
 using Train.Presentation.UI.ViewModels;
 
@@ -26,6 +27,8 @@ namespace Train.Presentation.UI.Presenters
         private readonly Action _closeRequested;
         private readonly List<IDisposable> _subscriptions = new();
         private readonly List<EquipmentItemDefinition> _visibleItems = new();
+        private readonly IEventBus _events;
+        private readonly string[] _activeItemIds = new string[4];
 
         private string _selectedItemId;
         private EquipmentSlot _selectedSlot = EquipmentSlot.Weapon;
@@ -46,6 +49,7 @@ namespace Train.Presentation.UI.Presenters
             _inventory = inventory ??
                 throw new ArgumentNullException(nameof(inventory));
             _view = view ?? throw new ArgumentNullException(nameof(view));
+            _events = events;
             _closeRequested = closeRequested ??
                 throw new ArgumentNullException(nameof(closeRequested));
             if (events == null)
@@ -55,6 +59,7 @@ namespace Train.Presentation.UI.Presenters
 
             _view.ItemSelected += OnItemSelected;
             _view.SlotSelected += OnSlotSelected;
+            _view.ActiveItemSlotSelected += OnActiveItemSlotSelected;
             _view.EquipRequested += OnEquipRequested;
             _view.UnequipRequested += OnUnequipRequested;
             _view.CloseRequested += OnCloseRequested;
@@ -81,6 +86,7 @@ namespace Train.Presentation.UI.Presenters
 
             _view.ItemSelected -= OnItemSelected;
             _view.SlotSelected -= OnSlotSelected;
+            _view.ActiveItemSlotSelected -= OnActiveItemSlotSelected;
             _view.EquipRequested -= OnEquipRequested;
             _view.UnequipRequested -= OnUnequipRequested;
             _view.CloseRequested -= OnCloseRequested;
@@ -166,6 +172,41 @@ namespace Train.Presentation.UI.Presenters
                 _equipment.Equip(_selectedItemId, _selectedSlot);
                 Render();
             }
+        }
+
+        private void OnActiveItemSlotSelected(int slotIndex)
+        {
+            if (slotIndex < 0 || slotIndex >= _activeItemIds.Length)
+            {
+                return;
+            }
+
+            var candidates = new List<string>();
+            foreach (var slot in _inventory.Snapshot.Slots)
+            {
+                if (slot.IsEmpty ||
+                    !_inventory.TryGetDefinition(slot.ItemId, out var definition) ||
+                    definition.Category != ItemCategory.Consumable)
+                {
+                    continue;
+                }
+
+                if (!candidates.Contains(slot.ItemId))
+                {
+                    candidates.Add(slot.ItemId);
+                }
+            }
+
+            if (candidates.Count == 0)
+            {
+                return;
+            }
+
+            var current = Array.IndexOf(candidates.ToArray(), _activeItemIds[slotIndex]);
+            _activeItemIds[slotIndex] = candidates[(current + 1) % candidates.Count];
+            _events.Publish(new ActiveItemSlotAssignmentRequested(
+                slotIndex,
+                _activeItemIds[slotIndex]));
         }
 
         private void OnUnequipRequested()

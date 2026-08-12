@@ -9,6 +9,9 @@ namespace Train.Inventory.Application
     /// </summary>
     public interface IInventoryService
     {
+        /// <summary>获取全部物品定义，供商店和编辑器展示。</summary>
+        System.Collections.Generic.IReadOnlyList<ItemDefinition> Catalog { get; }
+
         /// <summary>获取当前背包的不可变快照。</summary>
         InventorySnapshot Snapshot { get; }
 

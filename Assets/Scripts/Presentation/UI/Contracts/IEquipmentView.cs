@@ -16,6 +16,9 @@ namespace Train.Presentation.UI.Contracts
         /// <summary>玩家选择一个装备槽位时触发。</summary>
         event Action<EquipmentSlot> SlotSelected;
 
+        /// <summary>点击主动道具槽位时请求绑定下一个可用消耗品。</summary>
+        event Action<int> ActiveItemSlotSelected;
+
         /// <summary>玩家点击装备按钮时触发。</summary>
         event Action EquipRequested;
 

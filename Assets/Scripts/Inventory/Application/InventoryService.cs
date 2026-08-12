@@ -56,6 +56,10 @@ namespace Train.Inventory.Application
             }
         }
 
+        /// <summary>获取当前运行时注册的完整物品目录。</summary>
+        public IReadOnlyList<ItemDefinition> Catalog =>
+            new List<ItemDefinition>(_definitions.Values);
+
         /// <inheritdoc />
         public bool TryAdd(string itemId, int quantity)
         {

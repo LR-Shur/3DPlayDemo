@@ -139,6 +139,8 @@ namespace Train.Tests.EditMode.UI
             /// <inheritdoc />
             public event Action<EquipmentSlot> SlotSelected;
 
+            public event Action<int> ActiveItemSlotSelected;
+
             /// <inheritdoc />
             public event Action EquipRequested;
 

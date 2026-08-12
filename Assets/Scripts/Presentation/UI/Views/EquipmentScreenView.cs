@@ -44,12 +44,15 @@ namespace Train.Presentation.UI.Views
         [SerializeField] private TMP_Text[] _statFinalValues = Array.Empty<TMP_Text>();
         private readonly TMP_Text[] _activeItemSlotLabels = new TMP_Text[4];
         private readonly TMP_Text[] _activeItemSlotQuantities = new TMP_Text[4];
+        private readonly Button[] _activeItemSlotButtons = new Button[4];
 
         /// <inheritdoc />
         public event Action<int> ItemSelected;
 
         /// <inheritdoc />
         public event Action<EquipmentSlot> SlotSelected;
+
+        public event Action<int> ActiveItemSlotSelected;
 
         /// <inheritdoc />
         public event Action EquipRequested;
@@ -156,7 +159,7 @@ namespace Train.Presentation.UI.Views
                 return;
             }
 
-            var parent = transform.Find("ActiveItemLoadout") as RectTransform;
+            var parent = transform.Find("Body/LoadoutPanel/SlotGrid") as RectTransform;
             if (parent == null)
             {
                 var parentObject = new GameObject(
@@ -181,9 +184,14 @@ namespace Train.Presentation.UI.Views
                 var slot = new GameObject(
                     $"ActiveItemSlot{index + 1}",
                     typeof(RectTransform),
-                    typeof(Image));
+                    typeof(Image),
+                    typeof(Button));
                 slot.transform.SetParent(parent, false);
                 slot.GetComponent<Image>().color = new Color32(18, 40, 60, 245);
+                _activeItemSlotButtons[index] = slot.GetComponent<Button>();
+                var captured = index;
+                _activeItemSlotButtons[index].onClick.AddListener(
+                    () => ActiveItemSlotSelected?.Invoke(captured));
                 var label = CreateActiveSlotText(slot.transform, "Label");
                 var quantity = CreateActiveSlotText(slot.transform, "Quantity");
                 quantity.alignment = TextAlignmentOptions.BottomRight;
@@ -253,6 +261,14 @@ namespace Train.Presentation.UI.Views
                 var captured = index;
                 _itemButtons[index]?.onClick.AddListener(
                     () => ItemSelected?.Invoke(captured));
+            }
+        }
+
+        private void OnDestroy()
+        {
+            for (var index = 0; index < _activeItemSlotButtons.Length; index++)
+            {
+                _activeItemSlotButtons[index]?.onClick.RemoveAllListeners();
             }
         }
 

@@ -36,7 +36,6 @@ namespace Train.Presentation.UI.Views
         [SerializeField] private Image _detailIcon;
         [SerializeField] private Button _discardButton;
         private TMP_Text _discardLabel;
-        private readonly Button[] _activeItemSlotButtons = new Button[4];
 
         /// <inheritdoc />
         public event Action<int> SlotSelected;
@@ -48,7 +47,6 @@ namespace Train.Presentation.UI.Views
         public event Action DiscardRequested;
 
         /// <summary>背包详情区域的主动道具槽按钮事件。</summary>
-        public event Action<int> ActiveItemSlotRequested;
 
         /// <inheritdoc />
         public event Action CloseRequested;
@@ -100,7 +98,6 @@ namespace Train.Presentation.UI.Views
             // 鏃у叾瀹氭湇浠剁殑 UI 鍦ㄦ暟鎹垵濮嬪寲鍚庢墠鑳芥壘鍒拌鎯呭瓧浣撱€傚湪 Configure 鍚庡啀纭繚涓㈠純鎸夐挳鍜屽瓧浣撳瓨鍦ㄣ€?
             EnsureDiscardButton();
             AttachDiscardListener();
-            EnsureActiveItemSlotButtons();
         }
 
         /// <summary>设置背包页面根节点的显示状态。</summary>
@@ -201,23 +198,12 @@ namespace Train.Presentation.UI.Views
 
             EnsureDiscardButton();
             AttachDiscardListener();
-            EnsureActiveItemSlotButtons();
         }
 
         private void OnDestroy()
         {
             _closeButton?.onClick.RemoveListener(HandleClose);
             _discardButton?.onClick.RemoveListener(HandleDiscard);
-            for (var index = 0; index < _activeItemSlotButtons.Length; index++)
-            {
-                var button = _activeItemSlotButtons[index];
-                if (button != null)
-                {
-                    var captured = index;
-                    button.onClick.RemoveListener(
-                        () => ActiveItemSlotRequested?.Invoke(captured));
-                }
-            }
         }
 
         private void HandleClose()
@@ -230,8 +216,11 @@ namespace Train.Presentation.UI.Views
             DiscardRequested?.Invoke();
         }
 
+        /* 主动道具通过装备页槽位配置，不在背包详情区创建额外按钮。 */
         private void EnsureActiveItemSlotButtons()
         {
+            return;
+            /*
             if (_detailName == null)
             {
                 return;
@@ -300,6 +289,7 @@ namespace Train.Presentation.UI.Views
                     () => ActiveItemSlotRequested?.Invoke(captured));
                 _activeItemSlotButtons[index] = button;
             }
+            */
         }
 
         /// <summary>纭繚涓㈠純鎸夐挳鍙湁涓€涓湁鏁堢殑鐐瑰嚮鐩戝惉銆?/summary>
@@ -377,7 +367,6 @@ namespace Train.Presentation.UI.Views
             if (detail == null || !detail.HasItem)
             {
                 SetDiscardState(false, false, false);
-                SetActiveItemSlotState(false);
             }
 
             if (detail == null || !detail.HasItem)
@@ -402,7 +391,6 @@ namespace Train.Presentation.UI.Views
             _detailRarity.color = RarityColor(detail.Rarity);
             _detailDescription.text = detail.Description;
             SetDiscardState(true, detail.CanDiscard, detail.IsEquipped);
-            SetActiveItemSlotState(detail.Category == ItemCategory.Consumable);
             _detailQuantity.text =
                 $"持有  {detail.Quantity}    堆叠上限  {detail.MaxStack}";
             if (_detailIcon != null)
@@ -412,13 +400,6 @@ namespace Train.Presentation.UI.Views
             }
         }
 
-        private void SetActiveItemSlotState(bool visible)
-        {
-            for (var index = 0; index < _activeItemSlotButtons.Length; index++)
-            {
-                _activeItemSlotButtons[index]?.gameObject.SetActive(visible);
-            }
-        }
 
         /// <summary>按稳定物品 ID 从 Resources 读取本地化图标。</summary>
         private void SetDiscardState(bool visible, bool interactable, bool equipped)

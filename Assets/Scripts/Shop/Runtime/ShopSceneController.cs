@@ -7,6 +7,8 @@ using Train.Composition;
 using Train.Gameplay.Camera;
 using Train.Gameplay.Player.Core;
 using Train.Gameplay.Player.Input;
+using Train.Composition.Progression;
+using Train.WorldInteraction.Runtime;
 using UnityEngine;
 
 namespace Train.Shop.Runtime
@@ -116,6 +118,8 @@ namespace Train.Shop.Runtime
                             "商店场景玩家初始化失败：主相机未绑定或玩家状态机依赖不完整。请检查 Player 和 CM_PlayerCamera。" );
                     }
                 }
+
+                CreateNextLevelPortal();
                 IsReady = true;
             }
             catch (OperationCanceledException)
@@ -126,6 +130,28 @@ namespace Train.Shop.Runtime
             {
                 Debug.LogException(exception, this);
             }
+        }
+
+        /// <summary>商店场景中的常驻传送门，目标由流程配置决定。</summary>
+        private void CreateNextLevelPortal()
+        {
+            var existing = GameObject.Find("ShopNextLevelPortal");
+            if (existing != null)
+            {
+                return;
+            }
+
+            var portal = new GameObject("ShopNextLevelPortal");
+            portal.transform.position = new Vector3(0f, 0f, 2.5f);
+            var collider = portal.AddComponent<SphereCollider>();
+            collider.isTrigger = true;
+            collider.radius = 1.2f;
+            var worldPortal = portal.AddComponent<WorldPortal>();
+            worldPortal.Configure(
+                "portal_to_next_level",
+                "关卡传送门",
+                "前往下一关",
+                () => FindFirstObjectByType<ProgressionRuntimeController>()?.EnterNextLevelFromPortal());
         }
 
         /// <summary>

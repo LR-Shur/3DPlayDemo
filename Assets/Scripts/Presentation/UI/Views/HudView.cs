@@ -39,10 +39,24 @@ namespace Train.Presentation.UI.Views
 
         private void Awake()
         {
+            EnsureActiveItemQuickBar();
             if (_healthValue != null)
             {
                 EnsureHealthValueVisible();
             }
+        }
+
+        /// <summary>确保战斗 HUD 始终有四个主动道具快捷槽。</summary>
+        private void EnsureActiveItemQuickBar()
+        {
+            if (GetComponentInChildren<ActiveItemQuickBarView>(true) != null)
+            {
+                return;
+            }
+
+            var quickBar = new GameObject("ActiveItemQuickBar", typeof(RectTransform));
+            quickBar.transform.SetParent(transform, false);
+            quickBar.AddComponent<ActiveItemQuickBarView>();
         }
 
         /// <summary>

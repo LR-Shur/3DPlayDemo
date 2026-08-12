@@ -51,7 +51,6 @@ namespace Train.Presentation.UI.Presenters
             _view.SlotSelected += OnSlotSelected;
             _view.CategorySelected += OnCategorySelected;
             _view.DiscardRequested += OnDiscardRequested;
-            _view.ActiveItemSlotRequested += OnActiveItemSlotRequested;
             _view.CloseRequested += OnCloseRequested;
             _inventoryChangedSubscription =
                 events.Subscribe<InventoryChangedEvent>(OnInventoryChanged);
@@ -87,7 +86,6 @@ namespace Train.Presentation.UI.Presenters
             _view.SlotSelected -= OnSlotSelected;
             _view.CategorySelected -= OnCategorySelected;
             _view.DiscardRequested -= OnDiscardRequested;
-            _view.ActiveItemSlotRequested -= OnActiveItemSlotRequested;
             _view.CloseRequested -= OnCloseRequested;
             _inventoryChangedSubscription.Dispose();
             _equipmentChangedSubscription.Dispose();
@@ -161,27 +159,6 @@ namespace Train.Presentation.UI.Presenters
             }
 
             _inventory.TryRemove(detail.ItemId, detail.Quantity);
-        }
-
-        private void OnActiveItemSlotRequested(int slotIndex)
-        {
-            if (_disposed || _selectedSlotIndex < 0)
-            {
-                return;
-            }
-
-            var detail = BuildSelectedDetail();
-            if (detail == null ||
-                !detail.HasItem ||
-                detail.Category != ItemCategory.Consumable)
-            {
-                return;
-            }
-
-            _events.Publish(
-                new ActiveItemSlotAssignmentRequested(
-                    slotIndex,
-                    detail.ItemId));
         }
 
         private void Render()
