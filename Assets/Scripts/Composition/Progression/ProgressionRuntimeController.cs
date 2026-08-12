@@ -52,6 +52,7 @@ namespace Train.Composition.Progression
         private IDisposable _sceneSubscription;
         private CancellationTokenSource _lifetime;
         private ProgressionOverlay _overlay;
+        private string _returnSceneLocation;
 
         private void Awake()
         {
@@ -97,7 +98,9 @@ namespace Train.Composition.Progression
                 _inventory,
                 _equipment,
                 inputMode,
-                LoadNextNode);
+                LoadNextNode,
+                OpenShopScene,
+                ReturnFromShop);
             _overlay.RenderWallet(_progression.Snapshot);
         }
 
@@ -157,6 +160,42 @@ namespace Train.Composition.Progression
             }
 
             _overlay?.RefreshBossBar();
+        }
+
+        /// <summary>由商店 NPC 的对话完成事件调用，打开常驻商店界面。</summary>
+        public void OpenShopFromNpc()
+        {
+            TryInitialize();
+            _overlay?.ShowShopFromNpc();
+        }
+
+        /// <summary>从结算面板进入独立商店场景，并记住返回的战斗场景。</summary>
+        private void OpenShopScene()
+        {
+            _returnSceneLocation = SceneManager.GetActiveScene().path;
+            _overlay?.HideAllPanels();
+            SceneManager.LoadSceneAsync(AssetLocations.ShopScene, LoadSceneMode.Single);
+        }
+
+        /// <summary>关闭商店后返回进入商店前的战斗场景。</summary>
+        private async void ReturnFromShop()
+        {
+            var location = string.IsNullOrWhiteSpace(_returnSceneLocation)
+                ? AssetLocations.CombatArenaScene
+                : _returnSceneLocation;
+            _overlay?.HideAllPanels();
+            var operation = SceneManager.LoadSceneAsync(location, LoadSceneMode.Single);
+            while (operation != null && !operation.isDone)
+            {
+                await Task.Yield();
+            }
+
+            var level = FindFirstObjectByType<LevelRuntimeController>();
+            if (level != null && level.IsWaitingForStart)
+            {
+                await level.PrepareAsync(_lifetime.Token);
+                level.StartLevel();
+            }
         }
 
         /// <summary>从当前关卡 SO 读取奖励；旧场景未配置时使用最小兜底奖励。</summary>
@@ -326,6 +365,8 @@ namespace Train.Composition.Progression
         private readonly IEquipmentService _equipment;
         private readonly IInputModeService _inputMode;
         private readonly Action<RunNode> _loadNext;
+        private readonly Action _openShopScene;
+        private readonly Action _returnFromShop;
         private readonly GameObject _root;
         private readonly GameObject _walletPlate;
         private readonly Image _walletIcon;
@@ -350,7 +391,9 @@ namespace Train.Composition.Progression
             IInventoryService inventory,
             IEquipmentService equipment,
             IInputModeService inputMode,
-            Action<RunNode> loadNext)
+            Action<RunNode> loadNext,
+            Action openShopScene,
+            Action returnFromShop)
         {
             _events = events;
             _progression = progression;
@@ -358,6 +401,8 @@ namespace Train.Composition.Progression
             _equipment = equipment;
             _inputMode = inputMode;
             _loadNext = loadNext;
+            _openShopScene = openShopScene;
+            _returnFromShop = returnFromShop;
 
             _root = new GameObject("[ProgressionOverlay]");
             UnityEngine.Object.DontDestroyOnLoad(_root);
@@ -449,7 +494,9 @@ namespace Train.Composition.Progression
             IInventoryService inventory,
             IEquipmentService equipment,
             IInputModeService inputMode,
-            Action<RunNode> loadNext)
+            Action<RunNode> loadNext,
+            Action openShopScene,
+            Action returnFromShop)
         {
             return new ProgressionOverlay(
                 events,
@@ -457,7 +504,9 @@ namespace Train.Composition.Progression
                 inventory,
                 equipment,
                 inputMode,
-                loadNext);
+                loadNext,
+                openShopScene,
+                returnFromShop);
         }
 
         public void RenderWallet(RunProgressSnapshot snapshot)
@@ -601,6 +650,12 @@ namespace Train.Composition.Progression
 
         private void ShowShop()
         {
+            _openShopScene?.Invoke();
+        }
+
+        /// <summary>商店场景 NPC 对话完成后打开商店内容面板。</summary>
+        public void ShowShopFromNpc()
+        {
             AcquireModal();
             _completion.SetActive(false);
             _shop.SetActive(true);
@@ -679,8 +734,7 @@ namespace Train.Composition.Progression
 
         private void HideShop()
         {
-            _shop.SetActive(false);
-            _completion.SetActive(true);
+            _returnFromShop?.Invoke();
         }
 
         private void LoadNext()

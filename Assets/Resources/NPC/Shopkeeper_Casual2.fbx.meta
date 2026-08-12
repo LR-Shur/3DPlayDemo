@@ -1,0 +1,42 @@
+fileFormatVersion: 2
+guid: a73f2a4d8b0c4f2d9b6e3a1f5c8d7e20
+ModelImporter:
+  serializedVersion: 24300
+  externalObjects: {}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName:
+    rigImportErrors: []
+    rigImportWarnings: []
+    animationImportErrors: []
+    animationImportWarnings: []
+    animationRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationWrapMode: 0
+    isReadable: 0
+  meshes:
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+  humanoid:
+    serializedVersion: 3
+    avatarSetup: 0
+  animationType: 2
+  humanoidOversampling: 1
+  importAnimation: 1
+  generateAnimations: 1

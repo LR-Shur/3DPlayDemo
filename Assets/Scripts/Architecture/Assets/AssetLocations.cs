@@ -61,5 +61,9 @@ namespace Train.Architecture.Assets
         /// <summary>对话系统设置的完整资源路径。</summary>
         public const string DialogueSettings =
             "Assets/Data/Dialogue/DefaultDialogueSettings.asset";
+
+        /// <summary>独立商店场景的完整资源路径。</summary>
+        public const string ShopScene =
+            "Assets/Scenes/Shop/Shop.unity";
     }
 }
