@@ -119,7 +119,7 @@ namespace Train.Shop.Runtime
                     }
                 }
 
-                CreateNextLevelPortal();
+                ConfigureNextLevelPortal();
                 IsReady = true;
             }
             catch (OperationCanceledException)
@@ -133,25 +133,22 @@ namespace Train.Shop.Runtime
         }
 
         /// <summary>商店场景中的常驻传送门，目标由流程配置决定。</summary>
-        private void CreateNextLevelPortal()
+        private void ConfigureNextLevelPortal()
         {
             var existing = GameObject.Find("ShopNextLevelPortal");
             if (existing != null)
             {
+                var worldPortal = existing.GetComponent<WorldPortal>();
+                worldPortal?.Configure(
+                    "portal_to_next_level",
+                    "关卡传送门",
+                    "前往下一关",
+                    () => FindFirstObjectByType<ProgressionRuntimeController>()?.EnterNextLevelFromPortal());
                 return;
             }
-
-            var portal = new GameObject("ShopNextLevelPortal");
-            portal.transform.position = new Vector3(0f, 0f, 2.5f);
-            var collider = portal.AddComponent<SphereCollider>();
-            collider.isTrigger = true;
-            collider.radius = 1.2f;
-            var worldPortal = portal.AddComponent<WorldPortal>();
-            worldPortal.Configure(
-                "portal_to_next_level",
-                "关卡传送门",
-                "前往下一关",
-                () => FindFirstObjectByType<ProgressionRuntimeController>()?.EnterNextLevelFromPortal());
+            Debug.LogError(
+                "Shop 场景缺少预置传送门 ShopNextLevelPortal。",
+                this);
         }
 
         /// <summary>

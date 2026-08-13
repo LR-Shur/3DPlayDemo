@@ -165,6 +165,11 @@ namespace Train.Composition
                 gameObject.AddComponent<ActiveItemRuntimeController>();
             }
 
+            if (gameObject.GetComponent<BuffBarRuntimeController>() == null)
+            {
+                gameObject.AddComponent<BuffBarRuntimeController>();
+            }
+
             if (_initializationTask != null)
             {
                 return;

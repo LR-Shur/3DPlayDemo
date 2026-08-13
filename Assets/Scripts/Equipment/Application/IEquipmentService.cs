@@ -21,6 +21,11 @@ namespace Train.Equipment.Application
             string itemId,
             out EquipmentItemDefinition definition);
 
+        /// <summary>按稳定标识查询套装配置。</summary>
+        bool TryGetSetDefinition(
+            string setId,
+            out EquipmentSetDefinition definition);
+
         /// <summary>
         /// 尝试把指定装备穿戴到目标槽位。
         /// 未登记物品、不兼容槽位或无实际变化时返回 false。

@@ -155,6 +155,25 @@ namespace Train.Buffs.Core
             return result;
         }
 
+        public DamageContext ModifyOutgoingDamage(DamageContext context)
+        {
+            if (_buffs.Count == 0)
+            {
+                return context;
+            }
+
+            var result = context;
+            foreach (var buff in _buffs.Values)
+            {
+                if (buff is IOutgoingDamageModifier modifier)
+                {
+                    result = modifier.ModifyOutgoingDamage(result);
+                }
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// 主动移除指定 Buff、指定来源的实例。
         /// </summary>

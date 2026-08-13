@@ -51,24 +51,15 @@ namespace Train.Composition
             }
         }
 
-        /// <summary>
-        /// 兼容 SO 中的两种第一关 ID：combat_001 与 level.combat.001。
-        /// 关卡刷怪已经回到 SO，启动事件不应因为命名格式差异而漏掉目标。
-        /// </summary>
+        /// <summary>判断当前场景是否为新版训练关卡。</summary>
         private static bool IsTrainingLevel(
             Train.GameFlow.Data.LevelDefinition definition)
         {
-            if (definition == null || string.IsNullOrWhiteSpace(definition.LevelId))
-            {
-                return false;
-            }
-
-            var normalized = definition.LevelId
-                .Trim()
-                .ToLowerInvariant()
-                .Replace("level.", string.Empty)
-                .Replace('.', '_');
-            return string.Equals(normalized, "combat_001", StringComparison.Ordinal);
+            return definition != null &&
+                   string.Equals(
+                       definition.LevelId,
+                       "level.combat.001",
+                       StringComparison.Ordinal);
         }
 
         private void OnDestroy()

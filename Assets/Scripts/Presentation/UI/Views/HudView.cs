@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using Train.GameFlow.Core;
 using Train.Inventory.Data;
@@ -9,8 +10,7 @@ using UnityEngine.UI;
 namespace Train.Presentation.UI.Views
 {
     /// <summary>
-    /// 将 HUD 视图模型渲染到生命条、关卡目标和中央提示横幅。
-    /// </summary>
+    /// 灏?HUD 瑙嗗浘妯″瀷娓叉煋鍒扮敓鍛芥潯銆佸叧鍗＄洰鏍囧拰涓ぎ鎻愮ず妯箙銆?    /// </summary>
     [DisallowMultipleComponent]
     public sealed class HudView : MonoBehaviour, IHudView
     {
@@ -34,34 +34,10 @@ namespace Train.Presentation.UI.Views
 
         private float _hideBannerAt = -1f;
         private float _hidePickupToastAt = -1f;
-        private bool _healthValueDetached;
-        private bool _configured;
 
-        private void Awake()
-        {
-            EnsureActiveItemQuickBar();
-            if (_healthValue != null)
-            {
-                EnsureHealthValueVisible();
-            }
-        }
-
-        /// <summary>确保战斗 HUD 始终有四个主动道具快捷槽。</summary>
-        private void EnsureActiveItemQuickBar()
-        {
-            if (GetComponentInChildren<ActiveItemQuickBarView>(true) != null)
-            {
-                return;
-            }
-
-            var quickBar = new GameObject("ActiveItemQuickBar", typeof(RectTransform));
-            quickBar.transform.SetParent(transform, false);
-            quickBar.AddComponent<ActiveItemQuickBarView>();
-        }
-
+        /// <summary>纭繚鎴樻枟 HUD 濮嬬粓鏈夊洓涓富鍔ㄩ亾鍏峰揩鎹锋Ы銆?/summary>
         /// <summary>
-        /// 配置 HUD 中需要写入的文字、图片和横幅引用。
-        /// </summary>
+        /// 閰嶇疆 HUD 涓渶瑕佸啓鍏ョ殑鏂囧瓧銆佸浘鐗囧拰妯箙寮曠敤銆?        /// </summary>
         public void Configure(
             TMP_Text levelName,
             TMP_Text phase,
@@ -98,8 +74,7 @@ namespace Train.Presentation.UI.Views
             _pickupToastAccent = pickupToastAccent;
             _pickupToastTitle = pickupToastTitle;
             _pickupToastSubtitle = pickupToastSubtitle;
-            _configured = true;
-            EnsureHealthValueVisible();
+            ConfigureHealthValue();
         }
 
         /// <inheritdoc />
@@ -117,11 +92,11 @@ namespace Train.Presentation.UI.Views
 
             _levelName.text = viewModel.HasLevel
                 ? viewModel.LevelName
-                : "训练区域";
+                : "未进入关卡";
             _phase.text = FormatPhase(viewModel.Phase);
             _objective.text = viewModel.HasLevel
                 ? viewModel.ObjectiveText
-                : "等待关卡数据";
+                : "等待任务";
             _healthFill.fillAmount = viewModel.Health01;
             _healthValue.text = viewModel.PlayerMaxHealth > 0f
                 ? $"HP {Mathf.Max(0f, viewModel.PlayerHealth):0.#} / " +
@@ -218,47 +193,21 @@ namespace Train.Presentation.UI.Views
         }
 
         /// <summary>
-        /// 强制生命数字处于可见状态，并固定在生命条下方，避免旧预制体布局把它裁掉。
-        /// </summary>
-        private void EnsureHealthValueVisible()
+        /// 寮哄埗鐢熷懡鏁板瓧澶勪簬鍙鐘舵€侊紝骞跺浐瀹氬湪鐢熷懡鏉′笅鏂癸紝閬垮厤鏃ч鍒朵綋甯冨眬鎶婂畠瑁佹帀銆?        /// </summary>
+        private void ConfigureHealthValue()
         {
             if (_healthValue == null)
             {
-                if (!_configured)
-                {
-                    return;
-                }
-
-                // 运行时生成 HUD 或旧场景没有绑定文本时，创建一个独立的数字标签兜底。
-                var fallback = new GameObject("HealthNumericFallback");
-                fallback.transform.SetParent(transform, false);
-                _healthValue = fallback.AddComponent<TextMeshProUGUI>();
-                _healthValue.text = "HP 100 / 100";
-                _healthValue.fontSize = 20f;
+                throw new InvalidOperationException(
+                    "HudView requires a configured PlayerStatus/HealthValue reference.");
             }
 
             _healthValue.gameObject.SetActive(true);
             _healthValue.color = new Color32(220, 235, 242, 255);
             _healthValue.fontSize = Mathf.Max(18f, _healthValue.fontSize);
             _healthValue.raycastTarget = false;
-
-            // 旧版 HUD 将数字放在 PlayerStatus 内部，某些 Canvas 缩放组合下会被面板裁掉。
-            // 将它提升到 HUD 根节点，保证始终在生命条下方可见。
-            if (!_healthValueDetached && _healthValue.transform.parent != transform)
-            {
-                _healthValue.transform.SetParent(transform, false);
-                _healthValueDetached = true;
-            }
-
-            var rect = _healthValue.rectTransform;
-            rect.anchorMin = new Vector2(0f, 1f);
-            rect.anchorMax = new Vector2(0f, 1f);
-            rect.pivot = new Vector2(0f, 1f);
-            rect.anchoredPosition = new Vector2(56f, -126f);
-            rect.sizeDelta = new Vector2(360f, 30f);
-            _healthValue.alignment = TextAlignmentOptions.Left;
+            _healthValue.alignment = TextAlignmentOptions.Right;
         }
-
         private static Color BannerColor(HudBannerKind kind)
         {
             return kind switch
@@ -274,8 +223,7 @@ namespace Train.Presentation.UI.Views
         }
 
         /// <summary>
-        /// 将物品品质映射为项目统一强调色。
-        /// </summary>
+        /// 灏嗙墿鍝佸搧璐ㄦ槧灏勪负椤圭洰缁熶竴寮鸿皟鑹层€?        /// </summary>
         private static Color RarityColor(ItemRarity rarity)
         {
             return rarity switch
@@ -296,13 +244,13 @@ namespace Train.Presentation.UI.Views
         {
             return phase switch
             {
-                LevelPhase.Preparing => "作战准备",
-                LevelPhase.Intro => "任务简报",
-                LevelPhase.Combat => "战斗中",
+                LevelPhase.Preparing => "准备中",
+                LevelPhase.Intro => "简报",
+                LevelPhase.Combat => "战斗",
                 LevelPhase.Cleared => "已完成",
-                LevelPhase.Failed => "已失败",
-                LevelPhase.Exiting => "退出中",
-                _ => "待机"
+                LevelPhase.Failed => "失败",
+                LevelPhase.Exiting => "离开中",
+                _ => "等待中"
             };
         }
     }

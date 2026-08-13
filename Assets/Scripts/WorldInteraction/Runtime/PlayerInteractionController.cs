@@ -191,8 +191,18 @@ namespace Train.WorldInteraction.Runtime
                 GetInteractionPriority(interactable),
                 distance);
 
-            if (_tracked.ContainsKey(interactable.InteractionId))
+            if (_tracked.TryGetValue(
+                    interactable.InteractionId,
+                    out var trackedInteractable))
             {
+                if (!ReferenceEquals(trackedInteractable, interactable))
+                {
+                    _focus.Exit(interactable.InteractionId);
+                    _tracked[interactable.InteractionId] = interactable;
+                    _focus.Enter(candidate);
+                    return;
+                }
+
                 _focus.Update(candidate);
             }
             else

@@ -1,5 +1,6 @@
 using System;
 using Train.WorldInteraction.Core;
+using Train.WorldInteraction.Data;
 using UnityEngine;
 
 namespace Train.WorldInteraction.Runtime
@@ -15,6 +16,16 @@ namespace Train.WorldInteraction.Runtime
         [SerializeField, Min(.5f)] private float _interactionRange = 2.2f;
         [SerializeField] private Transform _interactionPoint;
         private Action _onInteract;
+
+        private void Awake()
+        {
+            var settings = Resources.Load<WorldInteractionSettings>(
+                "Settings/WorldInteractionSettings");
+            if (settings != null)
+            {
+                _interactionRange = settings.PortalInteractionRange;
+            }
+        }
 
         public string InteractionId => _interactionId;
         public bool IsAvailable => _onInteract != null;

@@ -12,7 +12,7 @@ namespace Train.GameFlow.Data
     public sealed class LevelDefinition : ScriptableObject
     {
         [Header("Identity")]
-        [SerializeField] private string _levelId = "combat_001";
+        [SerializeField] private string _levelId = "level.combat.001";
         [SerializeField] private string _displayName = "第 1 训练区";
 
         [Header("Scene")]

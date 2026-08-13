@@ -314,7 +314,7 @@ namespace Train.Presentation.UI.Views
                 var item = viewModel.Items[index];
                 _itemNames[index].text = item.DisplayName;
                 _itemStates[index].text = item.IsEquipped
-                    ? "EQUIPPED"
+                    ? "已装备"
                     : $"持有 ×{item.OwnedQuantity}";
                 _itemStates[index].color = item.IsEquipped
                     ? new Color32(242, 201, 107, 255)

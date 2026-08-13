@@ -124,8 +124,7 @@ namespace Train.Composition.Progression
         {
             for (var index = 0; index < _nodes.Count; index++)
             {
-                if (string.Equals(_nodes[index].LevelId, levelId, StringComparison.Ordinal) ||
-                    string.Equals(NormalizeLegacyId(_nodes[index].LevelId), levelId, StringComparison.Ordinal))
+                if (string.Equals(_nodes[index].LevelId, levelId, StringComparison.Ordinal))
                 {
                     node = _nodes[index];
                     return true;
@@ -142,8 +141,6 @@ namespace Train.Composition.Progression
             return nextIndex < _nodes.Count ? _nodes[nextIndex] : default;
         }
 
-        private static string NormalizeLegacyId(string id) =>
-            id.Replace("level.", string.Empty).Replace('.', '_');
     }
 
     /// <summary>流程服务的轻量存档结构。</summary>

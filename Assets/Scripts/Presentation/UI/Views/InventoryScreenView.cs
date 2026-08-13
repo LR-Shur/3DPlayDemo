@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using Train.Inventory.Data;
 using Train.Presentation.UI.Contracts;
@@ -19,13 +20,8 @@ namespace Train.Presentation.UI.Views
         [SerializeField] private GameObject _screenRoot;
         [SerializeField] private Button _closeButton;
         [SerializeField] private TMP_Text _capacityText;
-        [SerializeField] private Button[] _slotButtons = Array.Empty<Button>();
-        [SerializeField] private Image[] _slotBackgrounds = Array.Empty<Image>();
-        [SerializeField] private Image[] _slotAccents = Array.Empty<Image>();
-        [SerializeField] private Image[] _slotIcons = Array.Empty<Image>();
-        [SerializeField] private TMP_Text[] _slotNames = Array.Empty<TMP_Text>();
-        [SerializeField] private TMP_Text[] _slotQuantities =
-            Array.Empty<TMP_Text>();
+        [SerializeField] private RectTransform _slotContent;
+        [SerializeField] private Button _slotTemplate;
         [SerializeField] private Button[] _categoryButtons = Array.Empty<Button>();
         [SerializeField] private TMP_Text[] _categoryLabels = Array.Empty<TMP_Text>();
         [SerializeField] private TMP_Text _detailCategory;
@@ -36,6 +32,7 @@ namespace Train.Presentation.UI.Views
         [SerializeField] private Image _detailIcon;
         [SerializeField] private Button _discardButton;
         private TMP_Text _discardLabel;
+        private readonly List<SlotControls> _slots = new();
 
         /// <inheritdoc />
         public event Action<int> SlotSelected;
@@ -62,12 +59,8 @@ namespace Train.Presentation.UI.Views
             GameObject screenRoot,
             Button closeButton,
             TMP_Text capacityText,
-            Button[] slotButtons,
-            Image[] slotBackgrounds,
-            Image[] slotAccents,
-            Image[] slotIcons,
-            TMP_Text[] slotNames,
-            TMP_Text[] slotQuantities,
+            RectTransform slotContent,
+            Button slotTemplate,
             Button[] categoryButtons,
             TMP_Text[] categoryLabels,
             TMP_Text detailCategory,
@@ -75,17 +68,14 @@ namespace Train.Presentation.UI.Views
             TMP_Text detailRarity,
             TMP_Text detailDescription,
             TMP_Text detailQuantity,
-            Image detailIcon)
+            Image detailIcon,
+            Button discardButton)
         {
             _screenRoot = screenRoot;
             _closeButton = closeButton;
             _capacityText = capacityText;
-            _slotButtons = slotButtons;
-            _slotBackgrounds = slotBackgrounds;
-            _slotAccents = slotAccents;
-            _slotIcons = slotIcons;
-            _slotNames = slotNames;
-            _slotQuantities = slotQuantities;
+            _slotContent = slotContent;
+            _slotTemplate = slotTemplate;
             _categoryButtons = categoryButtons;
             _categoryLabels = categoryLabels;
             _detailCategory = detailCategory;
@@ -94,9 +84,11 @@ namespace Train.Presentation.UI.Views
             _detailDescription = detailDescription;
             _detailQuantity = detailQuantity;
             _detailIcon = detailIcon;
+            _discardButton = discardButton;
 
-            // 鏃у叾瀹氭湇浠剁殑 UI 鍦ㄦ暟鎹垵濮嬪寲鍚庢墠鑳芥壘鍒拌鎯呭瓧浣撱€傚湪 Configure 鍚庡啀纭繚涓㈠純鎸夐挳鍜屽瓧浣撳瓨鍦ㄣ€?
-            EnsureDiscardButton();
+            ValidateSlotLayout();
+
+            ConfigureDiscardButton();
             AttachDiscardListener();
         }
 
@@ -140,36 +132,35 @@ namespace Train.Presentation.UI.Views
                 }
             }
 
-            var count = Mathf.Min(
-                viewModel.Slots.Count,
-                _slotButtons.Length);
-            for (var index = 0; index < count; index++)
+            EnsureSlotCount(viewModel.Slots.Count);
+            for (var index = 0; index < viewModel.Slots.Count; index++)
             {
                 var slot = viewModel.Slots[index];
+                var controls = _slots[index];
                 var displayName = slot.IsEquipped
                     ? $"已装备 · {slot.DisplayName}"
                     : slot.DisplayName;
-                _slotNames[index].text = slot.IsOccupied
+                controls.Name.text = slot.IsOccupied
                     ? displayName
                     : "空槽位";
-                _slotNames[index].color = slot.IsOccupied
+                controls.Name.color = slot.IsOccupied
                     ? new Color32(244, 247, 251, 255)
                     : new Color32(112, 132, 154, 180);
-                _slotQuantities[index].text = slot.IsOccupied
+                controls.Quantity.text = slot.IsOccupied
                     ? $"×{slot.Quantity}"
                     : $"{index + 1:00}";
-                _slotAccents[index].color = slot.IsOccupied
+                controls.Accent.color = slot.IsOccupied
                     ? RarityColor(slot.Rarity)
                     : new Color32(50, 70, 92, 150);
-                if (index < _slotIcons.Length && _slotIcons[index] != null)
+                if (controls.Icon != null)
                 {
-                    _slotIcons[index].sprite = slot.IsOccupied
+                    controls.Icon.sprite = slot.IsOccupied
                         ? LoadItemIcon(slot.ItemId)
                         : null;
-                    _slotIcons[index].gameObject.SetActive(
-                        _slotIcons[index].sprite != null);
+                    controls.Icon.gameObject.SetActive(
+                        controls.Icon.sprite != null);
                 }
-                _slotBackgrounds[index].color = slot.IsSelected
+                controls.Background.color = slot.IsSelected
                     ? new Color32(28, 66, 83, 248)
                     : slot.IsEquipped
                         ? new Color32(66, 54, 31, 245)
@@ -181,13 +172,8 @@ namespace Train.Presentation.UI.Views
 
         private void Awake()
         {
+            ValidateSlotLayout();
             _closeButton?.onClick.AddListener(HandleClose);
-            for (var index = 0; index < _slotButtons.Length; index++)
-            {
-                var captured = index;
-                _slotButtons[index]?.onClick.AddListener(
-                    () => SlotSelected?.Invoke(captured));
-            }
 
             for (var index = 0; index < _categoryButtons.Length; index++)
             {
@@ -196,8 +182,125 @@ namespace Train.Presentation.UI.Views
                     () => CategorySelected?.Invoke(captured));
             }
 
-            EnsureDiscardButton();
+            ConfigureDiscardButton();
             AttachDiscardListener();
+        }
+
+        private void ValidateSlotLayout()
+        {
+            if (_slotContent == null || _slotTemplate == null)
+            {
+                throw new InvalidOperationException(
+                    "InventoryScreenView requires ItemGrid/ScrollContent and SlotTemplate.");
+            }
+
+            var viewport = _slotContent.parent as RectTransform;
+            if (viewport == null)
+            {
+                throw new InvalidOperationException(
+                    "InventoryScreenView requires ScrollContent to be a child of ItemGrid.");
+            }
+
+            var grid = _slotContent.GetComponent<GridLayoutGroup>();
+            if (grid == null)
+            {
+                throw new InvalidOperationException(
+                    "InventoryScreenView requires GridLayoutGroup on ScrollContent.");
+            }
+
+            var fitter = _slotContent.GetComponent<ContentSizeFitter>();
+            if (fitter == null)
+            {
+                throw new InvalidOperationException(
+                    "InventoryScreenView requires ContentSizeFitter on ScrollContent.");
+            }
+
+            var scroll = viewport.GetComponent<ScrollRect>();
+            if (scroll == null)
+            {
+                throw new InvalidOperationException(
+                    "InventoryScreenView requires ScrollRect on ItemGrid.");
+            }
+
+            if (viewport.GetComponent<RectMask2D>() == null)
+            {
+                throw new InvalidOperationException(
+                    "InventoryScreenView requires RectMask2D on ItemGrid.");
+            }
+
+            scroll.content = _slotContent;
+            scroll.viewport = viewport;
+
+            _slotTemplate.gameObject.SetActive(false);
+        }
+
+        private void EnsureSlotCount(int count)
+        {
+            ValidateSlotLayout();
+            while (_slots.Count < count)
+            {
+                var index = _slots.Count;
+                var instance = Instantiate(_slotTemplate.gameObject, _slotContent);
+                instance.name = $"Slot_{index:00}";
+                instance.SetActive(true);
+                _slots.Add(CreateSlotControls(instance, index));
+            }
+
+            while (_slots.Count > count)
+            {
+                var last = _slots.Count - 1;
+                Destroy(_slots[last].Button.gameObject);
+                _slots.RemoveAt(last);
+            }
+        }
+
+        private SlotControls CreateSlotControls(GameObject instance, int index)
+        {
+            var controls = new SlotControls(
+                instance.GetComponent<Button>(),
+                instance.GetComponent<Image>(),
+                instance.transform.Find("Rarity")?.GetComponent<Image>(),
+                instance.transform.Find("Icon")?.GetComponent<Image>(),
+                instance.transform.Find("Name")?.GetComponent<TMP_Text>(),
+                instance.transform.Find("Quantity")?.GetComponent<TMP_Text>());
+            if (controls.Button == null ||
+                controls.Background == null ||
+                controls.Accent == null ||
+                controls.Name == null ||
+                controls.Quantity == null)
+            {
+                throw new InvalidOperationException(
+                    "SlotTemplate must contain Button, Image, Rarity, Name, and Quantity components.");
+            }
+
+            controls.Button.onClick.AddListener(() => SlotSelected?.Invoke(index));
+            return controls;
+        }
+
+        private sealed class SlotControls
+        {
+            public SlotControls(
+                Button button,
+                Image background,
+                Image accent,
+                Image icon,
+                TMP_Text name,
+                TMP_Text quantity)
+            {
+                Button = button;
+                Background = background;
+                Accent = accent;
+                Icon = icon;
+                Name = name;
+                Quantity = quantity;
+            }
+
+            public Button Button { get; }
+            public Image Background { get; }
+            public Image Accent { get; }
+            public Image Icon { get; }
+            public TMP_Text Name { get; }
+            public TMP_Text Quantity { get; }
         }
 
         private void OnDestroy()
@@ -216,143 +319,26 @@ namespace Train.Presentation.UI.Views
             DiscardRequested?.Invoke();
         }
 
-        /* 主动道具通过装备页槽位配置，不在背包详情区创建额外按钮。 */
-        private void EnsureActiveItemSlotButtons()
-        {
-            return;
-            /*
-            if (_detailName == null)
-            {
-                return;
-            }
-
-            var detail = _detailName.transform.parent as RectTransform;
-            if (detail == null)
-            {
-                return;
-            }
-
-            var parent = detail.Find("ActiveItemSlots") as RectTransform;
-            if (parent == null)
-            {
-                var parentObject = new GameObject(
-                    "ActiveItemSlots",
-                    typeof(RectTransform));
-                parentObject.transform.SetParent(detail, false);
-                parent = parentObject.GetComponent<RectTransform>();
-                parent.anchorMin = new Vector2(0f, 0f);
-                parent.anchorMax = new Vector2(1f, 0f);
-                parent.pivot = new Vector2(.5f, 0f);
-                parent.anchoredPosition = new Vector2(0f, 82f);
-                parent.sizeDelta = new Vector2(-48f, 52f);
-                var layout = parent.gameObject.AddComponent<HorizontalLayoutGroup>();
-                layout.spacing = 6f;
-                layout.childForceExpandWidth = true;
-                layout.childForceExpandHeight = true;
-            }
-
-            for (var index = 0; index < _activeItemSlotButtons.Length; index++)
-            {
-                if (_activeItemSlotButtons[index] != null)
-                {
-                    continue;
-                }
-
-                var buttonObject = new GameObject(
-                    $"ActiveItemSlot{index + 1}",
-                    typeof(RectTransform),
-                    typeof(Image),
-                    typeof(Button));
-                buttonObject.transform.SetParent(parent, false);
-                var image = buttonObject.GetComponent<Image>();
-                image.color = new Color32(27, 58, 78, 245);
-                var button = buttonObject.GetComponent<Button>();
-                var labelObject = new GameObject(
-                    "Label",
-                    typeof(RectTransform),
-                    typeof(TextMeshProUGUI));
-                labelObject.transform.SetParent(buttonObject.transform, false);
-                var labelRect = labelObject.GetComponent<RectTransform>();
-                labelRect.anchorMin = Vector2.zero;
-                labelRect.anchorMax = Vector2.one;
-                labelRect.offsetMin = Vector2.zero;
-                labelRect.offsetMax = Vector2.zero;
-                var label = labelObject.GetComponent<TMP_Text>();
-                label.text = $"主动道具 {index + 1}";
-                label.font = _detailName.font;
-                label.fontSize = 13f;
-                label.alignment = TextAlignmentOptions.Center;
-                label.color = Color.white;
-                label.raycastTarget = false;
-                var captured = index;
-                button.onClick.AddListener(
-                    () => ActiveItemSlotRequested?.Invoke(captured));
-                _activeItemSlotButtons[index] = button;
-            }
-            */
-        }
-
         /// <summary>纭繚涓㈠純鎸夐挳鍙湁涓€涓湁鏁堢殑鐐瑰嚮鐩戝惉銆?/summary>
         private void AttachDiscardListener()
         {
-            if (_discardButton == null)
-            {
-                return;
-            }
-
             _discardButton.onClick.RemoveListener(HandleDiscard);
             _discardButton.onClick.AddListener(HandleDiscard);
         }
 
-        /// <summary>为旧版 UI 预制体补建丢弃按钮。</summary>
-        private void EnsureDiscardButton()
+        private void ConfigureDiscardButton()
         {
-            if (_detailName == null)
+            if (_discardButton == null || _detailName == null)
             {
-                return;
-            }
-
-            if (_discardButton == null)
-            {
-                var detail = _detailName.transform.parent as RectTransform;
-                if (detail == null)
-                {
-                    return;
-                }
-
-                var buttonObject = new GameObject(
-                    "DiscardButton",
-                    typeof(RectTransform),
-                    typeof(Image),
-                    typeof(Button));
-                buttonObject.transform.SetParent(detail, false);
-                var rect = buttonObject.GetComponent<RectTransform>();
-                rect.anchorMin = new Vector2(1f, 0f);
-                rect.anchorMax = new Vector2(1f, 0f);
-                rect.pivot = new Vector2(1f, 0f);
-                rect.sizeDelta = new Vector2(150f, 48f);
-                rect.anchoredPosition = new Vector2(-30f, 28f);
-
-                var image = buttonObject.GetComponent<Image>();
-                image.color = new Color32(132, 43, 58, 255);
-                _discardButton = buttonObject.GetComponent<Button>();
-                _discardButton.targetGraphic = image;
+                throw new InvalidOperationException(
+                    "InventoryScreenView requires Detail/DiscardButton in the prefab.");
             }
 
             _discardLabel = _discardButton.GetComponentInChildren<TMP_Text>(true);
             if (_discardLabel == null)
             {
-                var labelObject = new GameObject(
-                    "Label",
-                    typeof(RectTransform),
-                    typeof(TextMeshProUGUI));
-                labelObject.transform.SetParent(_discardButton.transform, false);
-                var labelRect = labelObject.GetComponent<RectTransform>();
-                labelRect.anchorMin = Vector2.zero;
-                labelRect.anchorMax = Vector2.one;
-                labelRect.offsetMin = Vector2.zero;
-                labelRect.offsetMax = Vector2.zero;
-                _discardLabel = labelObject.GetComponent<TMP_Text>();
+                throw new InvalidOperationException(
+                    "InventoryScreenView requires a label under Detail/DiscardButton.");
             }
 
             _discardLabel.font = _detailName.font;
@@ -404,11 +390,6 @@ namespace Train.Presentation.UI.Views
         /// <summary>按稳定物品 ID 从 Resources 读取本地化图标。</summary>
         private void SetDiscardState(bool visible, bool interactable, bool equipped)
         {
-            if (_discardButton == null)
-            {
-                return;
-            }
-
             _discardButton.gameObject.SetActive(visible);
             _discardButton.interactable = interactable;
             _discardButton.image.color = interactable

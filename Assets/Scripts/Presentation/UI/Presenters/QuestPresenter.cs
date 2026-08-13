@@ -366,11 +366,11 @@ namespace Train.Presentation.UI.Presenters
             return itemId switch
             {
                 "training_chip" => "训练芯片",
-                "healing_canister" => "急救罐",
-                "upgrade_module" => "强化模块",
-                "city_token" => "城市场景代币",
-                "thunder_blade" => "雷鸣刀",
-                "thunder_ring" => "雷鸣指环",
+                "healing_canister" => "应急治疗罐",
+                "upgrade_module" => "高能升级模组",
+                "city_token" => "都市代币",
+                "thunder_blade" => "雷鸣刃",
+                "thunder_ring" => "雷环",
                 _ => itemId
             };
         }

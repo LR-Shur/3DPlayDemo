@@ -16,17 +16,38 @@ namespace Train.Gameplay.Enemy.Presentation
         [SerializeField] private Color _freezeColor = new(.12f, .55f, 1f, 1f);
         [SerializeField, Range(0f, 1f)] private float _tintStrength = .78f;
         [SerializeField, Min(0f)] private float _emissionStrength = .3f;
+        [Header("受击闪烁")]
+        [SerializeField] private Color _hitColor = new(1f, .04f, .04f, 1f);
+        [SerializeField, Range(0f, 1f)] private float _hitTintStrength = .9f;
+        [SerializeField, Min(0f)] private float _hitEmissionStrength = .45f;
+        [SerializeField, Min(.01f)] private float _hitFlashSeconds = .12f;
 
         private Renderer[] _renderers;
         private MaterialPropertyBlock[] _blocks;
         private Color[] _baseColors;
         private bool _cached;
         private bool _frozen;
+        private bool _hitActive;
+        private float _hitStartedAt;
         private GameObject _freezeShell;
         private Material _freezeMaterial;
         private readonly System.Collections.Generic.List<Transform> _iceShards = new();
 
         private void Awake() => Cache();
+
+        public bool IsHitActive => _hitActive;
+
+        public void SetHit(bool hit)
+        {
+            Cache();
+            _hitActive = hit;
+            if (hit)
+            {
+                _hitStartedAt = Time.time;
+            }
+
+            ApplyRendererColors();
+        }
 
         public void SetFrozen(bool frozen)
         {
@@ -36,30 +57,16 @@ namespace Train.Gameplay.Enemy.Presentation
             {
                 _freezeShell.SetActive(frozen);
             }
-            for (var i = 0; i < _renderers.Length; i++)
-            {
-                var renderer = _renderers[i];
-                if (renderer == null)
-                {
-                    continue;
-                }
-
-                var block = _blocks[i];
-                block.Clear();
-                if (frozen)
-                {
-                    var tinted = Color.Lerp(_baseColors[i], _freezeColor, _tintStrength);
-                    block.SetColor(BaseColorId, tinted);
-                    block.SetColor(ColorId, tinted);
-                    block.SetColor(EmissionColorId, _freezeColor * _emissionStrength);
-                }
-
-                renderer.SetPropertyBlock(block);
-            }
+            ApplyRendererColors();
         }
 
         private void Update()
         {
+            if (_hitActive)
+            {
+                ApplyRendererColors();
+            }
+
             if (!_frozen)
             {
                 return;
@@ -76,6 +83,47 @@ namespace Train.Gameplay.Enemy.Presentation
                     angle * Mathf.Rad2Deg,
                     Mathf.Cos(pulse * 1.3f + i) * 35f);
                 shard.localScale = Vector3.one * (.7f + Mathf.Sin(pulse * 2f + i) * .12f);
+            }
+        }
+
+        private void ApplyRendererColors()
+        {
+            var hitStrength = 0f;
+            var hitEmissionStrength = 0f;
+            if (_hitActive)
+            {
+                var flashProgress = Mathf.Clamp01((Time.time - _hitStartedAt) / _hitFlashSeconds);
+                var flash = Mathf.Lerp(1f, .72f, flashProgress);
+                hitStrength = Mathf.Clamp01(_hitTintStrength * flash);
+                hitEmissionStrength = _hitEmissionStrength * flash;
+            }
+
+            for (var i = 0; i < _renderers.Length; i++)
+            {
+                var renderer = _renderers[i];
+                if (renderer == null)
+                {
+                    continue;
+                }
+
+                var block = _blocks[i];
+                block.Clear();
+                if (_hitActive)
+                {
+                    var hitTint = Color.Lerp(_baseColors[i], _hitColor, hitStrength);
+                    block.SetColor(BaseColorId, hitTint);
+                    block.SetColor(ColorId, hitTint);
+                    block.SetColor(EmissionColorId, _hitColor * hitEmissionStrength);
+                }
+                else if (_frozen)
+                {
+                    var frozenTint = Color.Lerp(_baseColors[i], _freezeColor, _tintStrength);
+                    block.SetColor(BaseColorId, frozenTint);
+                    block.SetColor(ColorId, frozenTint);
+                    block.SetColor(EmissionColorId, _freezeColor * _emissionStrength);
+                }
+
+                renderer.SetPropertyBlock(block);
             }
         }
 

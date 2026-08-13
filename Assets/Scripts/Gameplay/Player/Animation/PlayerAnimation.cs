@@ -43,8 +43,7 @@ namespace Train.Gameplay.Player.Animation
         /// </summary>
         private void Awake()
         {
-            _animancer ??= GetComponent<AnimancerComponent>();
-            _catalog ??= Resources.Load<PlayerAnimationCatalog>("Player/EllenAnimationCatalog");
+            EnsureDependencies();
         }
 
         /// <summary>
@@ -232,6 +231,7 @@ namespace Train.Gameplay.Player.Animation
         /// <returns>定义存在且可播放时返回 true。</returns>
         public bool TryGetDefinition(PlayerAnimationId id, out PlayerAnimationDefinition definition)
         {
+            EnsureDependencies();
             if (_animancer != null && _catalog != null && _catalog.TryGet(id, out definition))
             {
                 return true;
@@ -240,6 +240,15 @@ namespace Train.Gameplay.Player.Animation
             Debug.LogError($"PlayerAnimation 缺少 AnimancerComponent、动画目录或动画 {id} 的有效配置。", this);
             definition = null;
             return false;
+        }
+
+        /// <summary>
+        /// 确保动画组件和目录已经准备好；玩家控制器可能先于本组件的 Awake 初始化状态机。
+        /// </summary>
+        private void EnsureDependencies()
+        {
+            _animancer ??= GetComponent<AnimancerComponent>();
+            _catalog ??= Resources.Load<PlayerAnimationCatalog>("Player/EllenAnimationCatalog");
         }
     }
 }

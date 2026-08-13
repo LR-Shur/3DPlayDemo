@@ -112,7 +112,7 @@ namespace Train.Presentation.UI.Views
                 _entryNames[index].text = entry.DisplayName;
                 _entryRoles[index].text = entry.IsUnlocked
                     ? entry.CombatRole
-                    : "LOCKED // 未解锁";
+                    : "未解锁";
                 _entryBackgrounds[index].color = entry.IsSelected
                     ? new Color32(28, 82, 96, 252)
                     : new Color32(20, 35, 54, 245);

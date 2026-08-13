@@ -209,7 +209,7 @@ namespace Train.Presentation.UI.Runtime
             {
                 case GameMenuPage.Archive:
                     _root.Placeholder.Show(
-                        "ARCHIVE // 档案",
+                        "档案",
                         "城市资料库",
                         "用于展示敌人图鉴、收集物、对话回顾和战斗教学。");
                     break;

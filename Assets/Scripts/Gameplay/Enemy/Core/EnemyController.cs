@@ -113,6 +113,7 @@ namespace Train.Gameplay.Enemy.Core
 
         private void OnDisable()
         {
+            _freezeVisual?.SetHit(false);
             if (_isFrozen)
             {
                 _isFrozen = false;
@@ -155,6 +156,12 @@ namespace Train.Gameplay.Enemy.Core
             _sensor?.Tick();
             _stateMachine?.Tick();
             _currentStateName = _stateMachine?.CurrentState?.GetType().Name ?? string.Empty;
+            if (_freezeVisual != null &&
+                _freezeVisual.IsHitActive &&
+                !(_stateMachine?.CurrentState is EnemyHitState))
+            {
+                _freezeVisual.SetHit(false);
+            }
         }
 
         /// <summary>冻结敌人指定秒数；重复命中会刷新结束时间。</summary>
@@ -216,7 +223,19 @@ namespace Train.Gameplay.Enemy.Core
 
         private void OnDamaged(DamageInfo damageInfo, DamageResult result)
         {
-            if (_stateMachine != null && !result.Killed)
+            if (result.AppliedDamage <= 0f)
+            {
+                return;
+            }
+
+            if (result.Killed)
+            {
+                _freezeVisual?.SetHit(false);
+                return;
+            }
+
+            _freezeVisual?.SetHit(true);
+            if (_stateMachine != null)
             {
                 _hitReaction?.PlayHit(damageInfo.HitDirection);
                 if (_stateMachine.CurrentState is EnemyHitState hitState)
@@ -236,6 +255,7 @@ namespace Train.Gameplay.Enemy.Core
             _freezeUntil = 0f;
             _motor?.SetMovementEnabled(true);
             _enemyAnimator?.SetPlaybackPaused(false);
+            _freezeVisual?.SetHit(false);
             _freezeVisual?.SetFrozen(false);
             if (_stateMachine != null)
             {

@@ -75,6 +75,11 @@ namespace Train.Gameplay.Enemy.Combat
         public void SetDamageActive(bool active)
         {
             _damageActive = active;
+            if (_hitVolume != null)
+            {
+                _hitVolume.enabled = active;
+            }
+
             if (active && !_damageAppliedThisAttack)
             {
                 // 只有真正结算出伤害后才锁定本次攻击，避免命中检测过早导致整段攻击“空挥”。
@@ -85,12 +90,16 @@ namespace Train.Gameplay.Enemy.Combat
         public void EndAttack()
         {
             _damageActive = false;
+            if (_hitVolume != null)
+            {
+                _hitVolume.enabled = false;
+            }
+
             EndTelegraph();
         }
 
         public void SetAttackTarget(Transform target)
         {
-            // 近战不缓存目标，伤害只由武器碰撞体实际命中决定。
         }
 
         public void BeginTelegraph(float duration, float attackRange)

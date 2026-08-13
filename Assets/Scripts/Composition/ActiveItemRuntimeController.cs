@@ -118,16 +118,11 @@ namespace Train.Composition
         {
             if (_quickBar == null)
             {
-                _quickBar = FindFirstObjectByType<ActiveItemQuickBarView>();
+                _quickBar = FindFirstObjectByType<ActiveItemQuickBarView>(
+                    FindObjectsInactive.Include);
                 if (_quickBar == null)
                 {
-                    var root = FindFirstObjectByType<GameUIRootView>();
-                    if (root != null && root.Hud != null)
-                    {
-                        var quickBarObject = new GameObject("ActiveItemQuickBar");
-                        quickBarObject.transform.SetParent(root.Hud.transform, false);
-                        _quickBar = quickBarObject.AddComponent<ActiveItemQuickBarView>();
-                    }
+                    return;
                 }
             }
 
@@ -319,52 +314,34 @@ namespace Train.Composition
         /// <summary>对范围内敌人造成指定元素伤害，并按配置附加 Buff。</summary>
         private bool ApplyGrenade(cfg.game.ActiveItem config)
         {
-            var origin = _input != null ? _input.transform.position : transform.position;
-            var applied = false;
-            var targets = FindObjectsByType<Health>(FindObjectsSortMode.None);
-            foreach (var target in targets)
+            if (_input == null)
             {
-                if (target == null ||
-                    !target.IsAlive ||
-                    target == _playerHealth ||
-                    Vector3.Distance(origin, target.transform.position) > config.Radius)
-                {
-                    continue;
-                }
-
-                var faction = FactionResolver.FindInParents(target.transform);
-                if (faction != null && faction.Faction != CombatFaction.Enemy)
-                {
-                    continue;
-                }
-
-                var result = DamageHandler.Apply(
-                    target,
-                    new DamageInfo(
-                        config.Value,
-                        null,
-                        target.transform.position - Vector3.up * 0.4f,
-                        target.transform.position - origin,
-                        0f,
-                        ToDamageType(config.Element)),
-                    faction);
-                if (result.AppliedDamage > 0f &&
-                    !string.IsNullOrWhiteSpace(config.BuffId))
-                {
-                    var buffHandle = target.GetComponentInParent<BuffHandleComponent>();
-                    buffHandle?.Apply(new BuffInfo(
-                        config.BuffId,
-                        $"item.{config.ItemId}",
-                        Mathf.Max(0.1f, config.Duration),
-                        config.Magnitude,
-                        Mathf.Max(1, config.StackAmount),
-                        Mathf.Max(1, config.MaxStacks)));
-                }
-
-                applied |= result.AppliedDamage > 0f;
+                return false;
             }
 
-            return applied;
+            var direction = _input.transform.forward;
+            direction.y = 0f;
+            if (direction.sqrMagnitude <= .001f)
+            {
+                direction = Vector3.forward;
+            }
+
+            var projectile = new GameObject("Grenade_Projectile");
+            projectile.transform.SetPositionAndRotation(
+                _input.transform.position + Vector3.up * .9f + direction.normalized * .6f,
+                Quaternion.LookRotation(direction.normalized));
+            var grenade = projectile.AddComponent<ActiveGrenadeProjectile>();
+            grenade.Initialize(
+                direction.normalized,
+                Mathf.Max(1f, config.Radius),
+                Mathf.Max(0f, config.Value),
+                ToDamageType(config.Element),
+                config.BuffId,
+                Mathf.Max(.1f, config.Duration),
+                config.Magnitude,
+                Mathf.Max(1, config.StackAmount),
+                Mathf.Max(1, config.MaxStacks));
+            return true;
         }
 
         /// <summary>为玩家自身附加配置的元素增益 Buff。</summary>

@@ -18,6 +18,7 @@
     "Train.Quest",
     "Train.Quest.Core",
     "Train.WorldInteraction",
+    "Train.Infrastructure.Assets",
     "Luban.Runtime",
     "UnityEngine.UI",
     "Unity.TextMeshPro"

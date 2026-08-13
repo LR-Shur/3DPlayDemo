@@ -859,33 +859,51 @@ namespace Train.EditorTools.UI
                 new Color32(8, 15, 28, 205),
                 false);
             _ = gridBackground;
-            var grid = gridArea.gameObject.AddComponent<GridLayoutGroup>();
+            var scroll = gridArea.gameObject.AddComponent<ScrollRect>();
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 36f;
+            gridArea.gameObject.AddComponent<RectMask2D>();
+
+            var contentObject = new GameObject(
+                "ScrollContent",
+                typeof(RectTransform),
+                typeof(GridLayoutGroup),
+                typeof(ContentSizeFitter));
+            var content = contentObject.GetComponent<RectTransform>();
+            content.SetParent(gridArea, false);
+            content.anchorMin = new Vector2(0f, 1f);
+            content.anchorMax = new Vector2(1f, 1f);
+            content.pivot = new Vector2(.5f, 1f);
+            content.anchoredPosition = Vector2.zero;
+            content.sizeDelta = Vector2.zero;
+
+            var grid = contentObject.GetComponent<GridLayoutGroup>();
             grid.padding = new RectOffset(22, 22, 26, 24);
             grid.cellSize = new Vector2(146f, 142f);
             grid.spacing = new Vector2(16f, 16f);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = 6;
             grid.childAlignment = TextAnchor.UpperLeft;
+            var fitter = contentObject.GetComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            var slotButtons = new Button[24];
-            var slotBackgrounds = new Image[24];
-            var slotAccents = new Image[24];
-            var slotIcons = new Image[24];
-            var slotNames = new TMP_Text[24];
-            var slotQuantities = new TMP_Text[24];
-            for (var index = 0; index < 24; index++)
-            {
-                CreateInventorySlot(
-                    gridArea,
-                    font,
-                    index,
-                    out slotButtons[index],
-                    out slotBackgrounds[index],
-                    out slotAccents[index],
-                    out slotIcons[index],
-                    out slotNames[index],
-                    out slotQuantities[index]);
-            }
+            CreateInventorySlot(
+                content,
+                font,
+                0,
+                out var slotButton,
+                out _,
+                out _,
+                out _,
+                out _,
+                out _);
+            slotButton.name = "SlotTemplate";
+            slotButton.gameObject.SetActive(false);
+            scroll.content = content;
+            scroll.viewport = gridArea;
 
             var detail = CreateAnchored(
                 "Detail",
@@ -1010,17 +1028,22 @@ namespace Train.EditorTools.UI
                 new Vector2(32f, -578f),
                 new Vector2(400f, 34f),
                 new Vector2(0f, 1f));
+            var discardButton = CreateButton(
+                "DiscardButton",
+                detail,
+                "丢弃物品",
+                font,
+                new Vector2(1f, 0f),
+                new Vector2(150f, 48f),
+                new Vector2(-30f, 28f),
+                new Color32(132, 43, 58, 255));
 
             view.Configure(
                 screen.gameObject,
                 closeButton,
                 capacity,
-                slotButtons,
-                slotBackgrounds,
-                slotAccents,
-                slotIcons,
-                slotNames,
-                slotQuantities,
+                content,
+                slotButton,
                 categoryButtons,
                 categoryLabelTexts,
                 detailCategory,
@@ -1028,7 +1051,8 @@ namespace Train.EditorTools.UI
                 detailRarity,
                 detailDescription,
                 detailQuantity,
-                detailItemIconImage);
+                detailItemIconImage,
+                discardButton);
             return view;
         }
 

@@ -38,10 +38,6 @@ namespace Train.Architecture.Assets
         public const string EquipmentSettings =
             "Assets/Data/Equipment/DefaultEquipmentSettings.asset";
 
-        /// <summary>旧版游戏 HUD 预制体的完整资源路径。</summary>
-        public const string GameHudPrefab =
-            "Assets/Prefabs/UI/GameHUD.prefab";
-
         /// <summary>常驻游戏 UI 根预制体的完整资源路径。</summary>
         public const string GameUiRoot =
             "Assets/Prefabs/UI/Core/GameUIRoot.prefab";

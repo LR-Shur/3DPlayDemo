@@ -97,6 +97,7 @@ namespace Train.Buffs.Core
         public static BuffFactoryRegistry CreateWithBuiltIns()
         {
             var registry = new BuffFactoryRegistry();
+            registry.Register(new ElectricChargeBuffFactory());
             registry.Register(
                 new LightningVulnerabilityBuffFactory());
             registry.Register(

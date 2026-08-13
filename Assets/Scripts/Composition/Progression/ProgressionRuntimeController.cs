@@ -9,8 +9,6 @@ using Train.Architecture.Events;
 using Train.Architecture.Input;
 using Train.Composition.Config;
 using Train.Equipment.Application;
-using Train.Equipment.Core;
-using Train.Equipment.Data;
 using Train.GameFlow.Application.Events;
 using Train.GameFlow.Runtime;
 using Train.GameFlow.Data;
@@ -27,8 +25,8 @@ using UnityEngine.UI;
 namespace Train.Composition.Progression
 {
     /// <summary>
-    /// 把战斗事件接到掉落、金币、结算面板和商店。
-    /// 这是第一版商业循环的组合层适配器，领域规则仍留在服务中。
+    /// 鎶婃垬鏂椾簨浠舵帴鍒版帀钀姐€侀噾甯併€佺粨绠楅潰鏉垮拰鍟嗗簵銆?
+    /// 杩欐槸绗竴鐗堝晢涓氬惊鐜殑缁勫悎灞傞€傞厤鍣紝棰嗗煙瑙勫垯浠嶇暀鍦ㄦ湇鍔′腑銆?
     /// </summary>
     [DefaultExecutionOrder(-8500)]
     [DisallowMultipleComponent]
@@ -118,8 +116,8 @@ namespace Train.Composition.Progression
                 : message.EnemyArchetypeId.IndexOf("elite", StringComparison.OrdinalIgnoreCase) >= 0
                     ? 55
                     : 28;
-            _progression.AddCoins(coins, $"击败敌人：{message.EnemyArchetypeId}");
-            _overlay?.ShowCombatToast($"+{coins} 金币", "敌人已击破");
+            _progression.AddCoins(coins, $"Enemy defeated: {message.EnemyArchetypeId}");
+            _overlay?.ShowCombatToast($"+{coins} 金币", "敌人已击败");
             SpawnLoot(message);
         }
 
@@ -130,9 +128,12 @@ namespace Train.Composition.Progression
                 return;
             }
 
-            _progression.TryGetNode(message.LevelId, out var completedNode);
+            if (!_progression.TryGetNode(message.LevelId, out var completedNode))
+            {
+                return;
+            }
             _progression.CompleteLevel(message.LevelId, out var nextNode);
-            var rewards = ResolveLevelRewards(message.LevelId, completedNode.IsBoss);
+            var rewards = ResolveLevelRewards(message.LevelId);
             var rewardSummary = new List<string>(rewards.Count);
             foreach (var reward in rewards)
             {
@@ -166,7 +167,7 @@ namespace Train.Composition.Progression
             _overlay?.RefreshBossBar();
         }
 
-        /// <summary>由商店 NPC 的对话完成事件调用，打开常驻商店界面。</summary>
+        /// <summary>鐢卞晢搴?NPC 鐨勫璇濆畬鎴愪簨浠惰皟鐢紝鎵撳紑甯搁┗鍟嗗簵鐣岄潰銆?/summary>
         public void OpenShopFromNpc()
         {
             TryInitialize();
@@ -174,7 +175,7 @@ namespace Train.Composition.Progression
             _overlay?.ShowShopFromNpc();
         }
 
-        /// <summary>由战斗场景传送门进入商店场景。</summary>
+        /// <summary>鐢辨垬鏂楀満鏅紶閫侀棬杩涘叆鍟嗗簵鍦烘櫙銆?/summary>
         public void EnterShopFromPortal()
         {
             _shopPanelOpenedFromNpc = false;
@@ -183,7 +184,7 @@ namespace Train.Composition.Progression
             SceneManager.LoadSceneAsync(AssetLocations.ShopScene, LoadSceneMode.Single);
         }
 
-        /// <summary>由商店传送门进入流程表中配置的下一关。</summary>
+        /// <summary>鐢卞晢搴椾紶閫侀棬杩涘叆娴佺▼琛ㄤ腑閰嶇疆鐨勪笅涓€鍏炽€?/summary>
         public void EnterNextLevelFromPortal()
         {
             if (_progression == null)
@@ -202,7 +203,7 @@ namespace Train.Composition.Progression
             LoadNextNode(_progression.Nodes[nextIndex]);
         }
 
-        /// <summary>从结算面板进入独立商店场景，并记住返回的战斗场景。</summary>
+        /// <summary>浠庣粨绠楅潰鏉胯繘鍏ョ嫭绔嬪晢搴楀満鏅紝骞惰浣忚繑鍥炵殑鎴樻枟鍦烘櫙銆?/summary>
         private void OpenShopScene()
         {
             _shopPanelOpenedFromNpc = false;
@@ -211,7 +212,7 @@ namespace Train.Composition.Progression
             SceneManager.LoadSceneAsync(AssetLocations.ShopScene, LoadSceneMode.Single);
         }
 
-        /// <summary>关闭商店后返回进入商店前的战斗场景。</summary>
+        /// <summary>鍏抽棴鍟嗗簵鍚庤繑鍥炶繘鍏ュ晢搴楀墠鐨勬垬鏂楀満鏅€?/summary>
         private async void ReturnFromShop()
         {
             if (_shopPanelOpenedFromNpc)
@@ -227,7 +228,7 @@ namespace Train.Composition.Progression
             _overlay?.HideAllPanels();
             if (_assets == null)
             {
-                Debug.LogError("返回战斗关卡需要已初始化的 YooAsset 服务。", this);
+                Debug.LogError("返回战斗关卡需要已初始化的资源服务。", this);
                 return;
             }
 
@@ -259,8 +260,8 @@ namespace Train.Composition.Progression
             return AssetAddresses.CombatArenaScene;
         }
 
-        /// <summary>从当前关卡 SO 读取奖励；旧场景未配置时使用最小兜底奖励。</summary>
-        private List<RewardGrant> ResolveLevelRewards(string levelId, bool isBoss)
+        /// <summary>浠庡綋鍓嶅叧鍗?SO 璇诲彇濂栧姳銆?/summary>
+        private List<RewardGrant> ResolveLevelRewards(string levelId)
         {
             var result = new List<RewardGrant>();
             var levelRuntime = FindFirstObjectByType<LevelRuntimeController>();
@@ -279,17 +280,10 @@ namespace Train.Composition.Progression
                 return result;
             }
 
-            if (result.Count == 0)
-            {
-                result.Add(new RewardGrant(
-                    isBoss ? "upgrade_module" : "training_chip",
-                    isBoss ? 8 : 6));
-            }
-
             return result;
         }
 
-        /// <summary>通过物品目录把稳定 ID 转成玩家可读的中文名称。</summary>
+        /// <summary>閫氳繃鐗╁搧鐩綍鎶婄ǔ瀹?ID 杞垚鐜╁鍙鐨勪腑鏂囧悕绉般€?/summary>
         private string ResolveItemDisplayName(string itemId)
         {
             if (_inventory != null &&
@@ -303,11 +297,11 @@ namespace Train.Composition.Progression
             return itemId switch
             {
                 "training_chip" => "训练芯片",
-                "healing_canister" => "急救罐",
-                "upgrade_module" => "强化模块",
-                "city_token" => "城市场景代币",
-                "thunder_ring" => "雷鸣指环",
-                "thunder_blade" => "雷鸣刀",
+                "healing_canister" => "应急治疗罐",
+                "upgrade_module" => "高能升级模组",
+                "city_token" => "都市代币",
+                "thunder_ring" => "雷环",
+                "thunder_blade" => "雷鸣刃",
                 _ => itemId
             };
         }
@@ -366,7 +360,7 @@ namespace Train.Composition.Progression
             }
             catch (OperationCanceledException)
             {
-                // 场景切换或退出时不再生成旧场景掉落。
+                // 鍦烘櫙鍒囨崲鎴栭€€鍑烘椂涓嶅啀鐢熸垚鏃у満鏅帀钀姐€?
             }
             catch (Exception exception)
             {
@@ -393,7 +387,7 @@ namespace Train.Composition.Progression
             LoadSceneByAddressAsync(node.ScenePath);
         }
 
-        /// <summary>通关后在玩家前方创建前往商店的传送门。</summary>
+        /// <summary>閫氬叧鍚庡湪鐜╁鍓嶆柟鍒涘缓鍓嶅線鍟嗗簵鐨勪紶閫侀棬銆?/summary>
         private void CreateLevelPortal()
         {
             DestroyLevelPortal();
@@ -416,7 +410,7 @@ namespace Train.Composition.Progression
             _levelPortal = portal;
         }
 
-        /// <summary>场景切换时清理旧传送门。</summary>
+        /// <summary>鍦烘櫙鍒囨崲鏃舵竻鐞嗘棫浼犻€侀棬銆?/summary>
         private void DestroyLevelPortal()
         {
             if (_levelPortal != null)
@@ -426,14 +420,14 @@ namespace Train.Composition.Progression
             }
         }
 
-        /// <summary>通过统一资源服务按 YooAsset 地址加载下一关，流程层不直接调用 SceneManager。</summary>
+        /// <summary>閫氳繃缁熶竴璧勬簮鏈嶅姟鎸?YooAsset 鍦板潃鍔犺浇涓嬩竴鍏筹紝娴佺▼灞備笉鐩存帴璋冪敤 SceneManager銆?/summary>
         private async void LoadSceneByAddressAsync(string address)
         {
             try
             {
                 if (_assets == null)
                 {
-                    throw new InvalidOperationException("关卡切换需要已初始化的 YooAsset 服务。");
+                    throw new InvalidOperationException("切换关卡需要已初始化的资源服务。");
                 }
 
                 await _assets.LoadSceneAsync(address, LoadSceneMode.Single, true, _lifetime.Token);
@@ -450,7 +444,7 @@ namespace Train.Composition.Progression
             }
             catch (OperationCanceledException)
             {
-                // 场景切换或退出 PlayMode 时正常取消。
+                // 鍦烘櫙鍒囨崲鎴栭€€鍑?PlayMode 鏃舵甯稿彇娑堛€?
             }
             catch (Exception exception)
             {
@@ -482,7 +476,7 @@ namespace Train.Composition.Progression
     }
 
     /// <summary>
-    /// 运行时生成的结算与商店界面，不依赖具体场景预制体，避免每张地图重复维护 UI。
+    /// 杩愯鏃剁敓鎴愮殑缁撶畻涓庡晢搴楃晫闈紝涓嶄緷璧栧叿浣撳満鏅鍒朵綋锛岄伩鍏嶆瘡寮犲湴鍥鹃噸澶嶇淮鎶?UI銆?
     /// </summary>
     internal sealed class ProgressionOverlay
     {
@@ -553,7 +547,7 @@ namespace Train.Composition.Progression
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             _root.AddComponent<GraphicRaycaster>();
 
-            // 玩家状态面板占据左上角 48~166 像素，金币放到其下方，避免与生命条和生命数字重叠。
+            // 鐜╁鐘舵€侀潰鏉垮崰鎹乏涓婅 48~166 鍍忕礌锛岄噾甯佹斁鍒板叾涓嬫柟锛岄伩鍏嶄笌鐢熷懡鏉″拰鐢熷懡鏁板瓧閲嶅彔銆?
             _walletPlate = CreatePanel(_root.transform, "[CurrencyPlate]");
             SetRect(_walletPlate.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(48f, -174f), new Vector2(224f, 46f));
             _walletPlate.GetComponent<Image>().color = new Color32(10, 20, 32, 220);
@@ -566,7 +560,7 @@ namespace Train.Composition.Progression
             _walletIcon.preserveAspect = true;
             SetRect(_walletIcon.rectTransform, new Vector2(0f, .5f), new Vector2(0f, .5f), new Vector2(0f, .5f), new Vector2(10f, 0f), new Vector2(30f, 30f));
 
-            _wallet = CreateLabel(_walletPlate.transform, "金币 0150", 22, TextAlignmentOptions.MidlineLeft);
+            _wallet = CreateLabel(_walletPlate.transform, "金币 0000", 22, TextAlignmentOptions.MidlineLeft);
             SetRect(_wallet.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, .5f), new Vector2(50f, 0f), new Vector2(-58f, 0f));
             _wallet.color = new Color32(255, 214, 120, 255);
 
@@ -577,7 +571,7 @@ namespace Train.Composition.Progression
             _completion = CreatePanel(_root.transform, "[MissionResult]");
             SetRect(_completion.GetComponent<RectTransform>(), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(1000f, 700f));
             var completionTitle = CreateLabel(_completion.transform, "任务完成", 34, TextAlignmentOptions.Top);
-            // 标题固定在弹窗顶部，给关卡名称和通关信息留出清晰的垂直间距。
+            // 鏍囬鍥哄畾鍦ㄥ脊绐楅《閮紝缁欏叧鍗″悕绉板拰閫氬叧淇℃伅鐣欏嚭娓呮櫚鐨勫瀭鐩撮棿璺濄€?
             SetRect(completionTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(.5f, 1f), new Vector2(0f, -36f), new Vector2(0f, 48f));
             _completionSummary = CreateLabel(_completion.transform, string.Empty, 26, TextAlignmentOptions.Center);
             _completionSummary.textWrappingMode = TextWrappingModes.Normal;
@@ -601,10 +595,10 @@ namespace Train.Composition.Progression
             var shopTopLine = CreatePanel(_shop.transform, "TopLine");
             SetRect(shopTopLine.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(.5f, 1f), new Vector2(0f, -86f), new Vector2(0f, 3f));
             shopTopLine.GetComponent<Image>().color = new Color32(75, 219, 226, 255);
-            var shopTitle = CreateLabel(_shop.transform, "补给站", 36, TextAlignmentOptions.MidlineLeft);
+            var shopTitle = CreateLabel(_shop.transform, "补给商店", 36, TextAlignmentOptions.MidlineLeft);
             SetRect(shopTitle.rectTransform, new Vector2(0f, 1f), new Vector2(.45f, 1f), new Vector2(0f, 1f), new Vector2(52f, -32f), new Vector2(0f, 50f));
             shopTitle.fontStyle = FontStyles.Bold;
-            var shopSubtitle = CreateLabel(_shop.transform, "战场资源 · 装备补给 · 可持续作战", 17, TextAlignmentOptions.MidlineLeft);
+            var shopSubtitle = CreateLabel(_shop.transform, "战斗补给 / 装备 / 消耗品", 17, TextAlignmentOptions.MidlineLeft);
             SetRect(shopSubtitle.rectTransform, new Vector2(0f, 1f), new Vector2(.55f, 1f), new Vector2(0f, 1f), new Vector2(54f, -69f), new Vector2(0f, 28f));
             shopSubtitle.color = new Color32(133, 164, 184, 255);
             var balancePlate = CreatePanel(_shop.transform, "BalancePlate");
@@ -658,7 +652,7 @@ namespace Train.Composition.Progression
             _shopDetailIcon = iconPlate.GetComponent<Image>();
             var iconPulse = iconPlate.AddComponent<GraphicPulse>();
             iconPulse.Configure(.92f, 1.05f, .8f);
-            _shopDetailName = CreateLabel(detailPanel.transform, "选择一个商品", 28, TextAlignmentOptions.MidlineLeft);
+            _shopDetailName = CreateLabel(detailPanel.transform, "选择商品", 28, TextAlignmentOptions.MidlineLeft);
             SetRect(_shopDetailName.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(150f, -78f), new Vector2(-178f, 42f));
             _shopDetailName.fontStyle = FontStyles.Bold;
             _shopDetailRarity = CreateLabel(detailPanel.transform, string.Empty, 16, TextAlignmentOptions.MidlineLeft);
@@ -760,7 +754,7 @@ namespace Train.Composition.Progression
 
         public void ShowCombatToast(string title, string subtitle)
         {
-            _toast.text = $"{title}   //   {subtitle}";
+            _toast.text = $"{title}   ·   {subtitle}";
             _toast.gameObject.SetActive(true);
             _toastHideAt = Time.unscaledTime + 4f;
         }
@@ -768,7 +762,7 @@ namespace Train.Composition.Progression
         public void ShowLevelBanner(RunNode node)
         {
             RenderWallet(_progression.Snapshot);
-            ShowCombatToast(node.DisplayName, node.IsBoss ? "首领节点已激活" : "战区已载入");
+            ShowCombatToast(node.DisplayName, node.IsBoss ? "首领已出现" : "战斗区域已加载");
         }
 
         public void ShowCompletion(
@@ -781,16 +775,11 @@ namespace Train.Composition.Progression
             AcquireModal();
             _completion.SetActive(true);
             _shop.SetActive(false);
-            _completionSummary.text = $"{levelDisplayName}\n通关用时 {elapsed:0.0}s\n\n战利品已写入仓库：\n{(string.IsNullOrWhiteSpace(rewardSummary) ? "无" : rewardSummary)}\n\n请关闭结算界面后，靠近传送门前往商店。";
-            /*
-                $"{levelDisplayName}\n通关用时  {elapsed:0.0}s\n\n" +
-                $"战利品已写入仓库：\n{(string.IsNullOrWhiteSpace(rewardSummary) ? "无" : rewardSummary)}\n\n" +
-                $"下一节点：{(string.IsNullOrWhiteSpace(nextNode.LevelId) ? "本轮完成" : nextNode.DisplayName)}";
-            */
+            _completionSummary.text = $"{levelDisplayName}\n通关用时：{elapsed:0.0} 秒\n\n获得奖励：\n{(string.IsNullOrWhiteSpace(rewardSummary) ? "无" : rewardSummary)}\n\n关闭本面板后，靠近传送门前往商店。";
             RenderWallet(_progression.Snapshot);
         }
 
-        /// <summary>打开仓库、装备或任务页面时隐藏独立 HUD 钱包，避免遮挡页面内容。</summary>
+        /// <summary>鎵撳紑浠撳簱銆佽澶囨垨浠诲姟椤甸潰鏃堕殣钘忕嫭绔?HUD 閽卞寘锛岄伩鍏嶉伄鎸￠〉闈㈠唴瀹广€?/summary>
         private void SyncWalletVisibility()
         {
             var root = UnityEngine.Object.FindFirstObjectByType<GameUIRootView>();
@@ -826,7 +815,6 @@ namespace Train.Composition.Progression
                 if (health != null && health.IsAlive)
                 {
                     _bossHealth = health;
-                    _bossLabel.text = $"核心熔炉 · {identity.ArchetypeId}";
                     break;
                 }
             }
@@ -856,11 +844,11 @@ namespace Train.Composition.Progression
                 _bossHealth.CurrentHealth / Mathf.Max(1f, _bossHealth.MaxHealth));
             var ratio = _bossFill.fillAmount;
             var phaseLabel = ratio <= .33f
-                ? "过载阶段 · 3"
+                ? "危急阶段 / 3"
                 : ratio <= .66f
-                    ? "系统突破 · 2"
-                    : "核心熔炉 · 1";
-            _bossLabel.text = $"{phaseLabel} · Rusk 原型机";
+                    ? "系统突破 / 2"
+                    : "核心点火 / 1";
+            _bossLabel.text = $"{phaseLabel} · 鲁斯克原型机";
             if (!_bossHealth.IsAlive)
             {
                 _bossBar.SetActive(false);
@@ -874,14 +862,14 @@ namespace Train.Composition.Progression
             _shop.SetActive(false);
         }
 
-        /// <summary>关闭 NPC 打开的商店面板，但保留当前场景。</summary>
+        /// <summary>鍏抽棴 NPC 鎵撳紑鐨勫晢搴楅潰鏉匡紝浣嗕繚鐣欏綋鍓嶅満鏅€?/summary>
         public void HideShopPanel()
         {
             ReleaseModal();
             _shop.SetActive(false);
         }
 
-        /// <summary>关闭胜利结算并恢复角色操作。</summary>
+        /// <summary>鍏抽棴鑳滃埄缁撶畻骞舵仮澶嶈鑹叉搷浣溿€?/summary>
         private void CloseCompletion()
         {
             _completion.SetActive(false);
@@ -893,7 +881,7 @@ namespace Train.Composition.Progression
             _openShopScene?.Invoke();
         }
 
-        /// <summary>商店场景 NPC 对话完成后打开商店内容面板。</summary>
+        /// <summary>鍟嗗簵鍦烘櫙 NPC 瀵硅瘽瀹屾垚鍚庢墦寮€鍟嗗簵鍐呭闈㈡澘銆?/summary>
         public void ShowShopFromNpc()
         {
             ShowShopFromNpcFull();
@@ -906,7 +894,7 @@ namespace Train.Composition.Progression
             _shop.SetActive(true);
             _shopMotion.Restart();
             _shopBalance.text = $"金币  {_progression.Snapshot.Coins:0000}";
-            _shopStatus.text = "选择商品查看详情；购买和出售都会即时更新钱包。";
+            _shopStatus.text = "选择商品查看详情，购买和出售会立即更新金币。";
             var cards = _shop.transform.Find("CatalogPanel/Viewport/Cards");
             if (cards == null)
             {
@@ -955,7 +943,7 @@ namespace Train.Composition.Progression
             var name = CreateLabel(card.transform, definition.DisplayName, 18, TextAlignmentOptions.MidlineLeft);
             SetRect(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(78f, -18f), new Vector2(-90f, 34f));
             name.fontStyle = FontStyles.Bold;
-            var rarity = CreateLabel(card.transform, $"{GetRarityName(definition.Rarity)}  ·  {definition.Category}", 13, TextAlignmentOptions.MidlineLeft);
+            var rarity = CreateLabel(card.transform, $"{GetRarityName(definition.Rarity)}  ·  {GetCategoryName(definition.Category)}", 13, TextAlignmentOptions.MidlineLeft);
             SetRect(rarity.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(78f, -47f), new Vector2(-90f, 24f));
             rarity.color = new Color32(170, 194, 207, 255);
             var price = CreateLabel(card.transform, $"买入  {cost}  金币", 14, TextAlignmentOptions.MidlineLeft);
@@ -971,16 +959,16 @@ namespace Train.Composition.Progression
             _selectedShopItem = definition;
             _selectedShopCost = cost;
             RefreshShopDetail();
-            _shopStatus.text = $"已选择：{definition.DisplayName}";
+            _shopStatus.text = "选择商品查看详情，购买和出售会立即更新金币。";
         }
 
         private void RefreshShopDetail()
         {
             if (_selectedShopItem == null)
             {
-                _shopDetailName.text = "选择一个商品";
-                _shopDetailRarity.text = "商品信息将在这里显示";
-                _shopDetailDescription.text = "从左侧目录选择补给品、材料或装备。\n\n这里会显示用途、价格和当前持有数量。";
+                _shopDetailName.text = "选择商品";
+                _shopDetailRarity.text = "商品信息";
+                _shopDetailDescription.text = "从左侧目录选择补给、材料或装备。\n\n此处显示用途、价格和当前持有数量。";
                 _shopDetailStats.text = string.Empty;
                 _shopDetailIcon.color = new Color32(30, 63, 80, 255);
                 _shopAction.interactable = false;
@@ -989,10 +977,15 @@ namespace Train.Composition.Progression
             }
 
             _shopDetailName.text = _selectedShopItem.DisplayName;
-            _shopDetailRarity.text = $"{GetRarityName(_selectedShopItem.Rarity)}  ·  {_selectedShopItem.Category}";
+            _shopDetailRarity.text = $"{GetRarityName(_selectedShopItem.Rarity)} / {GetCategoryName(_selectedShopItem.Category)}";
             _shopDetailRarity.color = GetRarityColor(_selectedShopItem.Rarity);
-            _shopDetailDescription.text = string.IsNullOrWhiteSpace(_selectedShopItem.Description) ? "战场补给物资。" : _selectedShopItem.Description;
-            _shopDetailStats.text = $"买入价格    {_selectedShopCost} 金币\n卖出价格    {_selectedShopCost / 2} 金币\n当前持有    {_inventory.GetTotalQuantity(_selectedShopItem.ItemId)}\n\n{(_selectedShopItem.MaxStack > 1 ? "可堆叠物品" : "不可堆叠物品")}";
+            _shopDetailDescription.text = _selectedShopItem.Category == ItemCategory.Equipment &&
+                                          _equipment.TryGetDefinition(_selectedShopItem.ItemId, out var equipmentDefinition)
+                ? EquipmentDescriptionFormatter.Format(equipmentDefinition, _equipment)
+                : string.IsNullOrWhiteSpace(_selectedShopItem.Description)
+                    ? "战斗补给。"
+                    : _selectedShopItem.Description;
+            _shopDetailStats.text = $"购买价格    {_selectedShopCost} 金币\n出售价格    {_selectedShopCost / 2} 金币\n持有数量    {_inventory.GetTotalQuantity(_selectedShopItem.ItemId)}\n\n{(_selectedShopItem.MaxStack > 1 ? "可叠加" : "不可叠加")}";
             _shopDetailIcon.color = GetShopCardColor(_selectedShopItem.Rarity);
             _shopAction.interactable = CanStore(_selectedShopItem.ItemId, 1) && _progression.Snapshot.Coins >= _selectedShopCost;
             _shopSellAction.interactable = _inventory.GetTotalQuantity(_selectedShopItem.ItemId) > 0 && !IsEquipped(_selectedShopItem.ItemId);
@@ -1018,7 +1011,7 @@ namespace Train.Composition.Progression
         {
             if (!CanStore(definition.ItemId, 1) || !_progression.TrySpendCoins(cost, $"购买：{definition.DisplayName}"))
             {
-                _shopStatus.text = "金币不足或背包没有空间。";
+                _shopStatus.text = "购买失败，金币已退回。";
                 return;
             }
             if (!_inventory.TryAdd(definition.ItemId, 1))
@@ -1027,7 +1020,7 @@ namespace Train.Composition.Progression
                 _shopStatus.text = "购买失败，金币已退回。";
                 return;
             }
-            _shopStatus.text = $"已购买 {definition.DisplayName}。";
+            _shopStatus.text = $"已购买：{definition.DisplayName}。";
             RenderWallet(_progression.Snapshot);
         }
 
@@ -1039,7 +1032,7 @@ namespace Train.Composition.Progression
                 return;
             }
             _progression.AddCoins(value, $"出售：{definition.DisplayName}");
-            _shopStatus.text = $"已出售 {definition.DisplayName}，获得金币 {value}。";
+            _shopStatus.text = $"已出售：{definition.DisplayName}，获得 {value} 金币。";
             RenderWallet(_progression.Snapshot);
         }
 
@@ -1062,85 +1055,6 @@ namespace Train.Composition.Progression
             return 60 + (int)definition.Rarity * 80 + seed % 140;
         }
 
-        /* 旧的装备专用商店逻辑保留用于兼容旧存档，不再由入口调用。 */
-        private void ShowShopFromNpcLegacy()
-        {
-            AcquireModal();
-            _completion.SetActive(false);
-            _shop.SetActive(true);
-            _shopStatus.text = $"金币  {_progression.Snapshot.Coins:0000}  // 选择装备，购买后自动放入背包并穿戴。";
-            var oldRows = _shop.transform.Find("Rows");
-            if (oldRows != null)
-            {
-                UnityEngine.Object.Destroy(oldRows.gameObject);
-            }
-
-            var rows = new GameObject("Rows");
-            rows.transform.SetParent(_shop.transform, false);
-            var rect = rows.AddComponent<RectTransform>();
-            SetRect(rect, new Vector2(.08f, .30f), new Vector2(.92f, .84f), new Vector2(.5f, .57f), Vector2.zero, Vector2.zero);
-            var layout = rows.AddComponent<VerticalLayoutGroup>();
-            layout.spacing = 10f;
-            layout.childForceExpandHeight = true;
-            layout.childForceExpandWidth = true;
-            var count = Mathf.Min(5, _equipment.Catalog.Count);
-            for (var i = 0; i < count; i++)
-            {
-                var definition = _equipment.Catalog[i];
-                var cost = 120 + (int)definition.Rarity * 90;
-                var ownsItem = _inventory.GetTotalQuantity(definition.ItemId) > 0;
-                var canStore = CanStore(definition.ItemId, 1);
-                var label = ownsItem
-                    ? $"{definition.DisplayName}   已拥有"
-                    : canStore
-                        ? $"{definition.DisplayName}   金币 {cost}    [{definition.Rarity}]"
-                        : $"{definition.DisplayName}   背包无可用空间";
-                var button = CreateButton(rows.transform, label, 20);
-                button.GetComponent<Image>().color = GetShopButtonColor(definition.Rarity);
-                button.interactable = !ownsItem &&
-                                      canStore &&
-                                      _progression.Snapshot.Coins >= cost;
-                var buttonLabel = button.GetComponentInChildren<TMP_Text>();
-                if (buttonLabel != null)
-                {
-                    buttonLabel.fontStyle = FontStyles.Bold;
-                }
-                button.onClick.AddListener(() => Buy(definition, cost));
-            }
-        }
-
-        private void Buy(EquipmentItemDefinition definition, int cost)
-        {
-            if (_inventory.GetTotalQuantity(definition.ItemId) > 0)
-            {
-                _shopStatus.text = "该装备已经拥有，不能重复购买。";
-                return;
-            }
-
-            if (!CanStore(definition.ItemId, 1))
-            {
-                _shopStatus.text = "背包没有可用空间，或该物品已达到堆叠上限。";
-                return;
-            }
-
-            if (!_progression.TrySpendCoins(cost, $"购买：{definition.DisplayName}"))
-            {
-                _shopStatus.text = "金币不足。";
-                return;
-            }
-
-            if (!_inventory.TryAdd(definition.ItemId, 1))
-            {
-                _progression.AddCoins(cost, "背包不足退款");
-                _shopStatus.text = "背包已满，金币已退回。";
-                return;
-            }
-
-            _equipment.Equip(definition.ItemId, definition.GetDefaultSlot());
-            _shopStatus.text = $"已购买并装备：{definition.DisplayName}  // 余额 {_progression.Snapshot.Coins:0000}";
-            RenderWallet(_progression.Snapshot);
-        }
-
         private void HideShop()
         {
             _returnFromShop?.Invoke();
@@ -1155,7 +1069,7 @@ namespace Train.Composition.Progression
             }
         }
 
-        /// <summary>打开结算或商店时申请模态输入，释放后恢复角色与镜头控制。</summary>
+        /// <summary>鎵撳紑缁撶畻鎴栧晢搴楁椂鐢宠妯℃€佽緭鍏ワ紝閲婃斁鍚庢仮澶嶈鑹蹭笌闀滃ご鎺у埗銆?/summary>
         private void AcquireModal()
         {
             _modalLease ??= _inputMode?.AcquireModal("ProgressionOverlay");
@@ -1167,35 +1081,12 @@ namespace Train.Composition.Progression
             _modalLease = null;
         }
 
-        /// <summary>预检查物品是否有足够堆叠容量，避免把所有失败都误报成背包已满。</summary>
+        /// <summary>棰勬鏌ョ墿鍝佹槸鍚︽湁瓒冲鍫嗗彔瀹归噺锛岄伩鍏嶆妸鎵€鏈夊け璐ラ兘璇姤鎴愯儗鍖呭凡婊°€?/summary>
         private bool CanStore(string itemId, int quantity)
         {
-            if (quantity <= 0 ||
-                !_inventory.TryGetDefinition(itemId, out var definition) ||
-                definition == null)
-            {
-                return false;
-            }
-
-            var remaining = quantity;
-            foreach (var slot in _inventory.Snapshot.Slots)
-            {
-                if (slot.IsEmpty)
-                {
-                    remaining -= definition.MaxStack;
-                }
-                else if (string.Equals(slot.ItemId, itemId, StringComparison.Ordinal))
-                {
-                    remaining -= Math.Max(0, definition.MaxStack - slot.Quantity);
-                }
-
-                if (remaining <= 0)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return quantity > 0 &&
+                   _inventory.TryGetDefinition(itemId, out var definition) &&
+                   definition != null;
         }
 
         public void Dispose()
@@ -1222,7 +1113,7 @@ namespace Train.Composition.Progression
             tmp.font = TMP_Settings.defaultFontAsset;
             tmp.fontSize = size;
             tmp.alignment = alignment;
-            tmp.enableWordWrapping = true;
+            tmp.textWrappingMode = TextWrappingModes.Normal;
             tmp.color = new Color32(220, 235, 242, 255);
             return tmp;
         }
@@ -1241,18 +1132,6 @@ namespace Train.Composition.Progression
             var label = CreateLabel(buttonRoot.transform, text, size, TextAlignmentOptions.Center);
             SetRect(label.rectTransform, Vector2.zero, Vector2.one, new Vector2(.5f, .5f), Vector2.zero, Vector2.zero);
             return button;
-        }
-
-        private static Color GetShopButtonColor(EquipmentRarity rarity)
-        {
-            return rarity switch
-            {
-                EquipmentRarity.Rare => new Color32(28, 76, 120, 255),
-                EquipmentRarity.Elite => new Color32(73, 45, 112, 255),
-                EquipmentRarity.Epic => new Color32(112, 45, 91, 255),
-                EquipmentRarity.Legendary => new Color32(132, 74, 24, 255),
-                _ => new Color32(30, 67, 78, 255)
-            };
         }
 
         private static Color GetShopItemColor(ItemRarity rarity)
@@ -1287,13 +1166,25 @@ namespace Train.Composition.Progression
 
         private static string GetRarityName(ItemRarity rarity)
         {
-            return rarity switch
+            switch (rarity)
             {
-                ItemRarity.Rare => "稀有",
-                ItemRarity.Elite => "精英",
-                ItemRarity.Epic => "史诗",
-                ItemRarity.Legendary => "传说",
-                _ => "普通"
+                case ItemRarity.Rare: return "稀有";
+                case ItemRarity.Elite: return "精英";
+                case ItemRarity.Epic: return "史诗";
+                case ItemRarity.Legendary: return "传说";
+                default: return "普通";
+            }
+        }
+
+        private static string GetCategoryName(ItemCategory category)
+        {
+            return category switch
+            {
+                ItemCategory.Consumable => "消耗品",
+                ItemCategory.Equipment => "装备",
+                ItemCategory.Material => "材料",
+                ItemCategory.Quest => "任务物品",
+                _ => "其他"
             };
         }
 
@@ -1302,10 +1193,10 @@ namespace Train.Composition.Progression
             return category switch
             {
                 ItemCategory.Consumable => "+",
-                ItemCategory.Equipment => "◆",
-                ItemCategory.Material => "◇",
+                ItemCategory.Equipment => "E",
+                ItemCategory.Material => "M",
                 ItemCategory.Quest => "!",
-                _ => "·"
+                _ => "-"
             };
         }
 
@@ -1319,7 +1210,7 @@ namespace Train.Composition.Progression
         }
     }
 
-    /// <summary>商店打开时的轻量缩放和透明度过渡，避免界面突然出现。</summary>
+    /// <summary>鍟嗗簵鎵撳紑鏃剁殑杞婚噺缂╂斁鍜岄€忔槑搴﹁繃娓★紝閬垮厤鐣岄潰绐佺劧鍑虹幇銆?/summary>
     internal sealed class ShopOverlayMotion : MonoBehaviour
     {
         private RectTransform _rect;
@@ -1350,7 +1241,7 @@ namespace Train.Composition.Progression
         }
     }
 
-    /// <summary>商品详情图标的微弱呼吸效果，保持信息层级而不干扰操作。</summary>
+    /// <summary>鍟嗗搧璇︽儏鍥炬爣鐨勫井寮卞懠鍚告晥鏋滐紝淇濇寔淇℃伅灞傜骇鑰屼笉骞叉壈鎿嶄綔銆?/summary>
     internal sealed class GraphicPulse : MonoBehaviour
     {
         private Image _image;

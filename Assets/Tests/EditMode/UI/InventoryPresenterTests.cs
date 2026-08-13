@@ -39,7 +39,7 @@ namespace Train.Tests.UI
         }
 
         [Test]
-        public void Constructor_RendersFixedGridAndSelectsFirstOccupiedSlot()
+        public void Constructor_RendersDynamicSlotsAndSelectsFirstOccupiedSlot()
         {
             var inventory = new FakeInventoryService(4);
             inventory.Register(
@@ -54,13 +54,13 @@ namespace Train.Tests.UI
             var view = new FakeInventoryView();
 
             using var presenter =
-                new InventoryPresenter(inventory, _events, view);
+                new InventoryPresenter(inventory, null, _events, view);
 
             Assert.That(view.RenderCount, Is.EqualTo(1));
             Assert.That(
                 view.LastModel.Slots,
-                Has.Count.EqualTo(InventoryPresenter.VisibleSlotCount));
-            Assert.That(view.LastModel.Capacity, Is.EqualTo(24));
+                Has.Count.EqualTo(1));
+            Assert.That(view.LastModel.Capacity, Is.EqualTo(4));
             Assert.That(view.LastModel.OccupiedCount, Is.EqualTo(1));
             Assert.That(view.LastModel.SelectedSlotIndex, Is.EqualTo(0));
             Assert.That(view.LastModel.Slots[0].IsSelected, Is.True);
@@ -101,6 +101,7 @@ namespace Train.Tests.UI
             using var presenter =
                 new InventoryPresenter(
                     inventory,
+                    null,
                     _events,
                     view,
                     () => closeCount++);
@@ -128,7 +129,7 @@ namespace Train.Tests.UI
                     ItemRarity.Common));
             var view = new FakeInventoryView();
             var presenter =
-                new InventoryPresenter(inventory, _events, view);
+                new InventoryPresenter(inventory, null, _events, view);
 
             inventory.TryAdd("chip", 2);
             _events.Publish(

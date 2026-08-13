@@ -65,6 +65,13 @@ namespace Train.Gameplay.Combat.Buffs
                 .Amount;
         }
 
+        public float ModifyOutgoingDamage(float amount, DamageElement element)
+        {
+            return EnsureHandle()
+                .ModifyOutgoingDamage(new DamageContext(amount, element))
+                .Amount;
+        }
+
         /// <summary>
         /// 创建并缓存句柄，同时转发领域事件。
         /// </summary>

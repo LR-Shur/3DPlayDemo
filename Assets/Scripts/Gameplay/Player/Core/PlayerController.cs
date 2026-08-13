@@ -31,7 +31,7 @@ namespace Train.Gameplay.Player.Core
 
         // 动态玩家由 YooAsset 实例化时，Awake 可能早于相机绑定；初始化必须允许重试。
         private bool _initialized;
-        private bool _reportedMissingReferences;
+
 
         /// <summary>
         /// 在运行时相机或 YooAsset 玩家实例晚于 Awake 完成时，主动重新绑定玩家状态机。
@@ -75,7 +75,11 @@ namespace Train.Gameplay.Player.Core
             _combat ??= GetComponent<PlayerCombat>();
             _cameraTransform ??= UnityEngine.Camera.main != null
                 ? UnityEngine.Camera.main.transform
-                : null;
+                : FindFirstObjectByType<Train.Gameplay.Camera.CinemachineLookInputAdapter>()?.transform;
+            if (_cameraTransform == null)
+            {
+                _cameraTransform = FindFirstObjectByType<Unity.Cinemachine.CinemachineCamera>()?.transform;
+            }
 
             var missing = _input == null ||
                           _motor == null ||
@@ -85,18 +89,6 @@ namespace Train.Gameplay.Player.Core
                           _cameraTransform == null;
             if (missing)
             {
-                if (!_reportedMissingReferences)
-                {
-                    _reportedMissingReferences = true;
-                    Debug.LogWarning(
-                        $"PlayerController 等待依赖就绪：input={_input != null}, " +
-                        $"motor={_motor != null && _motor.IsReady}, " +
-                        $"animation={_animation != null}, config={_config != null}, " +
-                        $"camera={_cameraTransform != null}, combat={_combat != null}。" +
-                        "动态玩家会在后续帧自动重试。",
-                        this);
-                }
-
                 return false;
             }
 

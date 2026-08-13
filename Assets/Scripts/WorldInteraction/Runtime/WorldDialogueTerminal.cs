@@ -2,6 +2,7 @@ using Train.Architecture.Bootstrap;
 using Train.Architecture.Interaction;
 using Train.Dialogue.Application;
 using Train.WorldInteraction.Core;
+using Train.WorldInteraction.Data;
 using UnityEngine;
 
 namespace Train.WorldInteraction.Runtime
@@ -67,6 +68,13 @@ namespace Train.WorldInteraction.Runtime
         /// </summary>
         private void Start()
         {
+            var settings = Resources.Load<WorldInteractionSettings>(
+                "Settings/WorldInteractionSettings");
+            if (settings != null)
+            {
+                _interactionRange = settings.NpcInteractionRange;
+            }
+
             _interactionPoint ??= transform.Find("InteractionPoint");
             TryResolveDialogue();
             TryResolveCombatGate();

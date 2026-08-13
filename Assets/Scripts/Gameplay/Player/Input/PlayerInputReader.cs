@@ -15,6 +15,7 @@ namespace Train.Gameplay.Player.Input
 
         /// <summary>快捷道具按键触发时通知组合层，参数范围为 0 到 3。</summary>
         public event System.Action<int> ItemUsePerformed;
+        public event System.Action BuffPanelPerformed;
         [SerializeField] private InputActionAsset _actionsAsset;
         [SerializeField] private string _actionMapName = "Player";
 
@@ -173,6 +174,14 @@ namespace Train.Gameplay.Player.Input
             _playerMap.Disable();
             _startAction?.Disable();
             ClearBufferedButtons();
+        }
+
+        private void Update()
+        {
+            if (Keyboard.current != null && Keyboard.current.iKey.wasPressedThisFrame)
+            {
+                BuffPanelPerformed?.Invoke();
+            }
         }
 
         /// <summary>

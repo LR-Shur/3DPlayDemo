@@ -269,7 +269,9 @@ namespace Train.Presentation.UI.Presenters
                         ? selectedDefinition.DisplayName
                         : "未选择装备",
                     selectedDefinition != null
-                        ? selectedDefinition.Description
+                        ? EquipmentDescriptionFormatter.Format(
+                            selectedDefinition,
+                            _equipment)
                         : "从中间目录选择一件装备以查看详情。",
                     selectedDefinition != null
                         ? selectedDefinition.Rarity

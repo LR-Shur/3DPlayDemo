@@ -26,6 +26,7 @@ namespace Train.Composition
         private PlayerInputReader _input;
         private Health _health;
         private BuffHandleComponent _buffs;
+        private ParticleSystem _chargeParticles;
         private bool _applyingEffect;
         private readonly System.Collections.Generic.Dictionary<string, float> _nextEffectTimes =
             new System.Collections.Generic.Dictionary<string, float>(StringComparer.Ordinal);
@@ -128,6 +129,11 @@ namespace Train.Composition
             _input = player.GetComponent<PlayerInputReader>();
             _health = player.GetComponent<Health>();
             _buffs = player.GetComponent<BuffHandleComponent>();
+            EnsureChargeParticles(player.transform);
+            if (player.SwordHitbox != null)
+            {
+                player.SwordHitbox.DamageApplied += OnPlayerDamageApplied;
+            }
             if (_input != null)
             {
                 _input.DodgePerformed += OnDodgePerformed;
@@ -169,6 +175,22 @@ namespace Train.Composition
             }
         }
 
+        private void OnPlayerDamageApplied(DamageInfo damage, DamageResult result)
+        {
+            if (result.AppliedDamage <= 0f || damage.DamageType != DamageType.Electric || _buffs == null)
+            {
+                return;
+            }
+
+            _buffs.Apply(new Train.Buffs.Core.BuffInfo(
+                "electric_charge",
+                "equipment.electric_charge",
+                8f,
+                .3f,
+                1,
+                5));
+        }
+
         private void OnPlayerBuffChanged(object sender, Train.Buffs.Core.BuffChangedEventArgs args)
         {
             if (_applyingEffect)
@@ -180,6 +202,44 @@ namespace Train.Composition
             {
                 ApplyTrigger("ON_MARK_REACHED");
             }
+
+            UpdateChargeParticles();
+        }
+
+        private void EnsureChargeParticles(Transform parent)
+        {
+            if (_chargeParticles != null || parent == null) return;
+            var go = new GameObject("ElectricChargeParticles");
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = Vector3.up * .8f;
+            _chargeParticles = go.AddComponent<ParticleSystem>();
+            var main = _chargeParticles.main;
+            main.loop = true;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(.35f, .8f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(.2f, .8f);
+            main.startSize = new ParticleSystem.MinMaxCurve(.025f, .08f);
+            main.startColor = new Color(0.65f, 0.12f, 1f, 1f);
+            main.maxParticles = 32;
+            var shape = _chargeParticles.shape;
+            shape.shapeType = ParticleSystemShapeType.Sphere;
+            shape.radius = .45f;
+            _chargeParticles.GetComponent<ParticleSystemRenderer>().material =
+                new Material(Shader.Find("Sprites/Default"));
+            UpdateChargeParticles();
+        }
+
+        private void UpdateChargeParticles()
+        {
+            if (_chargeParticles == null || _buffs == null) return;
+            var stacks = 0;
+            foreach (var buff in _buffs.Snapshot.Buffs)
+            {
+                if (buff.BuffId == "electric_charge") stacks = buff.StackCount;
+            }
+            var emission = _chargeParticles.emission;
+            emission.rateOverTime = stacks > 0 ? 8f + stacks * 8f : 0f;
+            if (stacks > 0 && !_chargeParticles.isPlaying) _chargeParticles.Play();
+            if (stacks == 0 && _chargeParticles.isPlaying) _chargeParticles.Stop();
         }
 
         private void ApplyTrigger(string trigger)
@@ -256,6 +316,11 @@ namespace Train.Composition
             if (_health != null)
             {
                 _health.Damaged -= OnPlayerDamaged;
+            }
+            var player = _input != null ? _input.GetComponent<PlayerCombat>() : null;
+            if (player != null && player.SwordHitbox != null)
+            {
+                player.SwordHitbox.DamageApplied -= OnPlayerDamageApplied;
             }
 
             if (_buffs != null)

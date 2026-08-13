@@ -78,7 +78,6 @@ namespace Train.EditorTools.GameFlow
                 }
             }
 
-            MigrateLegacyMarkers(scene);
             SyncDefinition(scene, definition);
 
             if (runtime != null)
@@ -107,7 +106,6 @@ namespace Train.EditorTools.GameFlow
             }
 
             EnsureSpawnPointPrefabs();
-            MigrateLegacyMarkers(scene);
             SyncDefinition(scene, definition);
             EditorUtility.SetDirty(definition);
         }
@@ -186,45 +184,6 @@ namespace Train.EditorTools.GameFlow
 
             throw new InvalidOperationException(
                 $"敌人点位 '{point.name}' 没有拖入敌人 Prefab。");
-        }
-
-        private static void MigrateLegacyMarkers(Scene scene)
-        {
-            var runtime = FindSceneComponent<LevelRuntimeController>(scene);
-            var spawnsRoot = runtime != null
-                ? runtime.transform.Find("Spawns")
-                : null;
-            if (spawnsRoot == null)
-            {
-                return;
-            }
-
-            var defaultPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                AssetLocations.KnightEnemyPrefab);
-            for (var index = 0; index < spawnsRoot.childCount; index++)
-            {
-                var child = spawnsRoot.GetChild(index);
-                if (child.name.StartsWith("EnemySpawn_", StringComparison.Ordinal))
-                {
-                    var point = child.GetComponent<EnemySpawnPoint>();
-                    if (point == null)
-                    {
-                        point = child.gameObject.AddComponent<EnemySpawnPoint>();
-                        point.Configure(
-                            child.name.Replace("EnemySpawn_", "knight_"),
-                            "kaykit_knight",
-                            defaultPrefab,
-                            AssetLocations.KnightEnemyPrefab);
-                        EditorUtility.SetDirty(point);
-                    }
-                }
-                else if (child.name == "PlayerSpawn" &&
-                         child.GetComponent<PlayerSpawnPoint>() == null)
-                {
-                    child.gameObject.AddComponent<PlayerSpawnPoint>();
-                    EditorUtility.SetDirty(child.gameObject);
-                }
-            }
         }
 
         private static List<EnemySpawnPoint> FindEnemyPoints(Scene scene)

@@ -21,12 +21,12 @@ namespace Train.Tests.EditMode.Progression
         }
 
         [Test]
-        public void CompleteLegacyLevelId_UnlocksNextNodeAndAddsClearBonus()
+        public void CompleteCurrentLevelId_UnlocksNextNodeAndAddsClearBonus()
         {
             var service = new ProgressionService(new EventBus());
 
             var completed = service.CompleteLevel(
-                "combat_001",
+                "level.combat.001",
                 out var nextNode);
 
             Assert.That(completed, Is.True);

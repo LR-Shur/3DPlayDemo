@@ -36,7 +36,7 @@ namespace Train.Presentation.UI.Views
                 var cooldown = cooldowns != null && index < cooldowns.Length
                     ? Mathf.Max(0f, cooldowns[index])
                     : 0f;
-                _cooldowns[index].text = cooldown > .05f ? $"{cooldown:0.0}s" : string.Empty;
+                _cooldowns[index].text = cooldown > .05f ? $"{cooldown:0.0}秒" : string.Empty;
                 _cooldowns[index].color = new Color32(120, 225, 255, 255);
                 _quantities[index].color = quantity > 0
                     ? new Color32(220, 235, 242, 255)

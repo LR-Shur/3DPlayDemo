@@ -21,9 +21,6 @@ using Train.Gameplay.Player.Application.Events;
 using Train.Gameplay.Player.Core;
 using Train.Gameplay.Player.Input;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace Train.GameFlow.Runtime
 {
@@ -119,7 +116,6 @@ namespace Train.GameFlow.Runtime
                 _sessionRegistry.Attach(this);
             }
         }
-
         private void Start()
         {
             // 只有显式配置自动开始的关卡才在进入场景时启动；第一关由训练对话完成事件启动。
@@ -267,54 +263,23 @@ namespace Train.GameFlow.Runtime
             _prepared = true;
         }
 
-        /// <summary>
-        /// 通过 YooAsset 实例化敌人；编辑器直接打开训练场且资源模拟包尚未准备好时，
-        /// 回退到 AssetDatabase，保证“模拟训练”仍能刷出敌人。
-        /// </summary>
+        /// <summary>通过 YooAsset 实例化场景配置中的敌人。</summary>
         private async Task<IInstanceLease> InstantiateEnemyAsync(
             IAssetService assets,
             EnemySpawnDefinition spawn,
             CancellationToken cancellationToken)
         {
             var spawnTransform = ResolveEnemySpawnTransform(spawn);
-            try
-            {
-                return await assets.InstantiateAsync(
-                    spawn.PrefabLocation,
-                    _spawnedActorsRoot,
-                    spawnTransform.Position,
-                    spawnTransform.Rotation,
-                    cancellationToken);
-            }
-            catch (Exception exception)
-                when (!(exception is OperationCanceledException))
-            {
-#if UNITY_EDITOR
-                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                    spawn.PrefabLocation);
-                if (prefab != null)
-                {
-                    var instance = UnityEngine.Object.Instantiate(
-                        prefab,
-                        spawnTransform.Position,
-                        spawnTransform.Rotation,
-                        _spawnedActorsRoot);
-                    Debug.Log(
-                        $"训练场资源服务未就绪，已使用编辑器直接实例化敌人：" +
-                        $"{spawn.PrefabLocation}。原始原因：{exception.Message}",
-                        this);
-                    return new EditorInstanceLease(
-                        spawn.PrefabLocation,
-                        instance);
-                }
-#endif
-                throw;
-            }
+            return await assets.InstantiateAsync(
+                spawn.PrefabLocation,
+                _spawnedActorsRoot,
+                spawnTransform.Position,
+                spawnTransform.Rotation,
+                cancellationToken);
         }
 
         /// <summary>
-        /// 优先读取场景中同 SpawnId 的 EnemySpawnPoint Transform；
-        /// 没有场景点位时回退到关卡 SO 保存的数值坐标。
+        /// 读取场景中同 SpawnId 的新版 EnemySpawnPoint Transform。
         /// </summary>
         private (Vector3 Position, Quaternion Rotation) ResolveEnemySpawnTransform(
             EnemySpawnDefinition spawn)
@@ -612,9 +577,15 @@ namespace Train.GameFlow.Runtime
                 throw new InvalidOperationException(
                     "Player camera prefab requires a CinemachineCamera component.");
             }
+
+            // 动态 Player 的 Awake 早于异步相机实例化；相机完成绑定后显式完成玩家控制器初始化。
+            var playerController = playerRoot.GetComponent<PlayerController>();
+            var mainCamera = UnityEngine.Camera.main;
+            playerController?.InitializeRuntime(
+                mainCamera != null ? mainCamera.transform : virtualCamera.transform);
         }
 
-        /// <summary>读取场景中摆放的玩家出生点，SO 仅作为没有场景点位时的兜底。</summary>
+        /// <summary>读取场景出生点；新版组件优先。</summary>
         private Transform ResolvePlayerSpawnPoint()
         {
             if (_playerSpawnPoint != null)
@@ -632,7 +603,6 @@ namespace Train.GameFlow.Runtime
                 return _playerSpawnPoint;
             }
 
-            // SO 保存的是世界坐标，使用 SetPositionAndRotation，不能再叠加关卡根节点偏移。
             if (_definition != null)
             {
                 var runtimePoint = new GameObject("[RuntimePlayerSpawn]");
@@ -643,7 +613,8 @@ namespace Train.GameFlow.Runtime
                 return _playerSpawnPoint;
             }
 
-            return null;
+            throw new InvalidOperationException(
+                "Playable level requires a configured player spawn point.");
         }
 
         private void ValidatePlayer()
@@ -868,36 +839,20 @@ namespace Train.GameFlow.Runtime
             {
                 // Normal during scene unload or play-mode exit.
             }
+            catch (AssetServiceException exception)
+                when (GameBootstrap.IsApplicationQuitting ||
+                      (exception.Message != null &&
+                       exception.Message.IndexOf(
+                           "aborted",
+                           StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                // YooAsset aborts pending operations while the editor exits play mode.
+            }
             catch (Exception exception)
             {
                 Debug.LogException(exception);
             }
         }
-
-#if UNITY_EDITOR
-        /// <summary>编辑器直接实例化对象的轻量租约，释放时销毁对象。</summary>
-        private sealed class EditorInstanceLease : IInstanceLease
-        {
-            public EditorInstanceLease(string location, GameObject instance)
-            {
-                Location = location;
-                Instance = instance;
-            }
-
-            public string Location { get; }
-            public GameObject Instance { get; private set; }
-            public bool IsValid => Instance != null;
-
-            public void Dispose()
-            {
-                if (Instance != null)
-                {
-                    UnityEngine.Object.Destroy(Instance);
-                    Instance = null;
-                }
-            }
-        }
-#endif
 
         private void OnDestroy()
         {

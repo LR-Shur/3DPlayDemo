@@ -12,8 +12,7 @@ namespace Train.Gameplay.Combat
     /// 剑的触发器伤害源。普通攻击同段只命中一次，飞刃段使用连续扫掠并按间隔重复伤害。
     /// </summary>
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(Collider))]
-    public sealed class SwordHitbox : MonoBehaviour, IDamageSource, IFactionMember
+        public sealed class SwordHitbox : MonoBehaviour, IDamageSource, IFactionMember
     {
         [SerializeField, Min(0f)] private float _damage = 25f;
         [SerializeField, Min(0f)] private float _impactForce = 2f;
@@ -26,7 +25,6 @@ namespace Train.Gameplay.Combat
         private readonly HashSet<IDamageable> _hitTargets = new();
         private readonly Dictionary<IDamageable, float> _nextContinuousHitTimes = new();
         private Collider _trigger;
-        private Collider _localCollider;
         private IWeaponHitEffect[] _hitEffects = Array.Empty<IWeaponHitEffect>();
         private string _runtimeBuffId;
         private string _runtimeBuffSourceId = "weapon.equipped";
@@ -45,6 +43,7 @@ namespace Train.Gameplay.Combat
         public Transform OwnerTransform => _ownerTransform;
         public float Damage => _damage;
         public DamageType DamageType => _damageType;
+        public event Action<DamageInfo, DamageResult> DamageApplied;
         public bool IsDamageActive => _trigger != null && _trigger.enabled;
         public CombatFaction Faction
         {
@@ -60,20 +59,10 @@ namespace Train.Gameplay.Combat
         private void Awake()
         {
             _ownerTransform ??= transform.root;
-            _localCollider = GetComponent<Collider>();
             _trigger = ResolveWeaponCollider();
-            if (_trigger != null)
-            {
-                _trigger.isTrigger = true;
-                _trigger.enabled = false;
-                EnsureTriggerForwarder(_trigger.gameObject);
-            }
-
-            // 保留旧的占位碰撞体作为兜底，但实际攻击期间只启用武器节点上的碰撞体。
-            if (_localCollider != null && _localCollider != _trigger)
-            {
-                _localCollider.enabled = false;
-            }
+            _trigger.isTrigger = true;
+            _trigger.enabled = false;
+            EnsureTriggerForwarder(_trigger.gameObject);
 
             CacheHitEffects();
         }
@@ -111,15 +100,7 @@ namespace Train.Gameplay.Combat
             _nextContinuousHitTimes.Clear();
             _continuousHitbox = continuousHitbox;
             _hasPreviousSweepCenter = false;
-            if (_trigger == null)
-            {
-                _trigger = ResolveWeaponCollider();
-            }
-
-            if (_trigger != null)
-            {
-                _trigger.enabled = true;
-            }
+            _trigger.enabled = true;
         }
 
         public void EndAttack()
@@ -224,27 +205,21 @@ namespace Train.Gameplay.Combat
             Gizmos.matrix = previousMatrix;
         }
 
-        /// <summary>优先查找真实的 0005_Ellen_Weapon 节点，并在其上复用或创建碰撞体。</summary>
+        /// <summary>查找新版预制体中真实武器节点上的碰撞体。</summary>
         private Collider ResolveWeaponCollider()
         {
             var weapon = FindWeaponNode();
             if (weapon == null)
             {
-                return _localCollider ?? GetComponent<Collider>();
+                throw new InvalidOperationException(
+                    $"SwordHitbox requires weapon node '{_weaponNodeName}'.");
             }
 
             var collider = weapon.GetComponent<Collider>();
-            var createdAtRuntime = false;
             if (collider == null)
             {
-                collider = weapon.gameObject.AddComponent<BoxCollider>();
-                createdAtRuntime = true;
-            }
-
-            // 预制体中已经保存了按网格计算的碰撞体时保持美术侧尺寸；只有旧预制体运行时补建时才重新估算。
-            if (createdAtRuntime && collider is BoxCollider box)
-            {
-                FitBoxToWeaponRenderers(box, weapon);
+                throw new InvalidOperationException(
+                    $"Weapon node '{_weaponNodeName}' requires a configured collider.");
             }
 
             return collider;
@@ -254,7 +229,7 @@ namespace Train.Gameplay.Combat
         private Collider FindWeaponColliderInEditor()
         {
             var weapon = FindWeaponNode();
-            return weapon != null ? weapon.GetComponent<Collider>() : _localCollider ?? GetComponent<Collider>();
+            return weapon != null ? weapon.GetComponent<Collider>() : null;
         }
 
         private Transform FindWeaponNode()
@@ -285,30 +260,6 @@ namespace Train.Gameplay.Combat
             }
 
             forwarder.Bind(this);
-        }
-
-        private static void FitBoxToWeaponRenderers(BoxCollider box, Transform weapon)
-        {
-            var renderers = weapon.GetComponentsInChildren<Renderer>(true);
-            if (renderers.Length == 0)
-            {
-                return;
-            }
-
-            var worldBounds = renderers[0].bounds;
-            for (var i = 1; i < renderers.Length; i++)
-            {
-                worldBounds.Encapsulate(renderers[i].bounds);
-            }
-
-            var localCenter = weapon.InverseTransformPoint(worldBounds.center);
-            var localSize = weapon.InverseTransformVector(worldBounds.size);
-            localSize = new Vector3(
-                Mathf.Max(Mathf.Abs(localSize.x) + 0.04f, 0.05f),
-                Mathf.Max(Mathf.Abs(localSize.y) + 0.04f, 0.05f),
-                Mathf.Max(Mathf.Abs(localSize.z) + 0.04f, 0.05f));
-            box.center = localCenter;
-            box.size = localSize;
         }
 
         private void DrawWeaponRendererBounds()
@@ -396,10 +347,24 @@ namespace Train.Gameplay.Combat
                     _impactForce,
                     _damageType);
 
+                if (_ownerTransform != null)
+                {
+                    var ownerBuffs = _ownerTransform.GetComponentInParent<BuffHandleComponent>();
+                    if (ownerBuffs != null)
+                    {
+                        var element = _damageType == DamageType.Electric
+                            ? DamageElement.Electric
+                            : DamageElement.Physical;
+                        damageInfo = damageInfo.WithAmount(
+                            ownerBuffs.ModifyOutgoingDamage(damageInfo.Amount, element));
+                    }
+                }
+
                 var result = DamageHandler.Apply(
                     damageable,
                     damageInfo,
                     targetFaction);
+                DamageApplied?.Invoke(damageInfo, result);
                 if (_continuousHitbox && result.AppliedDamage > 0f)
                 {
                     _nextContinuousHitTimes[damageable] =

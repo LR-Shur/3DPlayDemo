@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Train.Inventory.Core
 {
@@ -10,7 +11,7 @@ namespace Train.Inventory.Core
     /// </summary>
     public sealed class InventoryModel
     {
-        private readonly SlotState[] _slots;
+        private readonly List<SlotState> _slots;
         private readonly IItemStackLimitProvider _stackLimitProvider;
 
         /// <summary>
@@ -30,7 +31,11 @@ namespace Train.Inventory.Core
 
             _stackLimitProvider = stackLimitProvider ??
                 throw new ArgumentNullException(nameof(stackLimitProvider));
-            _slots = new SlotState[capacity];
+            _slots = new List<SlotState>(capacity);
+            for (var index = 0; index < capacity; index++)
+            {
+                _slots.Add(default);
+            }
         }
 
         /// <summary>
@@ -39,7 +44,7 @@ namespace Train.Inventory.Core
         public event EventHandler<InventoryChangedEventArgs> Changed;
 
         /// <summary>获取背包的固定槽位数量。</summary>
-        public int Capacity => _slots.Length;
+        public int Capacity => _slots.Count;
 
         /// <summary>获取随每次成功修改递增的修订号。</summary>
         public long Revision { get; private set; }
@@ -56,17 +61,12 @@ namespace Train.Inventory.Core
             ValidateOperation(itemId, quantity);
             var maxStack = GetValidatedMaxStack(itemId);
 
-            if (CalculateAddCapacity(itemId, maxStack) < quantity)
-            {
-                return false;
-            }
-
             var remaining = quantity;
 
             // 先按槽位顺序填充已有堆叠。
-            for (var i = 0; i < _slots.Length && remaining > 0; i++)
+            for (var i = 0; i < _slots.Count && remaining > 0; i++)
             {
-                ref var slot = ref _slots[i];
+                var slot = _slots[i];
                 if (slot.IsEmpty ||
                     !string.Equals(
                         slot.ItemId,
@@ -79,13 +79,14 @@ namespace Train.Inventory.Core
                 var room = maxStack - slot.Quantity;
                 var amount = Math.Min(room, remaining);
                 slot.Quantity += amount;
+                _slots[i] = slot;
                 remaining -= amount;
             }
 
             // 新堆叠始终使用索引最小的空槽位。
-            for (var i = 0; i < _slots.Length && remaining > 0; i++)
+            for (var i = 0; i < _slots.Count && remaining > 0; i++)
             {
-                ref var slot = ref _slots[i];
+                var slot = _slots[i];
                 if (!slot.IsEmpty)
                 {
                     continue;
@@ -94,6 +95,18 @@ namespace Train.Inventory.Core
                 var amount = Math.Min(maxStack, remaining);
                 slot.ItemId = itemId;
                 slot.Quantity = amount;
+                _slots[i] = slot;
+                remaining -= amount;
+            }
+
+            while (remaining > 0)
+            {
+                var amount = Math.Min(maxStack, remaining);
+                _slots.Add(new SlotState
+                {
+                    ItemId = itemId,
+                    Quantity = amount
+                });
                 remaining -= amount;
             }
 
@@ -117,9 +130,9 @@ namespace Train.Inventory.Core
             var remaining = quantity;
 
             // 从最后一个堆叠开始移除，使前面的槽位保持紧凑且结果可预测。
-            for (var i = _slots.Length - 1; i >= 0 && remaining > 0; i--)
+            for (var i = _slots.Count - 1; i >= 0 && remaining > 0; i--)
             {
-                ref var slot = ref _slots[i];
+                var slot = _slots[i];
                 if (slot.IsEmpty ||
                     !string.Equals(
                         slot.ItemId,
@@ -137,6 +150,8 @@ namespace Train.Inventory.Core
                 {
                     slot.ItemId = null;
                 }
+
+                _slots[i] = slot;
             }
 
             CommitChange(InventoryChangeKind.Removed, itemId, quantity);
@@ -165,8 +180,8 @@ namespace Train.Inventory.Core
         /// </summary>
         public InventorySnapshot CreateSnapshot()
         {
-            var slots = new InventorySlotSnapshot[_slots.Length];
-            for (var i = 0; i < _slots.Length; i++)
+            var slots = new InventorySlotSnapshot[_slots.Count];
+            for (var i = 0; i < _slots.Count; i++)
             {
                 slots[i] = new InventorySlotSnapshot(
                     i,
@@ -177,46 +192,10 @@ namespace Train.Inventory.Core
             return new InventorySnapshot(Revision, slots);
         }
 
-        private long CalculateAddCapacity(string itemId, int maxStack)
-        {
-            long capacity = 0;
-
-            for (var i = 0; i < _slots.Length; i++)
-            {
-                var slot = _slots[i];
-                if (slot.IsEmpty)
-                {
-                    capacity += maxStack;
-                    continue;
-                }
-
-                if (!string.Equals(
-                        slot.ItemId,
-                        itemId,
-                        StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                if (slot.Quantity > maxStack)
-                {
-                    throw new InvalidOperationException(
-                        $"The stack-limit rule for '{itemId}' changed to " +
-                        $"{maxStack}, but slot {i} already contains " +
-                        $"{slot.Quantity}. Existing data must be migrated " +
-                        "before using the new rule.");
-                }
-
-                capacity += maxStack - slot.Quantity;
-            }
-
-            return capacity;
-        }
-
         private long CalculateItemQuantity(string itemId)
         {
             long quantity = 0;
-            for (var i = 0; i < _slots.Length; i++)
+            for (var i = 0; i < _slots.Count; i++)
             {
                 var slot = _slots[i];
                 if (!slot.IsEmpty &&

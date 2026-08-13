@@ -55,11 +55,11 @@ namespace Train.Tests.EditMode.Combat
         }
 
         [Test]
-        public void CanDamage_WhenFactionIsMissing_PreservesLegacyDamage()
+        public void CanDamage_WhenFactionIsMissing_RejectsDamage()
         {
             Assert.That(
                 DamagePolicy.CanDamage(null, new FactionStub(CombatFaction.Enemy)),
-                Is.True);
+                Is.False);
         }
 
         [Test]

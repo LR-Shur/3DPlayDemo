@@ -175,7 +175,7 @@ namespace Train.Presentation.UI.Presenters
         {
             return speakerId switch
             {
-                "character.rusk" => "Rusk",
+                "character.rusk" => "鲁斯克",
                 "character.captain_lyra" => "莱拉队长",
                 "character.training_operator" => "训练终端",
                 "character.player" => "你",

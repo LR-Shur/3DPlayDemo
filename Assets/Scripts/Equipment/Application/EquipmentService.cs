@@ -19,6 +19,8 @@ namespace Train.Equipment.Application
             _definitions = new(StringComparer.Ordinal);
         private readonly Dictionary<string, EquipmentItemSpec> _itemSpecs =
             new(StringComparer.Ordinal);
+        private readonly Dictionary<string, EquipmentSetDefinition>
+            _setDefinitions = new(StringComparer.Ordinal);
         private readonly IEventBus _events;
         private readonly IAssetLease<EquipmentSettings> _settingsLease;
         private readonly EquipmentLoadout _loadout;
@@ -45,6 +47,17 @@ namespace Train.Equipment.Application
             try
             {
                 var setSpecs = BuildSetSpecs(settings, out var knownSetIds);
+                for (var i = 0; i < settings.Sets.Count; i++)
+                {
+                    var setDefinition = settings.Sets[i];
+                    if (setDefinition != null)
+                    {
+                        _setDefinitions.Add(
+                            setDefinition.SetId,
+                            setDefinition);
+                    }
+                }
+
                 var catalog = BuildCatalog(settings, knownSetIds);
                 var baseStats = BuildBaseStats(settings);
 
@@ -57,6 +70,7 @@ namespace Train.Equipment.Application
             {
                 _definitions.Clear();
                 _itemSpecs.Clear();
+                _setDefinitions.Clear();
                 _settingsLease?.Dispose();
                 throw;
             }
@@ -95,6 +109,20 @@ namespace Train.Equipment.Application
             }
 
             return _definitions.TryGetValue(itemId, out definition);
+        }
+
+        public bool TryGetSetDefinition(
+            string setId,
+            out EquipmentSetDefinition definition)
+        {
+            ThrowIfDisposed();
+            if (string.IsNullOrWhiteSpace(setId))
+            {
+                definition = null;
+                return false;
+            }
+
+            return _setDefinitions.TryGetValue(setId, out definition);
         }
 
         /// <inheritdoc />
@@ -137,6 +165,7 @@ namespace Train.Equipment.Application
             _loadout.Changed -= OnLoadoutChanged;
             _definitions.Clear();
             _itemSpecs.Clear();
+            _setDefinitions.Clear();
             _settingsLease?.Dispose();
             _disposed = true;
         }

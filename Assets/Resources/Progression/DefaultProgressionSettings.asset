@@ -14,32 +14,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: Train.Composition::Train.Composition.Progression.ProgressionSettings
   _nodes:
   - _levelId: level.combat.001
-    _displayName: "第 1 训练区 · 霓虹外环"
+    _displayName: "\u7B2C 1 \u8BAD\u7EC3\u533A \xB7 \u9713\u8679\u5916\u73AF"
     _scenePath: Playable_Level_Combat_001
     _isBoss: 0
     _clearBonus: 180
   - _levelId: level.combat.002
-    _displayName: "第 2 战区 · 断电回廊"
+    _displayName: "\u7B2C 2 \u6218\u533A \xB7 \u65AD\u7535\u56DE\u5ECA"
     _scenePath: Playable_Level_Combat_002
     _isBoss: 0
     _clearBonus: 300
   - _levelId: level.energy.relay
-    _displayName: "能源中继站 · 过载警戒"
+    _displayName: "\u80FD\u6E90\u4E2D\u7EE7\u7AD9 \xB7 \u8FC7\u8F7D\u8B66\u6212"
     _scenePath: Playable_Level_EnergyRelay
     _isBoss: 0
     _clearBonus: 480
   - _levelId: level.orbital.cargo
-    _displayName: "轨道装卸港 · 电磁爆破"
+    _displayName: "\u8F68\u9053\u88C5\u5378\u6E2F \xB7 \u7535\u78C1\u7206\u7834"
     _scenePath: Playable_Level_OrbitalCargo
     _isBoss: 0
     _clearBonus: 620
   - _levelId: level.cryo.garden
-    _displayName: "冷却花园 · 冻结警戒"
+    _displayName: "\u51B7\u5374\u82B1\u56ED \xB7 \u51BB\u7ED3\u8B66\u6212"
     _scenePath: Playable_Level_CryoGarden
     _isBoss: 0
     _clearBonus: 760
   - _levelId: level.boss.001
-    _displayName: "核心熔炉 · Rusk 原型机"
+    _displayName: "\u6838\u5FC3\u7194\u7089 \xB7 Rusk \u539F\u578B\u673A"
     _scenePath: Playable_Level_Boss_001
+    _isBoss: 1
+    _clearBonus: 800
+  - _levelId: MainScenes
+    _displayName: MainScenes
+    _scenePath: Playable_MainScenes
     _isBoss: 1
     _clearBonus: 800

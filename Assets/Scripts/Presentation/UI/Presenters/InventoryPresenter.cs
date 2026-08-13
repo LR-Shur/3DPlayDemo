@@ -17,8 +17,6 @@ namespace Train.Presentation.UI.Presenters
     public sealed class InventoryPresenter : IDisposable
     {
         /// <summary>背包页面固定显示的槽位数量。</summary>
-        public const int VisibleSlotCount = 24;
-
         private readonly IInventoryService _inventory;
         private readonly IEquipmentService _equipment;
         private readonly IEventBus _events;
@@ -58,16 +56,6 @@ namespace Train.Presentation.UI.Presenters
                 events.Subscribe<EquipmentChangedEvent>(OnEquipmentChanged);
 
             Render();
-        }
-
-        /// <summary>兼容不需要装备标记的旧测试和独立背包预览。</summary>
-        public InventoryPresenter(
-            IInventoryService inventory,
-            IEventBus events,
-            IInventoryView view,
-            Action onCloseRequested = null)
-            : this(inventory, null, events, view, onCloseRequested)
-        {
         }
 
         /// <summary>获取当前选中的槽位索引；尚未选择时为 -1。</summary>
@@ -113,9 +101,7 @@ namespace Train.Presentation.UI.Presenters
 
         private void OnSlotSelected(int slotIndex)
         {
-            if (_disposed ||
-                slotIndex < 0 ||
-                slotIndex >= VisibleSlotCount)
+            if (_disposed || slotIndex < 0)
             {
                 return;
             }
@@ -188,16 +174,14 @@ namespace Train.Presentation.UI.Presenters
 
             EnsureSelection(filteredSlots.Count);
 
-            var slots = new InventorySlotViewModel[VisibleSlotCount];
+            var slots = new InventorySlotViewModel[filteredSlots.Count];
             var detail = InventoryItemDetailViewModel.Empty;
 
             for (var slotIndex = 0;
-                 slotIndex < VisibleSlotCount;
+                 slotIndex < slots.Length;
                  slotIndex++)
             {
-                var slot = slotIndex < filteredSlots.Count
-                    ? filteredSlots[slotIndex]
-                    : new InventorySlotSnapshot(slotIndex, null, 0);
+                var slot = filteredSlots[slotIndex];
                 var occupied = !slot.IsEmpty;
                 var selected = slotIndex == _selectedSlotIndex;
                 ItemDefinition definition = null;
@@ -251,9 +235,7 @@ namespace Train.Presentation.UI.Presenters
                         slotIndex,
                         slot.ItemId,
                         displayName,
-                        definition != null
-                            ? definition.Description
-                            : string.Empty,
+                        GetDescription(slot.ItemId, definition),
                         slot.Quantity,
                         maxStack,
                         category,
@@ -309,7 +291,7 @@ namespace Train.Presentation.UI.Presenters
                 _selectedSlotIndex,
                 slotSnapshot.ItemId,
                 itemDefinition != null ? itemDefinition.DisplayName : slotSnapshot.ItemId,
-                itemDefinition != null ? itemDefinition.Description : string.Empty,
+                GetDescription(slotSnapshot.ItemId, itemDefinition),
                 slotSnapshot.Quantity,
                 itemDefinition != null ? itemDefinition.MaxStack : slotSnapshot.Quantity,
                 itemDefinition != null ? itemDefinition.Category : ItemCategory.Material,
@@ -336,6 +318,27 @@ namespace Train.Presentation.UI.Presenters
             }
 
             return result;
+        }
+
+        private string GetDescription(
+            string itemId,
+            ItemDefinition definition)
+        {
+            if (definition == null)
+            {
+                return string.Empty;
+            }
+
+            if (definition.Category == ItemCategory.Equipment &&
+                _equipment != null &&
+                _equipment.TryGetDefinition(itemId, out var equipmentDefinition))
+            {
+                return EquipmentDescriptionFormatter.Format(
+                    equipmentDefinition,
+                    _equipment);
+            }
+
+            return definition.Description;
         }
 
         private void EnsureSelection(int filteredCount)

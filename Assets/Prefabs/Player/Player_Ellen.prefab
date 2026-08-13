@@ -375,6 +375,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Train.Gameplay.Combat.SwordHitbox
   _damage: 25
   _impactForce: 2
+  _continuousDamageInterval: 0.1
   _damageType: 3
   _ownerTransform: {fileID: 4842261875128360157}
   _faction: 1

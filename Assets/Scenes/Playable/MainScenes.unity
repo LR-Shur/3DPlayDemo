@@ -108709,6 +108709,10 @@ PrefabInstance:
       propertyPath: _definition
       value: 
       objectReference: {fileID: 11400000, guid: ec0d5c0b2ed439b4e9fbb854d084d5aa, type: 2}
+    - target: {fileID: 120003, guid: 9c0d1e2f3a4b5c6d7e8f9012345678ab, type: 3}
+      propertyPath: _autoStart
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
