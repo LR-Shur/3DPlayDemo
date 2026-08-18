@@ -60,6 +60,10 @@ namespace Train.Inventory.Core
         {
             ValidateOperation(itemId, quantity);
             var maxStack = GetValidatedMaxStack(itemId);
+            if (!HasCapacityFor(itemId, quantity, maxStack))
+            {
+                return false;
+            }
 
             var remaining = quantity;
 
@@ -96,17 +100,6 @@ namespace Train.Inventory.Core
                 slot.ItemId = itemId;
                 slot.Quantity = amount;
                 _slots[i] = slot;
-                remaining -= amount;
-            }
-
-            while (remaining > 0)
-            {
-                var amount = Math.Min(maxStack, remaining);
-                _slots.Add(new SlotState
-                {
-                    ItemId = itemId,
-                    Quantity = amount
-                });
                 remaining -= amount;
             }
 
@@ -222,6 +215,36 @@ namespace Train.Inventory.Core
             }
 
             return maxStack;
+        }
+
+        private bool HasCapacityFor(
+            string itemId,
+            int quantity,
+            int maxStack)
+        {
+            long available = 0;
+            for (var i = 0; i < _slots.Count; i++)
+            {
+                var slot = _slots[i];
+                if (slot.IsEmpty)
+                {
+                    available += maxStack;
+                }
+                else if (string.Equals(
+                             slot.ItemId,
+                             itemId,
+                             StringComparison.Ordinal))
+                {
+                    available += maxStack - slot.Quantity;
+                }
+
+                if (available >= quantity)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void CommitChange(

@@ -44,7 +44,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 072cad027fc0e22489399f8b2ef4f4b6, type: 2}
   - {fileID: 11400000, guid: ff28dc7a6786860498d440f963cffb65, type: 2}
   - {fileID: 11400000, guid: cb3bc23bdf6bb6d4f84bc2be2765ccdd, type: 2}
-  _sets:
-  - {fileID: 11400000, guid: 0958ce673bac42946a7b63331de5d005, type: 2}
-  - {fileID: 11400000, guid: 214ce2d58f62ecf4e84e8e3171e3c9b5, type: 2}
+  _sets: []
   _startingEquipment: []

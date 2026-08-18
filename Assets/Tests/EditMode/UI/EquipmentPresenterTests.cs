@@ -41,6 +41,12 @@ namespace Train.Tests.EditMode.UI
             _events = new EventBus();
             _equipment = new EquipmentService(equipmentSettings, _events);
             _inventory = new InventoryService(inventorySettings, _events);
+            Assert.That(
+                _inventory.TryAdd("streetbreaker_blade", 1),
+                Is.True);
+            Assert.That(
+                _inventory.TryAdd("guard_badge", 1),
+                Is.True);
             _view = new FakeEquipmentView();
             _presenter = new EquipmentPresenter(
                 _equipment,
@@ -60,13 +66,13 @@ namespace Train.Tests.EditMode.UI
             _events?.Dispose();
         }
 
-        /// <summary>验证页面首次展示十个槽、十八件候选和六项属性。</summary>
+        /// <summary>验证页面首次展示十个槽、已拥有装备和六项属性。</summary>
         [Test]
         public void Constructor_RendersCompleteCommercialEquipmentPage()
         {
             Assert.That(_view.LastModel, Is.Not.Null);
             Assert.That(_view.LastModel.Slots, Has.Count.EqualTo(10));
-            Assert.That(_view.LastModel.Items, Has.Count.EqualTo(18));
+            Assert.That(_view.LastModel.Items, Has.Count.EqualTo(2));
             Assert.That(_view.LastModel.Stats, Has.Count.EqualTo(6));
             Assert.That(_view.LastModel.ActiveSetsText, Is.Not.Empty);
         }

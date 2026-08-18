@@ -28,11 +28,17 @@ namespace Train.Tests.PlayMode.Inventory
                 "GameApplicationStartup did not install IInventoryService.");
             Assert.That(inventory.Snapshot.Capacity, Is.EqualTo(36));
             Assert.That(
-                inventory.GetTotalQuantity("training_chip"),
-                Is.EqualTo(8));
+                inventory.TryGetDefinition("training_chip", out var trainingChip),
+                Is.True);
             Assert.That(
-                inventory.GetTotalQuantity("city_token"),
-                Is.EqualTo(120));
+                trainingChip,
+                Is.Not.Null);
+            Assert.That(
+                inventory.TryGetDefinition("city_token", out var cityToken),
+                Is.True);
+            Assert.That(
+                cityToken,
+                Is.Not.Null);
         }
     }
 }

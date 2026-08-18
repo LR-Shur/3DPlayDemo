@@ -17,7 +17,7 @@ MonoBehaviour:
   _description: "\u5C01\u5B58\u5FAE\u578B\u96F7\u66B4\u7684\u6307\u73AF\uFF0C\u4F1A\u968F\u6301\u6709\u8005\u7684\u653B\u51FB\u8282\u594F\u95EA\u70C1\u3002"
   _rarity: 5
   _category: 5
-  _setId: storm_protocol
+  _setId:
   _icon: {fileID: 21300000, guid: 5e15e46ff4ae2dc408640915f8258fcb, type: 3}
   _modifiers:
   - _statType: 5

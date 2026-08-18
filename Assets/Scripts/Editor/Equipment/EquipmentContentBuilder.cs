@@ -10,7 +10,8 @@ using UnityEngine;
 namespace Train.EditorTools.Equipment
 {
     /// <summary>
-    /// 以固定 ID 和固定资产路径构建装备、套装、初始穿戴和配套背包内容。
+    /// 以固定 ID 和固定资产路径构建装备、初始穿戴和配套背包内容。
+    /// 套装目录、成员关系与奖励由 Luban 配置统一生成。
     /// 该构建过程可重复执行，既有资产只会被更新而不会产生重复副本。
     /// </summary>
     public static class EquipmentContentBuilder
@@ -23,7 +24,7 @@ namespace Train.EditorTools.Equipment
             "Assets/Arts/UI/Icons/GameIcons";
 
         /// <summary>
-        /// 构建十八件装备、两套套装、默认装备设置，并同步重建背包内容。
+        /// 构建十八件装备、默认装备设置，并同步重建背包内容。
         /// </summary>
         [MenuItem("Tools/Train/Content/Build Equipment Content")]
         public static void Build()
@@ -64,7 +65,7 @@ namespace Train.EditorTools.Equipment
             InventoryContentBuilder.Build();
 
             Debug.Log(
-                $"Equipment content built: {items.Length} items, 2 sets, " +
+                $"Equipment content built: {items.Length} items; sets are loaded from Luban, " +
                 $"0 starting equipment entries, settings '{SettingsPath}'.");
         }
 

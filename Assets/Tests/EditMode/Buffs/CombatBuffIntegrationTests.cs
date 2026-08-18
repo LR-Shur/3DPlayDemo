@@ -3,6 +3,7 @@ using NUnit.Framework;
 using Train.Buffs.Core;
 using Train.Gameplay.Combat;
 using Train.Gameplay.Combat.Buffs;
+using Train.Gameplay.Combat.Factions;
 using Train.Gameplay.Combat.HitEffects;
 using UnityEngine;
 
@@ -68,10 +69,11 @@ namespace Train.Tests.EditMode.Buffs
                 health,
                 new DamageInfo(
                     100f,
-                    null,
+                    new DamageSourceStub(CombatFaction.Player),
                     target.transform.position,
                     Vector3.forward,
-                    damageType: DamageType.Electric));
+                    damageType: DamageType.Electric),
+                new FactionStub(CombatFaction.Enemy));
 
             Assert.That(result.AppliedDamage, Is.EqualTo(124f).Within(0.001f));
             Assert.That(health.CurrentHealth, Is.EqualTo(376f).Within(0.001f));
@@ -90,10 +92,11 @@ namespace Train.Tests.EditMode.Buffs
                 health,
                 new DamageInfo(
                     100f,
-                    null,
+                    new DamageSourceStub(CombatFaction.Player),
                     target.transform.position,
                     Vector3.forward,
-                    damageType: DamageType.Physical));
+                    damageType: DamageType.Physical),
+                new FactionStub(CombatFaction.Enemy));
 
             Assert.That(result.AppliedDamage, Is.EqualTo(100f).Within(0.001f));
         }
@@ -145,10 +148,11 @@ namespace Train.Tests.EditMode.Buffs
                 health,
                 new DamageInfo(
                     100f,
-                    null,
+                    new DamageSourceStub(CombatFaction.Player),
                     Vector3.zero,
                     Vector3.forward,
-                    damageType: DamageType.Physical));
+                    damageType: DamageType.Physical),
+                new FactionStub(CombatFaction.Enemy));
 
             Assert.That(result.AppliedDamage, Is.EqualTo(50f).Within(0.001f));
         }
@@ -167,10 +171,11 @@ namespace Train.Tests.EditMode.Buffs
                 health,
                 new DamageInfo(
                     100f,
-                    null,
+                    new DamageSourceStub(CombatFaction.Player),
                     Vector3.zero,
                     Vector3.forward,
-                    damageType: DamageType.True));
+                    damageType: DamageType.True),
+                new FactionStub(CombatFaction.Enemy));
 
             Assert.That(result.AppliedDamage, Is.EqualTo(100f).Within(0.001f));
         }
@@ -203,6 +208,31 @@ namespace Train.Tests.EditMode.Buffs
                 0.12f,
                 stacks,
                 5);
+        }
+
+        private sealed class DamageSourceStub : IDamageSource, IFactionMember
+        {
+            public DamageSourceStub(CombatFaction faction)
+            {
+                Faction = faction;
+            }
+
+            public Transform SourceTransform => null;
+            public Transform OwnerTransform => null;
+            public float Damage => 100f;
+            public DamageType DamageType => DamageType.Physical;
+            public bool IsDamageActive => true;
+            public CombatFaction Faction { get; }
+        }
+
+        private sealed class FactionStub : IFactionMember
+        {
+            public FactionStub(CombatFaction faction)
+            {
+                Faction = faction;
+            }
+
+            public CombatFaction Faction { get; }
         }
     }
 }

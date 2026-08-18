@@ -7,8 +7,12 @@ using UnityEngine;
 namespace Train.Gameplay.Combat.ActiveItems
 {
     /// <summary>向前投掷并在落点爆炸的主动手雷。</summary>
-    public sealed class ActiveGrenadeProjectile : MonoBehaviour
+    public sealed class ActiveGrenadeProjectile :
+        MonoBehaviour,
+        IDamageSource,
+        IFactionMember
     {
+        private Transform _owner;
         private Vector3 _direction;
         private float _radius;
         private float _damage;
@@ -22,6 +26,7 @@ namespace Train.Gameplay.Combat.ActiveItems
         private bool _detonated;
 
         public void Initialize(
+            Transform owner,
             Vector3 direction,
             float radius,
             float damage,
@@ -32,6 +37,7 @@ namespace Train.Gameplay.Combat.ActiveItems
             int stackAmount,
             int maxStacks)
         {
+            _owner = owner;
             _direction = direction.normalized;
             _radius = radius;
             _damage = damage;
@@ -42,6 +48,13 @@ namespace Train.Gameplay.Combat.ActiveItems
             _stackAmount = stackAmount;
             _maxStacks = maxStacks;
         }
+
+        public Transform SourceTransform => transform;
+        public Transform OwnerTransform => _owner != null ? _owner : transform;
+        public float Damage => _damage;
+        public DamageType DamageType => _damageType;
+        public bool IsDamageActive => !_detonated;
+        public CombatFaction Faction => CombatFaction.Player;
 
         private void Awake()
         {
@@ -85,7 +98,7 @@ namespace Train.Gameplay.Combat.ActiveItems
                 }
 
                 var result = DamageHandler.Apply(target, new DamageInfo(
-                    _damage, null, target.transform.position, target.transform.position - origin,
+                    _damage, this, target.transform.position, target.transform.position - origin,
                     0f, _damageType), faction);
                 if (result.AppliedDamage > 0f && !string.IsNullOrWhiteSpace(_buffId))
                 {

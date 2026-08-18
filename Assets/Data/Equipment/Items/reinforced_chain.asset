@@ -17,7 +17,7 @@ MonoBehaviour:
   _description: "\u7531\u56DE\u6536\u5408\u91D1\u5236\u6210\u7684\u94FE\u6263\uFF0C\u80FD\u591F\u5206\u6563\u6B63\u9762\u51B2\u51FB\u3002"
   _rarity: 2
   _category: 5
-  _setId: street_guard
+  _setId:
   _icon: {fileID: 21300000, guid: aadc8966757e489429a40f3330c06ce4, type: 3}
   _modifiers:
   - _statType: 0

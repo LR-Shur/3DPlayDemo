@@ -332,6 +332,7 @@ namespace Train.Composition
                 Quaternion.LookRotation(direction.normalized));
             var grenade = projectile.AddComponent<ActiveGrenadeProjectile>();
             grenade.Initialize(
+                _input.transform,
                 direction.normalized,
                 Mathf.Max(1f, config.Radius),
                 Mathf.Max(0f, config.Value),

@@ -14,10 +14,13 @@ namespace Train.Tests.EditMode.Progression
         {
             var service = new ProgressionService(new EventBus());
 
-            Assert.That(service.Nodes.Count, Is.GreaterThanOrEqualTo(3));
+            Assert.That(service.Nodes.Count, Is.GreaterThanOrEqualTo(6));
             Assert.That(service.Nodes[0].LevelId, Is.EqualTo("level.combat.001"));
             Assert.That(service.Nodes[1].LevelId, Is.EqualTo("level.combat.002"));
-            Assert.That(service.Nodes[2].LevelId, Is.EqualTo("level.boss.001"));
+            Assert.That(service.Nodes[2].LevelId, Is.EqualTo("level.energy.relay"));
+            Assert.That(service.Nodes[3].LevelId, Is.EqualTo("level.orbital.cargo"));
+            Assert.That(service.Nodes[4].LevelId, Is.EqualTo("level.cryo.garden"));
+            Assert.That(service.Nodes[5].LevelId, Is.EqualTo("level.boss.001"));
         }
 
         [Test]
