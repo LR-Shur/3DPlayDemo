@@ -1,6 +1,6 @@
 # 3DPlayDemo
 
-基于 Unity 的第三人称动作战斗 Demo：可游玩训练关卡、商业化多页面 UI、装备/饰品、Buff、背包、任务、角色名册与对话系统。
+基于 Unity 的第三人称都市异常动作 Roguelite Demo，暂定名“霓虹回收协议”。项目已具备多关卡战斗、装备与主动道具、Buff、背包、任务、角色名册、对话、商店和局内存档。
 
 ## 快速开始
 
@@ -23,9 +23,8 @@
 
 ## 文档
 
+- 当前策划方向：[Docs/GAME_DESIGN_DIRECTION.zh-CN.md](Docs/GAME_DESIGN_DIRECTION.zh-CN.md)
 - 架构与测试教学：[Docs/ArchitectureAndTesting.zh-CN.md](Docs/ArchitectureAndTesting.zh-CN.md)
-- 会话与进度记录：[Docs/SESSION_RECORD.zh-CN.md](Docs/SESSION_RECORD.zh-CN.md)
-- 当前项目状态：[Docs/PROJECT_STATUS.zh-CN.md](Docs/PROJECT_STATUS.zh-CN.md)
 
 ## 测试
 
@@ -33,6 +32,6 @@
 Window > General > Test Runner
 ```
 
-当前 EditMode 201/201、PlayMode 7/7 通过。
+测试数量会随功能增加而变化，提交前应运行与改动对应的 EditMode/PlayMode 测试。
 
 > 仓库包含第三方素材，请保持私有，不要公开分发。
