@@ -677,6 +677,7 @@ namespace Train.GameFlow.Runtime
                 _enemyControllers.Add(controller);
             }
 
+            EnsureEnemyPlayerBodyCollisionIgnored(controller);
             controller.enabled = false;
         }
 
@@ -691,6 +692,32 @@ namespace Train.GameFlow.Runtime
 
             faction.Configure(CombatFaction.Player);
             _playerCombat.ConfigureFaction(CombatFaction.Player);
+        }
+
+        private void EnsureEnemyPlayerBodyCollisionIgnored(
+            EnemyController controller)
+        {
+            if (_playerHealth == null || controller == null)
+            {
+                return;
+            }
+
+            var playerBody = _playerHealth.transform.root.GetComponent<Collider>();
+            var enemyBody = controller.GetComponent<Collider>();
+            if (playerBody == null || enemyBody == null)
+            {
+                return;
+            }
+
+            Physics.IgnoreCollision(enemyBody, playerBody, true);
+        }
+
+        private void EnsureEnemyPlayerBodyCollisionsIgnored()
+        {
+            foreach (var controller in _enemyControllers)
+            {
+                EnsureEnemyPlayerBodyCollisionIgnored(controller);
+            }
         }
 
         private void SetLocalCombatEnabled(bool enabled)
@@ -788,6 +815,9 @@ namespace Train.GameFlow.Runtime
         private void OnPlayerRespawnCompleted(
             PlayerRespawnCompletedEvent message)
         {
+            // PlayerRespawnController re-enables the body Collider immediately
+            // before publishing this event, so restore the ignored body pairs.
+            EnsureEnemyPlayerBodyCollisionsIgnored();
             if (_flow == null ||
                 _flow.CurrentPhase == LevelPhase.Failed ||
                 _flow.CurrentPhase == LevelPhase.Exiting)

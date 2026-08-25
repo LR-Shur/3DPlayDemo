@@ -14,31 +14,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: Train.GameFlow::Train.GameFlow.Data.LevelDefinition
   _levelId: level.energy.relay
   _displayName: "\u80FD\u6E90\u4E2D\u7EE7\u7AD9 \xB7 \u8FC7\u8F7D\u8B66\u6212"
-  _sceneLocation: Playable_Level_EnergyRelay
-  _introSeconds: 1.8
-  _playerSpawnPosition: {x: -46.79, y: 0.984, z: -30.27817}
+  _sceneLocation: Assets/Scenes/Playable/Level_EnergyRelay.unity
+  _introSeconds: 1.2
+  _playerSpawnPosition: {x: -52, y: 0.984, z: -43}
   _playerSpawnEulerAngles: {x: 0, y: 0, z: 0}
   _maxPlayerDeaths: 2
   _enemySpawns:
-  - _spawnId: sentinel_01
-    _archetypeId: elite_knight
-    _prefabLocation: Enemies_Enemy_OverloadSentinel
-    _position: {x: -47, y: 0, z: -36}
+  - _spawnId: elite_01
+    _archetypeId: arc_drone
+    _prefabLocation: Enemies_Enemy_ArcDroneRobot
+    _position: {x: -47, y: 0, z: -17}
     _eulerAngles: {x: 0, y: 180, z: 0}
   - _spawnId: scout_01
-    _archetypeId: scout_knight
-    _prefabLocation: Enemies_Enemy_ScoutKnight
-    _position: {x: -39, y: 0, z: -35}
-    _eulerAngles: {x: 0, y: 160, z: 0}
+    _archetypeId: crawler_bot
+    _prefabLocation: Enemies_Enemy_CrawlerBot
+    _position: {x: -36, y: 0, z: -24.5}
+    _eulerAngles: {x: 0, y: 210, z: 0}
   - _spawnId: scout_02
-    _archetypeId: scout_knight
-    _prefabLocation: Enemies_Enemy_ScoutKnight
-    _position: {x: -55, y: 0, z: -35}
-    _eulerAngles: {x: 0, y: 20, z: 0}
-  - _spawnId: elite_01
-    _archetypeId: elite_knight
-    _prefabLocation: Enemies_Enemy_EliteKnight
-    _position: {x: -47, y: 0, z: -42}
+    _archetypeId: roller_bot
+    _prefabLocation: Enemies_Enemy_RollerBot
+    _position: {x: -58, y: 0, z: -24.5}
+    _eulerAngles: {x: -0, y: 150, z: -0}
+  - _spawnId: sentinel_01
+    _archetypeId: overload_sentinel
+    _prefabLocation: Enemies_Enemy_OverloadSentinel
+    _position: {x: -47, y: 0, z: -23.5}
     _eulerAngles: {x: 0, y: 180, z: 0}
   _rewards:
   - _itemId: upgrade_module

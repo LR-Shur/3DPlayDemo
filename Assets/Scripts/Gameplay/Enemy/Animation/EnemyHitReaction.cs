@@ -8,9 +8,9 @@ namespace Train.Gameplay.Enemy.Animation
     public sealed class EnemyHitReaction : MonoBehaviour
     {
         [SerializeField] private Transform _visualRoot;
-        [SerializeField, Min(0.01f)] private float _duration = 0.16f;
-        [SerializeField, Min(0f)] private float _kickDistance = 0.1f;
-        [SerializeField, Min(0f)] private float _liftDistance = 0.035f;
+        [SerializeField, Min(0.01f)] private float _duration = 0.18f;
+        [SerializeField, Min(0f)] private float _kickDistance = 0.14f;
+        [SerializeField, Min(0f)] private float _liftDistance = 0.05f;
 
         private Coroutine _routine;
         private Vector3 _restPosition;

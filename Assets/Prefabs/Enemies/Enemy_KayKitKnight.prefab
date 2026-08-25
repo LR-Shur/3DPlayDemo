@@ -85,6 +85,7 @@ GameObject:
   - component: {fileID: 3735192678174259192}
   - component: {fileID: 2320019496606777299}
   - component: {fileID: 1282860718597350701}
+  - component: {fileID: 207073803285495717}
   m_Layer: 0
   m_Name: Enemy_KayKitKnight
   m_TagString: Untagged
@@ -155,10 +156,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.35
-  m_Height: 1.5
+  m_Radius: 0.34045327
+  m_Height: 2
   m_Direction: 1
-  m_Center: {x: 0, y: 0.75, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!54 &283240267180878588
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -248,8 +249,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9acfc44afb369424c878411b06a4e9da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Train.Gameplay::Train.Gameplay.Enemy.Sensing.EnemyTargetSensor
-  _detectionRadius: 8
-  _loseTargetRadius: 12
+  _detectionRadius: 30
+  _loseTargetRadius: 36
   _scanInterval: 0.2
   _targetLayers:
     serializedVersion: 2
@@ -268,7 +269,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Train.Gameplay::Train.Gameplay.Enemy.Movement.EnemyMotor
   _agent: {fileID: 0}
-  _fallbackStoppingDistance: 0.15
 --- !u!114 &3786994309364561069
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303,6 +303,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   _faction: 2
+  _telegraphEnabled: 1
+  _telegraphRadiusMultiplier: 1
+  _telegraphColor: {r: 0.9, g: 0.03, b: 0.03, a: 0.92}
 --- !u!114 &3735192678174259192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,6 +352,28 @@ MonoBehaviour:
   _patrolComponent: {fileID: 3735192678174259192}
   _lifecycleComponent: {fileID: 2320019496606777299}
   _currentStateName: 
+--- !u!195 &207073803285495717
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 350229544916355179}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.34045327
+  m_Speed: 3.5
+  m_Acceleration: 18
+  avoidancePriority: 50
+  m_AngularSpeed: 0
+  m_StoppingDistance: 0.05
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &681925684764992469
 GameObject:
   m_ObjectHideFlags: 0
@@ -438,7 +463,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.700361, y: 0.700361, z: 0.700361}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7626064606140555862}
@@ -602,8 +627,8 @@ Transform:
   m_GameObject: {fileID: 2106755845771488239}
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: -0.00000013709068, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -0, y: -0.00000013335134, z: 0}
+  m_LocalScale: {x: 0.700361, y: 0.700361, z: 0.700361}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7626064606140555862}
@@ -1113,7 +1138,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000021855694, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.700361, y: 0.700361, z: 0.700361}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4315273648512028772}
@@ -1626,8 +1651,8 @@ Transform:
   m_GameObject: {fileID: 5149043800297376403}
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 1.2158912, z: -0.0000001406604}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -0, y: 1.1827261, z: -0.0000001368237}
+  m_LocalScale: {x: 0.700361, y: 0.700361, z: 0.700361}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7626064606140555862}
@@ -1760,7 +1785,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.700361, y: 0.700361, z: 0.700361}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7626064606140555862}
@@ -1893,7 +1918,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.700361, y: 0.700361, z: 0.700361}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7626064606140555862}
@@ -2353,7 +2378,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.700361, y: 0.700361, z: 0.700361}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7626064606140555862}

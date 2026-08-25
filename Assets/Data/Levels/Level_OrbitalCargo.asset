@@ -14,51 +14,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: Train.GameFlow::Train.GameFlow.Data.LevelDefinition
   _levelId: level.orbital.cargo
   _displayName: "\u8F68\u9053\u88C5\u5378\u6E2F \xB7 \u7535\u78C1\u7206\u7834"
-  _sceneLocation: Playable_Level_OrbitalCargo
-  _introSeconds: 1.6
-  _playerSpawnPosition: {x: -46.79, y: 0.984, z: -30.27817}
+  _sceneLocation: Assets/Scenes/Playable/Level_OrbitalCargo.unity
+  _introSeconds: 1.2
+  _playerSpawnPosition: {x: -47, y: 0.984, z: -46}
   _playerSpawnEulerAngles: {x: 0, y: 0, z: 0}
   _maxPlayerDeaths: 2
   _enemySpawns:
-  - _spawnId: sentinel_01
-    _archetypeId: elite_knight
-    _prefabLocation: Enemies_Enemy_OverloadSentinel
-    _position: {x: -47, y: 0, z: -36}
-    _eulerAngles: {x: 0, y: 180, z: 0}
-  - _spawnId: scout_01
-    _archetypeId: human_duelist
-    _prefabLocation: Enemies_Enemy_HumanDuelist
-    _position: {x: -38, y: 0, z: -36}
-    _eulerAngles: {x: 0, y: 160, z: 0}
-  - _spawnId: scout_02
-    _archetypeId: human_brute
-    _prefabLocation: Enemies_Enemy_HumanBrute
-    _position: {x: -56, y: 0, z: -36}
-    _eulerAngles: {x: 0, y: 20, z: 0}
-  - _spawnId: elite_01
+  - _spawnId: caster_01
     _archetypeId: human_caster
-    _prefabLocation: Enemies_Enemy_HumanCaster
-    _position: {x: -47, y: 0, z: -42}
-    _eulerAngles: {x: 0, y: 180, z: 0}
-  - _spawnId: elite_02
-    _archetypeId: elite_knight
-    _prefabLocation: Enemies_Enemy_EliteKnight
-    _position: {x: -47, y: 0, z: -47}
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_HumanCaster.prefab
+    _position: {x: -61, y: 0, z: -14}
+    _eulerAngles: {x: -0, y: 150, z: -0}
+  - _spawnId: crawler_01
+    _archetypeId: crawler_bot
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_CrawlerBot.prefab
+    _position: {x: -47, y: 0, z: -20}
     _eulerAngles: {x: 0, y: 180, z: 0}
   - _spawnId: drone_01
     _archetypeId: arc_drone
-    _prefabLocation: Enemies_Enemy_ArcDroneRobot
-    _position: {x: -61, y: 1.4, z: -45}
-    _eulerAngles: {x: 0, y: 90, z: 0}
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_ArcDroneRobot.prefab
+    _position: {x: -37, y: 1.4, z: -23}
+    _eulerAngles: {x: -0, y: 90, z: -0}
+  - _spawnId: duelist_01
+    _archetypeId: human_duelist
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_HumanDuelist.prefab
+    _position: {x: -57, y: 0, z: -25}
+    _eulerAngles: {x: -0, y: 150, z: -0}
   - _spawnId: lobber_01
     _archetypeId: lobber_bot
-    _prefabLocation: Enemies_Enemy_LobberBot
-    _position: {x: -33, y: 1.4, z: -45}
-    _eulerAngles: {x: 0, y: -90, z: 0}
-  - _spawnId: crawler_01
-    _archetypeId: crawler_bot
-    _prefabLocation: Enemies_Enemy_CrawlerBot
-    _position: {x: -42, y: 0, z: -53}
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_LobberBot.prefab
+    _position: {x: -33, y: 1.4, z: -12}
+    _eulerAngles: {x: -0, y: 270, z: 0}
+  - _spawnId: sentinel_01
+    _archetypeId: elite_knight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_OverloadSentinel.prefab
+    _position: {x: -47, y: 0, z: -13}
     _eulerAngles: {x: 0, y: 180, z: 0}
   _rewards:
   - _itemId: upgrade_module

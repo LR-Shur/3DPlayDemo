@@ -34,7 +34,9 @@ namespace Train.Gameplay.Enemy.Core
         private EnemyAnimator _enemyAnimator;
         private EnemyFreezeVisual _freezeVisual;
         private float _freezeUntil;
+        private float _lethalDeathAt;
         private bool _isFrozen;
+        private bool _deathPending;
 
         public string CurrentStateName => _currentStateName;
         public EnemyConfig Config => _config;
@@ -114,6 +116,8 @@ namespace Train.Gameplay.Enemy.Core
         private void OnDisable()
         {
             _freezeVisual?.SetHit(false);
+            _deathPending = false;
+            _lethalDeathAt = 0f;
             if (_isFrozen)
             {
                 _isFrozen = false;
@@ -143,6 +147,16 @@ namespace Train.Gameplay.Enemy.Core
 
         private void Update()
         {
+            if (_deathPending)
+            {
+                if (Time.unscaledTime >= _lethalDeathAt)
+                {
+                    BeginDeathPresentation();
+                }
+
+                return;
+            }
+
             if (_isFrozen)
             {
                 if (Time.time >= _freezeUntil)
@@ -228,29 +242,45 @@ namespace Train.Gameplay.Enemy.Core
                 return;
             }
 
-            if (result.Killed)
-            {
-                _freezeVisual?.SetHit(false);
-                return;
-            }
-
             _freezeVisual?.SetHit(true);
             if (_stateMachine != null)
             {
+                var hitDuration = _config.GetHitReactionDuration(
+                    result.AppliedDamage,
+                    damageInfo.DamageType);
                 _hitReaction?.PlayHit(damageInfo.HitDirection);
                 if (_stateMachine.CurrentState is EnemyHitState hitState)
                 {
-                    hitState.Refresh();
+                    hitState.Refresh(hitDuration);
                 }
                 else
                 {
+                    _stateMachine.Hit.SetNextDuration(hitDuration);
                     _stateMachine.ChangeState(_stateMachine.Hit);
                 }
+            }
+
+            if (result.Killed)
+            {
+                _deathPending = true;
+                _lethalDeathAt = Time.unscaledTime + _config.LethalFreezeDuration;
             }
         }
 
         private void OnDied(DamageInfo damageInfo)
         {
+            if (_deathPending)
+            {
+                return;
+            }
+
+            BeginDeathPresentation();
+        }
+
+        private void BeginDeathPresentation()
+        {
+            _deathPending = false;
+            _lethalDeathAt = 0f;
             _isFrozen = false;
             _freezeUntil = 0f;
             _motor?.SetMovementEnabled(true);

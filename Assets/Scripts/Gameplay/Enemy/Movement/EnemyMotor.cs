@@ -11,7 +11,6 @@ namespace Train.Gameplay.Enemy.Movement
     public sealed class EnemyMotor : MonoBehaviour, IEnemyMotor
     {
         [SerializeField] private NavMeshAgent _agent;
-        [SerializeField, Min(0.01f)] private float _fallbackStoppingDistance = 0.15f;
 
         private Vector3 _destination;
         private Vector3 _externalPull;
@@ -22,19 +21,19 @@ namespace Train.Gameplay.Enemy.Movement
         {
             get
             {
-                if (CanUseAgent)
+                if (TryEnsureAgentOnNavMesh())
                 {
                     return !_agent.pathPending &&
                            _agent.remainingDistance <= Mathf.Max(_agent.stoppingDistance, 0.05f);
                 }
 
-                return Vector3.Distance(transform.position, _destination) <= _fallbackStoppingDistance;
+                return true;
             }
         }
 
         private void Awake()
         {
-            _agent ??= GetComponent<NavMeshAgent>();
+            ResolveAgent();
             if (_agent != null)
             {
                 _agent.updateRotation = false;
@@ -51,19 +50,12 @@ namespace Train.Gameplay.Enemy.Movement
             }
 
             _destination = destination;
-            if (CanUseAgent)
+            if (TryEnsureAgentOnNavMesh())
             {
                 _agent.isStopped = false;
                 _agent.speed = Mathf.Max(0f, speed);
                 _agent.SetDestination(destination);
-                return;
             }
-
-            var nextPosition = Vector3.MoveTowards(
-                transform.position,
-                destination,
-                Mathf.Max(0f, speed) * Time.deltaTime);
-            transform.position = nextPosition;
         }
 
         public void Face(Vector3 worldPosition, float turnSpeed)
@@ -85,10 +77,14 @@ namespace Train.Gameplay.Enemy.Movement
         public void Stop()
         {
             _destination = transform.position;
-            if (CanUseAgent)
+            var agent = ResolveAgent();
+            if (agent != null && agent.enabled)
             {
-                _agent.isStopped = true;
-                _agent.ResetPath();
+                agent.isStopped = true;
+                if (agent.isOnNavMesh)
+                {
+                    agent.ResetPath();
+                }
             }
         }
 
@@ -104,7 +100,7 @@ namespace Train.Gameplay.Enemy.Movement
         /// <summary>累积本帧由主动道具施加的位移，在状态机移动之后统一应用。</summary>
         public void ApplyExternalPull(Vector3 displacement)
         {
-            if (_movementEnabled)
+            if (_movementEnabled && TryEnsureAgentOnNavMesh())
             {
                 _externalPull += displacement;
             }
@@ -118,19 +114,65 @@ namespace Train.Gameplay.Enemy.Movement
                 return;
             }
 
-            if (CanUseAgent)
+            if (!TryEnsureAgentOnNavMesh())
             {
-                _agent.Move(_externalPull);
+                _externalPull = Vector3.zero;
+                return;
             }
-            else
+
+            var start = _agent.nextPosition;
+            var desired = start + _externalPull;
+            if (NavMesh.Raycast(start, desired, out var hit, NavMesh.AllAreas))
             {
-                transform.position += _externalPull;
+                desired = hit.position;
             }
+
+            _agent.Move(desired - start);
 
             _externalPull = Vector3.zero;
         }
 
-        private bool CanUseAgent =>
-            _agent != null && _agent.enabled && _agent.isOnNavMesh;
+        private bool TryEnsureAgentOnNavMesh()
+        {
+            var agent = ResolveAgent();
+            if (agent == null || !agent.enabled)
+            {
+                return false;
+            }
+
+            if (agent.isOnNavMesh)
+            {
+                return true;
+            }
+
+            if (NavMesh.SamplePosition(transform.position, out var hit, .75f, NavMesh.AllAreas))
+            {
+                agent.Warp(hit.position);
+            }
+
+            if (!agent.isOnNavMesh)
+            {
+                agent.isStopped = true;
+                return false;
+            }
+
+            return true;
+        }
+
+        private NavMeshAgent ResolveAgent()
+        {
+            if (_agent != null && _agent.gameObject != null)
+            {
+                return _agent;
+            }
+
+            _agent = GetComponent<NavMeshAgent>();
+            if (_agent == null)
+            {
+                _agent = GetComponentInChildren<NavMeshAgent>(true);
+            }
+
+            return _agent;
+        }
     }
 }

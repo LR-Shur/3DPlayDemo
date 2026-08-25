@@ -11,6 +11,8 @@ namespace Train.Gameplay.Enemy.Combat
     [DisallowMultipleComponent]
     public sealed class EnemyMeleeCombat : MonoBehaviour, IEnemyCombat, IEnemyAttackTelegraph, IDamageSource, IFactionMember
     {
+        private const float MinimumAttackRange = .9f;
+
         [SerializeField] private Collider _hitVolume;
         [SerializeField, Min(0f)] private float _damage = 20f;
         [SerializeField, Min(0f)] private float _attackCooldown = 1.1f;
@@ -166,12 +168,135 @@ namespace Train.Gameplay.Enemy.Combat
 
         private float CalculateWeaponRange()
         {
-            if (_hitVolume == null) return .9f;
-            var bounds = _hitVolume.bounds;
-            var horizontalCenter = bounds.center;
+            if (_hitVolume == null) return MinimumAttackRange;
+
+            // Collider.bounds is empty for a disabled Collider in the editor/runtime
+            // transition, so derive the range from the serialized shape instead.
+            var horizontalCenter = _hitVolume.transform.TransformPoint(
+                GetColliderCenter(_hitVolume));
             horizontalCenter.y = transform.position.y;
-            var horizontalExtents = Mathf.Max(bounds.extents.x, bounds.extents.z);
-            return Mathf.Max(.65f, Vector3.Distance(transform.position, horizontalCenter) + horizontalExtents);
+            var horizontalExtent = GetHorizontalExtent(_hitVolume);
+            return Mathf.Max(
+                MinimumAttackRange,
+                Vector3.Distance(transform.position, horizontalCenter) + horizontalExtent);
+        }
+
+        private static Vector3 GetColliderCenter(Collider collider)
+        {
+            if (collider is SphereCollider sphere)
+            {
+                return sphere.center;
+            }
+
+            if (collider is BoxCollider box)
+            {
+                return box.center;
+            }
+
+            if (collider is CapsuleCollider capsule)
+            {
+                return capsule.center;
+            }
+
+            if (collider is MeshCollider mesh && mesh.sharedMesh != null)
+            {
+                return mesh.sharedMesh.bounds.center;
+            }
+
+            return Vector3.zero;
+        }
+
+        private static float GetHorizontalExtent(Collider collider)
+        {
+            var scale = Abs(collider.transform.lossyScale);
+            if (collider is SphereCollider sphere)
+            {
+                return sphere.radius * Max(scale.x, scale.y, scale.z);
+            }
+
+            if (collider is BoxCollider box)
+            {
+                var halfSize = Vector3.Scale(box.size * .5f, scale);
+                var right = collider.transform.right;
+                var up = collider.transform.up;
+                var forward = collider.transform.forward;
+                var xExtent = Mathf.Abs(right.x) * halfSize.x +
+                              Mathf.Abs(up.x) * halfSize.y +
+                              Mathf.Abs(forward.x) * halfSize.z;
+                var zExtent = Mathf.Abs(right.z) * halfSize.x +
+                              Mathf.Abs(up.z) * halfSize.y +
+                              Mathf.Abs(forward.z) * halfSize.z;
+                return Mathf.Max(xExtent, zExtent);
+            }
+
+            if (collider is CapsuleCollider capsule)
+            {
+                var radialScale = capsule.direction switch
+                {
+                    0 => Mathf.Max(scale.y, scale.z),
+                    2 => Mathf.Max(scale.x, scale.y),
+                    _ => Mathf.Max(scale.x, scale.z)
+                };
+                var axialScale = capsule.direction switch
+                {
+                    0 => scale.x,
+                    2 => scale.z,
+                    _ => scale.y
+                };
+                var localAxis = capsule.direction switch
+                {
+                    0 => Vector3.right,
+                    2 => Vector3.forward,
+                    _ => Vector3.up
+                };
+                var worldAxis = capsule.transform.TransformDirection(localAxis);
+                var halfSegment = Mathf.Max(0f, capsule.height * .5f - capsule.radius);
+                return capsule.radius * radialScale +
+                       halfSegment * axialScale *
+                       Mathf.Max(Mathf.Abs(worldAxis.x), Mathf.Abs(worldAxis.z));
+            }
+
+            if (collider is MeshCollider mesh && mesh.sharedMesh != null)
+            {
+                var bounds = mesh.sharedMesh.bounds;
+                var center = mesh.transform.TransformPoint(bounds.center);
+                var extent = 0f;
+                for (var x = -1; x <= 1; x += 2)
+                {
+                    for (var y = -1; y <= 1; y += 2)
+                    {
+                        for (var z = -1; z <= 1; z += 2)
+                        {
+                            var corner = mesh.transform.TransformPoint(
+                                bounds.center + Vector3.Scale(
+                                    bounds.extents,
+                                    new Vector3(x, y, z)));
+                            extent = Mathf.Max(
+                                extent,
+                                Mathf.Max(
+                                    Mathf.Abs(corner.x - center.x),
+                                    Mathf.Abs(corner.z - center.z)));
+                        }
+                    }
+                }
+
+                return extent;
+            }
+
+            return 0f;
+        }
+
+        private static Vector3 Abs(Vector3 value)
+        {
+            return new Vector3(
+                Mathf.Abs(value.x),
+                Mathf.Abs(value.y),
+                Mathf.Abs(value.z));
+        }
+
+        private static float Max(float first, float second, float third)
+        {
+            return Mathf.Max(first, Mathf.Max(second, third));
         }
 
         private Collider FindWeaponCollider()

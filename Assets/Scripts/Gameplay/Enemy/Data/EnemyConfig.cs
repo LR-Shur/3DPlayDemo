@@ -1,3 +1,4 @@
+using Train.Gameplay.Combat;
 using UnityEngine;
 
 namespace Train.Gameplay.Enemy.Data
@@ -20,6 +21,7 @@ namespace Train.Gameplay.Enemy.Data
         [SerializeField, Min(0f)] private float _hitboxStartTime = 0.22f;
         [SerializeField, Min(0f)] private float _hitboxEndTime = 0.55f;
         [SerializeField, Min(0f)] private float _hitReactionDuration = 0.45f;
+        [SerializeField, Min(0.08f)] private float _lethalFreezeDuration = 0.1f;
         [SerializeField, Min(0f)] private float _deathDespawnDelay = 2.2f;
 
         public float PatrolSpeed => _patrolSpeed;
@@ -31,7 +33,16 @@ namespace Train.Gameplay.Enemy.Data
         public float HitboxStartTime => Mathf.Min(_hitboxStartTime, _attackDuration);
         public float HitboxEndTime => Mathf.Clamp(_hitboxEndTime, HitboxStartTime, _attackDuration);
         public float HitReactionDuration => _hitReactionDuration;
+        public float LethalFreezeDuration => Mathf.Clamp(_lethalFreezeDuration, .08f, .14f);
         public float DeathDespawnDelay => _deathDespawnDelay;
+
+        public float GetHitReactionDuration(float damage, DamageType damageType)
+        {
+            var heavy = damage >= 40f || damageType == DamageType.Earth;
+            return heavy
+                ? Mathf.Clamp(_hitReactionDuration, .35f, .5f)
+                : Mathf.Clamp(_hitReactionDuration, .18f, .28f);
+        }
 
         /// <summary>按 Luban 的移动速度创建运行时副本，不修改项目中的原始配置资产。</summary>
         public static EnemyConfig CreateRuntime(EnemyConfig baseline, float moveSpeed)

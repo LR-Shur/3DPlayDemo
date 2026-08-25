@@ -24,7 +24,6 @@ namespace Train.Composition
         private readonly List<FloatingDamageText> _floatingTexts = new();
         private IEventBus _events;
         private IDisposable _damageSubscription;
-        private IDisposable _deathSubscription;
         private Material _particleMaterial;
         private float _hitStopUntil;
         private float _hitStopScale = 1f;
@@ -39,7 +38,6 @@ namespace Train.Composition
             DontDestroyOnLoad(gameObject);
             _events = GameBootstrap.EnsureExists().Context.Events;
             _damageSubscription = _events.Subscribe<EntityDamagedEvent>(OnEntityDamaged);
-            _deathSubscription = _events.Subscribe<EntityDiedEvent>(OnEntityDied);
         }
 
         private void Update()
@@ -80,7 +78,7 @@ namespace Train.Composition
                 var color = floating.BaseColor;
                 color.a = Mathf.Clamp01(1f - normalized * 1.15f);
                 floating.Text.color = color;
-                floating.Text.fontSize = Mathf.Lerp(2.35f, 2.8f, normalized);
+                floating.Text.fontSize = Mathf.Lerp(3.6f, 4.2f, normalized);
             }
         }
 
@@ -115,7 +113,7 @@ namespace Train.Composition
             DamageType damageType)
         {
             var heavy = damage >= 40f || damageType == DamageType.Earth;
-            var hitStopSeconds = heavy ? .055f : .028f;
+            var hitStopSeconds = heavy ? .065f : .035f;
             if (_hitStopUntil <= Time.unscaledTime)
             {
                 _previousTimeScale = Mathf.Max(.01f, Time.timeScale);
@@ -123,8 +121,8 @@ namespace Train.Composition
             _hitStopScale = heavy ? .035f : .06f;
             _hitStopUntil = Mathf.Max(_hitStopUntil, Time.unscaledTime + hitStopSeconds);
             Time.timeScale = _hitStopScale;
-            _shakeUntil = Mathf.Max(_shakeUntil, Time.unscaledTime + (heavy ? .12f : .075f));
-            _shakeStrength = Mathf.Max(_shakeStrength, heavy ? .075f : .035f);
+            _shakeUntil = Mathf.Max(_shakeUntil, Time.unscaledTime + (heavy ? .12f : .08f));
+            _shakeStrength = Mathf.Max(_shakeStrength, heavy ? .08f : .04f);
         }
 
         private void UpdateHitStop()
@@ -164,26 +162,6 @@ namespace Train.Composition
             camera.transform.position += _lastShakeOffset;
         }
 
-        /// <summary>敌人死亡时立即清理关联的浮动伤害数字。</summary>
-        private void OnEntityDied(EntityDiedEvent message)
-        {
-            for (var i = _floatingTexts.Count - 1; i >= 0; i--)
-            {
-                var floating = _floatingTexts[i];
-                if (floating.OwnerHealth != message.Health)
-                {
-                    continue;
-                }
-
-                if (floating.Root != null)
-                {
-                    Destroy(floating.Root);
-                }
-
-                _floatingTexts.RemoveAt(i);
-            }
-        }
-
         private void SpawnFloatingText(
             Vector3 position,
             int amount,
@@ -204,14 +182,28 @@ namespace Train.Composition
             var root = new GameObject("[CombatDamageNumber]");
             var text = root.AddComponent<TextMeshPro>();
             text.text = amount.ToString();
-            text.fontSize = 2.35f;
+            text.fontSize = 3.6f;
             text.fontStyle = FontStyles.Bold;
             text.alignment = TextAlignmentOptions.Center;
             text.outlineWidth = 0.18f;
             text.outlineColor = new Color32(5, 12, 22, 255);
             text.color = color;
-            // 命中点通常位于胸口或碰撞体中心，初始抬高后可避免数字覆盖敌人头部。
-            root.transform.position = position + Vector3.up * 0.82f;
+            var anchor = ownerHealth != null ? ownerHealth.transform.position : position;
+            var collider = ownerHealth != null
+                ? ownerHealth.GetComponentInChildren<Collider>()
+                : null;
+            if (collider != null)
+            {
+                anchor = collider.bounds.center;
+                anchor.y = collider.bounds.max.y;
+            }
+
+            var side = ownerHealth != null && (ownerHealth.GetInstanceID() & 1) == 0
+                ? -1f
+                : 1f;
+            root.transform.position = anchor +
+                (ownerHealth != null ? ownerHealth.transform.right * (side * .6f) : Vector3.zero) +
+                Vector3.up * .75f;
             _floatingTexts.Add(new FloatingDamageText(
                 root,
                 text,
@@ -280,7 +272,6 @@ namespace Train.Composition
                 _shakeCamera.transform.position -= _lastShakeOffset;
             }
             _damageSubscription?.Dispose();
-            _deathSubscription?.Dispose();
             if (_particleMaterial != null)
             {
                 Destroy(_particleMaterial);
