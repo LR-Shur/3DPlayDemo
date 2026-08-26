@@ -45,6 +45,19 @@
 - `Dialogue`：对话图、会话状态机、条件和命令处理器。
 - `Presentation.UI`：被动 View、Presenter、页面导航和输入模式。
 
+### 敌人原型的唯一来源
+
+`Assets/Config/Luban/Data/enemy_archetypes.csv` 是敌人原型到预制体的唯一映射。关卡的 `EnemySpawnDefinition` 仍保存 `PrefabLocation` 兼容字段，方便编辑器同步和检查，但运行时只根据 `ArchetypeId` 从 `IEnemyArchetypeProvider` 取得 canonical 预制体。
+
+```text
+LevelDefinition.ArchetypeId
+    -> IEnemyArchetypeProvider
+    -> EnemyArchetypeRuntimeData.PrefabLocation
+    -> IAssetService.InstantiateAsync
+```
+
+同类敌人的尺寸、`Health`、`EnemyController`、`EnemyMotor` 和 `NavMeshAgent` 因此都在同一个预制体维护，不再由每个场景分别调整。
+
 每个功能内部继续使用下面几层：
 
 - `Core/Domain`：纯数据和规则，尽量不依赖 Unity 场景。
@@ -179,6 +192,12 @@ PlayerInteractionController
 ```
 
 背包满时 `TryAdd` 失败，拾取物不会销毁；成功时才关闭光标并删除场景对象。
+
+### 构筑掉落
+
+`BuildLootResolver` 从装备目录中的 `SetId` 派生四套构筑候选，不在掉落代码中重复维护二十件装备 ID。敌人原型决定构筑池，稳定实例 ID 决定本次结果；Boss 保证对应构筑的高品质装备，普通怪和精英使用不同装备概率，未掉装备时返回合法的构筑资源。
+
+该解析器不访问 Unity 场景或全局随机数，因此可在 EditMode 中直接验证确定性、目录合法性和 Boss 保底。
 
 ## 6. 关卡为什么适合状态机
 

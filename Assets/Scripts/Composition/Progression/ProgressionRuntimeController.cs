@@ -19,6 +19,7 @@ using Train.Inventory.Data;
 using Train.Presentation.UI.Views;
 using Train.WorldInteraction.Runtime;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -42,6 +43,7 @@ namespace Train.Composition.Progression
         private IProgressionService _progression;
         private IInventoryService _inventory;
         private IEquipmentService _equipment;
+        private BuildLootResolver _lootResolver;
         private IAssetService _assets;
         private IEventBus _events;
         private ILubanConfigService _luban;
@@ -85,6 +87,9 @@ namespace Train.Composition.Progression
             _progression = progression;
             _inventory = inventory;
             _equipment = equipment;
+            _lootResolver = new BuildLootResolver(
+                _equipment.Catalog,
+                _inventory.Catalog);
             _assets = bootstrap.Context.Assets;
             _events = bootstrap.Context.Events;
             bootstrap.Context.Services.TryResolve<ILubanConfigService>(out _luban);
@@ -320,20 +325,30 @@ namespace Train.Composition.Progression
 
         private void SpawnLoot(EnemyDefeatedEvent message)
         {
-            if (_assets == null || !_assets.IsInitialized)
+            if (_assets == null ||
+                !_assets.IsInitialized ||
+                _lootResolver == null ||
+                _inventory == null)
             {
                 return;
             }
 
-            var itemId = message.EnemyArchetypeId.IndexOf("boss", StringComparison.OrdinalIgnoreCase) >= 0
-                ? "upgrade_module"
-                : "training_chip";
+            var loot = _lootResolver.Resolve(
+                message.EnemyArchetypeId,
+                message.EnemyInstanceId);
+            if (!loot.IsValid ||
+                !_inventory.TryGetDefinition(loot.ItemId, out var definition) ||
+                definition == null)
+            {
+                return;
+            }
+
             var position = ResolveEnemyPosition(message.EnemyInstanceId);
-            SpawnLootAsync(itemId, position, message.EnemyInstanceId, _lifetime.Token);
+            SpawnLootAsync(loot, position, message.EnemyInstanceId, _lifetime.Token);
         }
 
         private async void SpawnLootAsync(
-            string itemId,
+            BuildLootResult loot,
             Vector3 position,
             string instanceId,
             CancellationToken cancellationToken)
@@ -352,10 +367,10 @@ namespace Train.Composition.Progression
                 }
 
                 pickup.Configure(
-                    $"loot_{instanceId}_{itemId}",
-                    itemId,
-                    itemId == "upgrade_module" ? 2 : 3,
-                    25);
+                    $"loot_{instanceId}_{loot.ItemId}",
+                    loot.ItemId,
+                    loot.Quantity,
+                    loot.IsEquipment ? 35 : 25);
                 _lootLeases.Add(lease);
             }
             catch (OperationCanceledException)
@@ -508,6 +523,7 @@ namespace Train.Composition.Progression
         private readonly Button _shopAction;
         private readonly Button _shopSellAction;
         private readonly Image _shopDetailIcon;
+        private readonly ShopDetailRefreshMotion _shopDetailRefresh;
         private readonly ShopOverlayMotion _shopMotion;
         private ItemDefinition _selectedShopItem;
         private int _selectedShopCost;
@@ -652,6 +668,8 @@ namespace Train.Composition.Progression
             _shopDetailIcon = iconPlate.GetComponent<Image>();
             var iconPulse = iconPlate.AddComponent<GraphicPulse>();
             iconPulse.Configure(.92f, 1.05f, .8f);
+            _shopDetailRefresh = iconPlate.AddComponent<ShopDetailRefreshMotion>();
+            _shopDetailRefresh.Configure(iconPlate.GetComponent<RectTransform>());
             _shopDetailName = CreateLabel(detailPanel.transform, "选择商品", 28, TextAlignmentOptions.MidlineLeft);
             SetRect(_shopDetailName.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(150f, -78f), new Vector2(-178f, 42f));
             _shopDetailName.fontStyle = FontStyles.Bold;
@@ -774,6 +792,7 @@ namespace Train.Composition.Progression
         {
             AcquireModal();
             _completion.SetActive(true);
+            _shopMotion.HideImmediate();
             _shop.SetActive(false);
             _completionSummary.text = $"{levelDisplayName}\n通关用时：{elapsed:0.0} 秒\n\n获得奖励：\n{(string.IsNullOrWhiteSpace(rewardSummary) ? "无" : rewardSummary)}\n\n关闭本面板后，靠近传送门前往商店。";
             RenderWallet(_progression.Snapshot);
@@ -859,6 +878,7 @@ namespace Train.Composition.Progression
         {
             ReleaseModal();
             _completion.SetActive(false);
+            _shopMotion.HideImmediate();
             _shop.SetActive(false);
         }
 
@@ -866,7 +886,13 @@ namespace Train.Composition.Progression
         public void HideShopPanel()
         {
             ReleaseModal();
-            _shop.SetActive(false);
+            if (!_shop.activeSelf)
+            {
+                _shopMotion.HideImmediate();
+                return;
+            }
+
+            _shopMotion.PlayClose(() => _shop.SetActive(false));
         }
 
         /// <summary>鍏抽棴鑳滃埄缁撶畻骞舵仮澶嶈鑹叉搷浣溿€?/summary>
@@ -892,7 +918,7 @@ namespace Train.Composition.Progression
             AcquireModal();
             _completion.SetActive(false);
             _shop.SetActive(true);
-            _shopMotion.Restart();
+            _shopMotion.PlayOpen();
             _shopBalance.text = $"金币  {_progression.Snapshot.Coins:0000}";
             _shopStatus.text = "选择商品查看详情，购买和出售会立即更新金币。";
             var cards = _shop.transform.Find("CatalogPanel/Viewport/Cards");
@@ -930,6 +956,8 @@ namespace Train.Composition.Progression
             colors.selectedColor = new Color32(110, 231, 235, 255);
             button.colors = colors;
             button.onClick.AddListener(() => SelectShopItem(definition, cost));
+            var buttonMotion = card.AddComponent<UiButtonMotion>();
+            buttonMotion.Configure(1.012f, .978f);
 
             var accent = CreatePanel(card.transform, "Accent");
             SetRect(accent.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, .5f), Vector2.zero, new Vector2(5f, 0f));
@@ -960,6 +988,7 @@ namespace Train.Composition.Progression
             _selectedShopCost = cost;
             RefreshShopDetail();
             _shopStatus.text = "选择商品查看详情，购买和出售会立即更新金币。";
+            _shopDetailRefresh.Play();
         }
 
         private void RefreshShopDetail()
@@ -1129,6 +1158,8 @@ namespace Train.Composition.Progression
             colors.highlightedColor = new Color32(45, 128, 140, 255);
             colors.pressedColor = new Color32(100, 194, 190, 255);
             button.colors = colors;
+            var buttonMotion = buttonRoot.AddComponent<UiButtonMotion>();
+            buttonMotion.Configure();
             var label = CreateLabel(buttonRoot.transform, text, size, TextAlignmentOptions.Center);
             SetRect(label.rectTransform, Vector2.zero, Vector2.one, new Vector2(.5f, .5f), Vector2.zero, Vector2.zero);
             return button;
@@ -1210,34 +1241,308 @@ namespace Train.Composition.Progression
         }
     }
 
-    /// <summary>鍟嗗簵鎵撳紑鏃剁殑杞婚噺缂╂斁鍜岄€忔槑搴﹁繃娓★紝閬垮厤鐣岄潰绐佺劧鍑虹幇銆?/summary>
+    /// <summary>鍟嗗簵闈㈡澘鐨勬墦寮€涓庡叧闂繃娓★紝浣跨敤 unscaled time 鍏煎鏆傚仠涓庡満鏅垏鎹€銆?/summary>
     internal sealed class ShopOverlayMotion : MonoBehaviour
     {
+        private const float OpenDuration = .26f;
+        private const float CloseDuration = .12f;
+        private const float OpenOffset = 14f;
+        private const float CloseOffset = 8f;
+
         private RectTransform _rect;
         private CanvasGroup _group;
+        private Vector3 _restPosition;
+        private Vector3 _restScale;
+        private Vector3 _fromPosition;
+        private Vector3 _toPosition;
+        private Vector3 _fromScale;
+        private Vector3 _toScale;
+        private float _fromAlpha;
+        private float _toAlpha;
         private float _startedAt;
+        private float _duration;
+        private bool _animating;
+        private bool _closing;
+        private Action _onClosed;
 
         public void Configure(RectTransform rect)
         {
             _rect = rect;
             _group = GetComponent<CanvasGroup>();
-            Restart();
+            _restPosition = rect.localPosition;
+            _restScale = rect.localScale;
+            HideImmediate();
         }
 
-        public void Restart()
+        public void PlayOpen()
         {
+            if (_rect == null || _group == null)
+            {
+                return;
+            }
+
+            var continueFromCurrent = _animating;
+            _animating = true;
+            _closing = false;
+            _onClosed = null;
             _startedAt = Time.unscaledTime;
-            if (_rect != null) _rect.localScale = Vector3.one * .965f;
-            if (_group != null) _group.alpha = .2f;
+            _duration = OpenDuration;
+            _fromPosition = continueFromCurrent
+                ? _rect.localPosition
+                : _restPosition + Vector3.down * OpenOffset;
+            _fromScale = continueFromCurrent
+                ? _rect.localScale
+                : _restScale * .965f;
+            _fromAlpha = continueFromCurrent ? _group.alpha : 0f;
+            _toPosition = _restPosition;
+            _toScale = _restScale;
+            _toAlpha = 1f;
+            _group.interactable = true;
+            _group.blocksRaycasts = true;
+        }
+
+        public void PlayClose(Action onClosed)
+        {
+            if (_rect == null || _group == null)
+            {
+                onClosed?.Invoke();
+                return;
+            }
+
+            if (_animating && _closing)
+            {
+                _onClosed = onClosed;
+                return;
+            }
+
+            _animating = true;
+            _closing = true;
+            _onClosed = onClosed;
+            _startedAt = Time.unscaledTime;
+            _duration = CloseDuration;
+            _fromPosition = _rect.localPosition;
+            _fromScale = _rect.localScale;
+            _fromAlpha = _group.alpha;
+            _toPosition = _restPosition + Vector3.down * CloseOffset;
+            _toScale = _restScale * .985f;
+            _toAlpha = 0f;
+            _group.interactable = false;
+            _group.blocksRaycasts = false;
+
+            if (_fromAlpha <= .001f)
+            {
+                CompleteClose();
+            }
+        }
+
+        public void HideImmediate()
+        {
+            _animating = false;
+            _closing = false;
+            _onClosed = null;
+            if (_rect != null)
+            {
+                _rect.localPosition = _restPosition;
+                _rect.localScale = _restScale == Vector3.zero ? Vector3.one : _restScale;
+            }
+
+            if (_group != null)
+            {
+                _group.alpha = 0f;
+                _group.interactable = false;
+                _group.blocksRaycasts = false;
+            }
         }
 
         private void Update()
         {
-            if (_rect == null || _group == null) return;
-            var progress = Mathf.Clamp01((Time.unscaledTime - _startedAt) / .28f);
+            if (!_animating || _rect == null || _group == null)
+            {
+                return;
+            }
+
+            var progress = Mathf.Clamp01((Time.unscaledTime - _startedAt) / _duration);
             var eased = 1f - Mathf.Pow(1f - progress, 3f);
-            _rect.localScale = Vector3.one * Mathf.Lerp(.965f, 1f, eased);
-            _group.alpha = Mathf.Lerp(.2f, 1f, eased);
+            _rect.localPosition = Vector3.LerpUnclamped(_fromPosition, _toPosition, eased);
+            _rect.localScale = Vector3.LerpUnclamped(_fromScale, _toScale, eased);
+            _group.alpha = Mathf.LerpUnclamped(_fromAlpha, _toAlpha, eased);
+
+            if (progress < 1f)
+            {
+                return;
+            }
+
+            _animating = false;
+            if (_closing)
+            {
+                CompleteClose();
+            }
+        }
+
+        private void CompleteClose()
+        {
+            _animating = false;
+            _closing = false;
+            _group.alpha = 0f;
+            _group.interactable = false;
+            _group.blocksRaycasts = false;
+            var onClosed = _onClosed;
+            _onClosed = null;
+            onClosed?.Invoke();
+        }
+    }
+
+    /// <summary>动态按钮的轻量 hover、按下和键盘选中反馈，不改变 Button 的业务事件。</summary>
+    internal sealed class UiButtonMotion : MonoBehaviour,
+        IPointerEnterHandler,
+        IPointerExitHandler,
+        IPointerDownHandler,
+        IPointerUpHandler,
+        ISelectHandler,
+        IDeselectHandler
+    {
+        private RectTransform _rect;
+        private Button _button;
+        private Vector3 _restScale;
+        private float _hoverScale;
+        private float _pressScale;
+        private bool _hovered;
+        private bool _pressed;
+        private bool _selected;
+
+        public void Configure(float hoverScale = 1.016f, float pressScale = .978f)
+        {
+            _rect = transform as RectTransform;
+            _button = GetComponent<Button>();
+            _restScale = _rect == null ? Vector3.one : _rect.localScale;
+            _hoverScale = hoverScale;
+            _pressScale = pressScale;
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            _hovered = IsInteractable;
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            _hovered = false;
+            _pressed = false;
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            _pressed = IsInteractable;
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            _pressed = false;
+            _hovered = IsInteractable;
+        }
+
+        public void OnSelect(BaseEventData eventData)
+        {
+            _selected = IsInteractable;
+        }
+
+        public void OnDeselect(BaseEventData eventData)
+        {
+            _selected = false;
+        }
+
+        private bool IsInteractable => _button != null && _button.IsInteractable();
+
+        private void Update()
+        {
+            if (_rect == null)
+            {
+                return;
+            }
+
+            if (!IsInteractable)
+            {
+                _hovered = false;
+                _pressed = false;
+                _selected = false;
+            }
+
+            var targetScale = _pressed
+                ? _pressScale
+                : (_hovered || _selected ? _hoverScale : 1f);
+            var smoothing = 1f - Mathf.Exp(-18f * Time.unscaledDeltaTime);
+            _rect.localScale = Vector3.Lerp(
+                _rect.localScale,
+                _restScale * targetScale,
+                smoothing);
+        }
+
+        private void OnDisable()
+        {
+            _hovered = false;
+            _pressed = false;
+            _selected = false;
+            if (_rect != null)
+            {
+                _rect.localScale = _restScale;
+            }
+        }
+    }
+
+    /// <summary>商品切换时只播放一次的短促图标刷新，不承担持续呼吸效果。</summary>
+    internal sealed class ShopDetailRefreshMotion : MonoBehaviour
+    {
+        private const float Duration = .18f;
+        private const float MaxScaleBump = .04f;
+
+        private RectTransform _rect;
+        private Vector3 _restScale;
+        private float _startedAt;
+        private bool _playing;
+
+        public void Configure(RectTransform rect)
+        {
+            _rect = rect;
+            _restScale = rect.localScale;
+            _startedAt = 0f;
+            _playing = false;
+        }
+
+        public void Play()
+        {
+            if (_rect == null)
+            {
+                return;
+            }
+
+            _startedAt = Time.unscaledTime;
+            _playing = true;
+        }
+
+        private void Update()
+        {
+            if (!_playing || _rect == null)
+            {
+                return;
+            }
+
+            var progress = Mathf.Clamp01((Time.unscaledTime - _startedAt) / Duration);
+            var bump = Mathf.Sin(progress * Mathf.PI) * MaxScaleBump;
+            _rect.localScale = _restScale * (1f + bump);
+            if (progress >= 1f)
+            {
+                _rect.localScale = _restScale;
+                _playing = false;
+            }
+        }
+
+        private void OnDisable()
+        {
+            _playing = false;
+            if (_rect != null)
+            {
+                _rect.localScale = _restScale;
+            }
         }
     }
 

@@ -5,6 +5,7 @@
 ,training_dummy,训练假人,Assets/Prefabs/Combat/TrainingDummy_Rusk.prefab,500,0,12,0
 ,scout_knight,侦察骑士,Assets/Prefabs/Enemies/Enemy_ScoutKnight.prefab,90,12,2,4.6
 ,elite_knight,精英骑士,Assets/Prefabs/Enemies/Enemy_EliteKnight.prefab,340,30,8,3.6
+,overload_sentinel,过载哨兵,Assets/Prefabs/Enemies/Enemy_OverloadSentinel.prefab,420,36,12,2.4
 ,boss_rusk,Rusk 原型机,Assets/Prefabs/Enemies/Enemy_BossRuskPrototype.prefab,1200,44,18,3
 ,arc_drone,弧光无人机,Assets/Prefabs/Enemies/Enemy_ArcDroneRobot.prefab,120,20,3,4.2
 ,crawler_bot,熔岩爬行机,Assets/Prefabs/Enemies/Enemy_CrawlerBot.prefab,220,32,7,3.2

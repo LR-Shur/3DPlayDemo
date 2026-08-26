@@ -22,17 +22,17 @@ MonoBehaviour:
   _enemySpawns:
   - _spawnId: knight_01
     _archetypeId: scout_knight
-    _prefabLocation: Enemies_Enemy_ScoutKnight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_ScoutKnight.prefab
     _position: {x: -46.8, y: 0, z: -26}
     _eulerAngles: {x: 0, y: 180, z: 0}
   - _spawnId: knight_02
     _archetypeId: kaykit_knight
-    _prefabLocation: Enemies_Enemy_KayKitKnight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_KayKitKnight.prefab
     _position: {x: -50.8, y: 0, z: -28}
     _eulerAngles: {x: 0, y: 135, z: 0}
   - _spawnId: knight_03
     _archetypeId: elite_knight
-    _prefabLocation: Enemies_Enemy_EliteKnight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_EliteKnight.prefab
     _position: {x: -42.8, y: 0, z: -28}
     _eulerAngles: {x: 0, y: 225, z: 0}
   _rewards:

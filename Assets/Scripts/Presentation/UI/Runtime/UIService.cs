@@ -29,6 +29,7 @@ namespace Train.Presentation.UI.Runtime
         private readonly CharacterPresenter _characterPresenter;
         private readonly DialoguePresenter _dialoguePresenter;
         private readonly HudPresenter _hudPresenter;
+        private readonly UIScreenMotion _menuNavigationMotion;
         private IDisposable _menuModalLease;
         private bool _disposed;
 
@@ -101,13 +102,14 @@ namespace Train.Presentation.UI.Runtime
             }
 
             UnityEngine.Object.DontDestroyOnLoad(instance);
-            _root.Inventory.SetVisible(false);
-            _root.Equipment.SetVisible(false);
+            _menuNavigationMotion = EnsureMenuNavigationMotion();
+            SetPageMotionImmediate(_root.Inventory, false);
+            SetPageMotionImmediate(_root.Equipment, false);
             _root.Quests.SetVisible(false);
             _root.Characters.SetVisible(false);
             _root.Dialogue.SetVisible(false);
             _root.Placeholder.Hide();
-            _root.MenuNavigationRoot.SetActive(false);
+            _menuNavigationMotion.SetVisibleImmediate(false);
             _inventoryPresenter = new InventoryPresenter(
                 inventory,
                 equipment,
@@ -195,15 +197,19 @@ namespace Train.Presentation.UI.Runtime
                 throw new ArgumentOutOfRangeException(nameof(page), page, null);
             }
 
+            var opening = !IsMenuOpen;
             _menuModalLease ??=
                 _inputMode.AcquireModal("GameMainMenu");
             CurrentPage = page;
-            _root.MenuNavigationRoot.SetActive(true);
-            _root.Inventory.SetVisible(page == GameMenuPage.Inventory);
-            _root.Equipment.SetVisible(page == GameMenuPage.Equipment);
-            _root.Quests.SetVisible(page == GameMenuPage.Quests);
-            _root.Characters.SetVisible(page == GameMenuPage.Characters);
-            _root.Placeholder.Hide();
+            _menuNavigationMotion.SetVisible(true);
+            if (opening)
+            {
+                SetPageVisibilityImmediate(page);
+            }
+            else
+            {
+                SetPageVisibility(page);
+            }
 
             switch (page)
             {
@@ -231,7 +237,7 @@ namespace Train.Presentation.UI.Runtime
             _root.Quests.SetVisible(false);
             _root.Characters.SetVisible(false);
             _root.Placeholder.Hide();
-            _root.MenuNavigationRoot.SetActive(false);
+            _menuNavigationMotion.SetVisible(false);
             _menuModalLease?.Dispose();
             _menuModalLease = null;
         }
@@ -303,12 +309,13 @@ namespace Train.Presentation.UI.Runtime
             _root.CharactersTabButton?.onClick.RemoveAllListeners();
             _root.ArchiveTabButton?.onClick.RemoveListener(ShowArchive);
             _root.MenuCloseButton.onClick.RemoveListener(HideMenu);
-            _root.Inventory.SetVisible(false);
-            _root.Equipment.SetVisible(false);
+            SetPageMotionImmediate(_root.Inventory, false);
+            SetPageMotionImmediate(_root.Equipment, false);
             _root.Quests.SetVisible(false);
             _root.Characters.SetVisible(false);
+            _root.Dialogue.SetVisible(false);
             _root.Placeholder.Hide();
-            _root.MenuNavigationRoot.SetActive(false);
+            _menuNavigationMotion.SetVisibleImmediate(false);
             _menuModalLease?.Dispose();
             _menuModalLease = null;
             _inventoryPresenter.Dispose();
@@ -351,6 +358,48 @@ namespace Train.Presentation.UI.Runtime
                 _root.ArchiveTabButton.interactable =
                     page != GameMenuPage.Archive;
             }
+        }
+
+        private UIScreenMotion EnsureMenuNavigationMotion()
+        {
+            var target = _root.MenuNavigationRoot;
+            var motion = target.GetComponent<UIScreenMotion>() ??
+                          target.AddComponent<UIScreenMotion>();
+            motion.Bind(target);
+            return motion;
+        }
+
+        private void SetPageVisibility(GameMenuPage page)
+        {
+            _root.Inventory.SetVisible(page == GameMenuPage.Inventory);
+            _root.Equipment.SetVisible(page == GameMenuPage.Equipment);
+            _root.Quests.SetVisible(page == GameMenuPage.Quests);
+            _root.Characters.SetVisible(page == GameMenuPage.Characters);
+            _root.Placeholder.Hide();
+        }
+
+        private void SetPageVisibilityImmediate(GameMenuPage page)
+        {
+            SetPageMotionImmediate(
+                _root.Inventory,
+                page == GameMenuPage.Inventory);
+            SetPageMotionImmediate(
+                _root.Equipment,
+                page == GameMenuPage.Equipment);
+            _root.Quests.SetVisible(page == GameMenuPage.Quests);
+            _root.Characters.SetVisible(page == GameMenuPage.Characters);
+            _root.Placeholder.Hide();
+        }
+
+        private static void SetPageMotionImmediate(
+            MonoBehaviour page,
+            bool visible)
+        {
+            var target = page.gameObject;
+            var motion = target.GetComponent<UIScreenMotion>() ??
+                         target.AddComponent<UIScreenMotion>();
+            motion.Bind(target);
+            motion.SetVisibleImmediate(visible);
         }
 
         private void ThrowIfDisposed()

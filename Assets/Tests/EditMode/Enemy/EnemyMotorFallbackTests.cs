@@ -29,5 +29,23 @@ namespace Train.Tests.EditMode.Enemy
                 Object.DestroyImmediate(enemy);
             }
         }
+
+        [Test]
+        public void TrySnapToNavMesh_WithoutNavMeshFailsSafely()
+        {
+            var enemy = new GameObject("EnemyMotorNavMeshProjectionTest");
+            try
+            {
+                var motor = enemy.AddComponent<EnemyMotor>();
+
+                Assert.That(motor.TrySnapToNavMesh(), Is.False);
+                Assert.DoesNotThrow(() => motor.Stop());
+                Assert.DoesNotThrow(() => motor.MoveTo(Vector3.forward, 3f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(enemy);
+            }
+        }
     }
 }

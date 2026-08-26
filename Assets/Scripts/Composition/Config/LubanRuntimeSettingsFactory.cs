@@ -161,9 +161,11 @@ namespace Train.Composition.Config
                 AddFlatModifier(modifiers, StatType.Defense, row.Defense);
                 AddFlatModifier(modifiers, StatType.MaxHealth, row.MaxHealth);
                 effectsByEquipment.TryGetValue(row.Id, out var effect);
+                var item = tables.TbItem.GetOrDefault(row.Id);
                 items.Add(EquipmentItemDefinition.CreateRuntime(
                     row.Id,
                     row.Name,
+                    item != null ? item.Description : string.Empty,
                     ToEquipmentRarity(row.Quality),
                     ToEquipmentCategory(row.Slot),
                     modifiers,

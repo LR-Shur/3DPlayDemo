@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Train.Architecture.Assets;
 using Train.GameFlow.Data;
 using Train.GameFlow.Runtime;
@@ -8,6 +9,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Train.Gameplay.Enemy.Core;
 
 namespace Train.EditorTools.GameFlow
 {
@@ -94,6 +96,47 @@ namespace Train.EditorTools.GameFlow
                 $"敌人点位 {FindEnemyPoints(scene).Count} 个。");
         }
 
+        /// <summary>
+        /// 统一所有可游玩关卡的敌人兼容字段，并移除场景内残留的敌人副本。
+        /// </summary>
+        [MenuItem("Tools/Train/Level Design/Normalize All Enemy Archetypes")]
+        public static void NormalizeAllEnemyArchetypes()
+        {
+            var activeScenePath = SceneManager.GetActiveScene().path;
+            NormalizeLevelDefinitions();
+
+            foreach (var guid in AssetDatabase.FindAssets(
+                         "t:Scene",
+                         new[] { "Assets/Scenes/Playable" }))
+            {
+                var scenePath = AssetDatabase.GUIDToAssetPath(guid);
+                var scene = EditorSceneManager.OpenScene(
+                    scenePath,
+                    OpenSceneMode.Single);
+                var definition = FindDefinition(scene);
+                if (definition == null)
+                {
+                    continue;
+                }
+
+                NormalizeSceneEnemyPoints(scene, definition);
+                RemoveSceneEnemyCopies(scene);
+                EditorSceneManager.SaveScene(scene, scenePath);
+            }
+
+            if (!string.IsNullOrWhiteSpace(activeScenePath) &&
+                File.Exists(activeScenePath))
+            {
+                EditorSceneManager.OpenScene(
+                    activeScenePath,
+                    OpenSceneMode.Single);
+            }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("All playable enemy archetypes were normalized.");
+        }
+
         /// <summary>供 PlayableCombatSliceBuilder 在生成场景后调用。</summary>
         public static void SyncScene(
             Scene scene,
@@ -120,17 +163,27 @@ namespace Train.EditorTools.GameFlow
                     serialized.FindProperty("_levelId").stringValue)
                     ? $"level.{scene.name.ToLowerInvariant()}"
                     : serialized.FindProperty("_levelId").stringValue;
-            serialized.FindProperty("_sceneLocation").stringValue = scene.path;
+            var sceneLocation = serialized.FindProperty("_sceneLocation");
+            if (string.IsNullOrWhiteSpace(sceneLocation.stringValue))
+            {
+                sceneLocation.stringValue = scene.path;
+            }
 
             var spawns = serialized.FindProperty("_enemySpawns");
+            var previousArchetypes = ReadPreviousArchetypes(spawns);
             var points = FindEnemyPoints(scene);
-            spawns.arraySize = points.Count;
+            var existingCount = spawns.arraySize;
+            var preserveExistingSpawns = points.Count < existingCount;
+            var existingIndexes = ReadSpawnIndexes(spawns);
+            if (!preserveExistingSpawns)
+            {
+                spawns.arraySize = points.Count;
+            }
+
             var usedIds = new HashSet<string>(StringComparer.Ordinal);
             for (var index = 0; index < points.Count; index++)
             {
                 var point = points[index];
-                var spawn = spawns.GetArrayElementAtIndex(index);
-                var prefabLocation = ResolvePrefabLocation(point);
                 var spawnId = point.SpawnId;
                 if (string.IsNullOrWhiteSpace(spawnId) ||
                     !usedIds.Add(spawnId))
@@ -145,15 +198,48 @@ namespace Train.EditorTools.GameFlow
                     usedIds.Add(spawnId);
                 }
 
+                var archetypeId = ResolveArchetypeId(
+                    point,
+                    previousArchetypes,
+                    spawnId);
+                if (!EnemyArchetypeEditorCatalog.TryGet(
+                        archetypeId,
+                        out var prefabLocation))
+                {
+                    throw new InvalidOperationException(
+                        $"Enemy spawn '{spawnId}' references unknown archetype " +
+                        $"'{archetypeId}'.");
+                }
+
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                    prefabLocation);
+                if (prefab == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Canonical enemy prefab '{prefabLocation}' for " +
+                        $"archetype '{archetypeId}' cannot be loaded.");
+                }
+
+                point.Configure(
+                    spawnId,
+                    archetypeId,
+                    prefab,
+                    prefabLocation);
+                EditorUtility.SetDirty(point);
+
+                var spawnIndex = index;
+                if (preserveExistingSpawns &&
+                    !existingIndexes.TryGetValue(spawnId, out spawnIndex))
+                {
+                    continue;
+                }
+
+                var spawn = spawns.GetArrayElementAtIndex(spawnIndex);
+
                 spawn.FindPropertyRelative("_spawnId").stringValue =
                     spawnId;
                 spawn.FindPropertyRelative("_archetypeId").stringValue =
-                    point.ArchetypeId == "enemy" &&
-                    prefabLocation.IndexOf(
-                        "KayKitKnight",
-                        StringComparison.OrdinalIgnoreCase) >= 0
-                        ? "kaykit_knight"
-                        : point.ArchetypeId;
+                    archetypeId;
                 spawn.FindPropertyRelative("_prefabLocation").stringValue =
                     prefabLocation;
                 spawn.FindPropertyRelative("_position").vector3Value =
@@ -166,24 +252,224 @@ namespace Train.EditorTools.GameFlow
             EditorUtility.SetDirty(definition);
         }
 
-        private static string ResolvePrefabLocation(EnemySpawnPoint point)
+        private static void NormalizeSceneEnemyPoints(
+            Scene scene,
+            LevelDefinition definition)
         {
-            if (point.EnemyPrefab != null)
+            var serialized = new SerializedObject(definition);
+            var previousArchetypes = ReadPreviousArchetypes(
+                serialized.FindProperty("_enemySpawns"));
+            foreach (var point in FindEnemyPoints(scene))
             {
-                var path = AssetDatabase.GetAssetPath(point.EnemyPrefab);
-                if (!string.IsNullOrWhiteSpace(path))
+                var spawnId = point.SpawnId;
+                var archetypeId = ResolveArchetypeId(
+                    point,
+                    previousArchetypes,
+                    spawnId);
+                if (!EnemyArchetypeEditorCatalog.TryGet(
+                        archetypeId,
+                        out var prefabLocation))
                 {
-                    return path;
+                    throw new InvalidOperationException(
+                        $"Enemy spawn '{spawnId}' references unknown archetype " +
+                        $"'{archetypeId}'.");
                 }
+
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                    prefabLocation);
+                if (prefab == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Canonical enemy prefab '{prefabLocation}' for " +
+                        $"archetype '{archetypeId}' cannot be loaded.");
+                }
+
+                point.Configure(
+                    spawnId,
+                    archetypeId,
+                    prefab,
+                    prefabLocation);
+                EditorUtility.SetDirty(point);
+            }
+        }
+
+        private static string ResolveArchetypeId(
+            EnemySpawnPoint point,
+            IReadOnlyDictionary<string, string> previousArchetypes,
+            string spawnId)
+        {
+            if (spawnId.IndexOf(
+                    "sentinel",
+                    StringComparison.OrdinalIgnoreCase) >= 0 &&
+                EnemyArchetypeEditorCatalog.TryGet(
+                    "overload_sentinel",
+                    out _))
+            {
+                return "overload_sentinel";
             }
 
-            if (!string.IsNullOrWhiteSpace(point.PrefabLocation))
+            var prefabPath = point.EnemyPrefab != null
+                ? AssetDatabase.GetAssetPath(point.EnemyPrefab)
+                : point.PrefabLocation;
+            if (EnemyArchetypeEditorCatalog.TryGetArchetypeByPrefab(
+                    prefabPath,
+                    out var prefabArchetype))
             {
-                return point.PrefabLocation;
+                return prefabArchetype;
+            }
+
+            if (EnemyArchetypeEditorCatalog.TryGet(
+                    point.ArchetypeId,
+                    out _))
+            {
+                return point.ArchetypeId;
+            }
+
+            if (previousArchetypes.TryGetValue(
+                    spawnId,
+                    out var previousArchetype) &&
+                EnemyArchetypeEditorCatalog.TryGet(
+                    previousArchetype,
+                    out _))
+            {
+                return previousArchetype;
             }
 
             throw new InvalidOperationException(
-                $"敌人点位 '{point.name}' 没有拖入敌人 Prefab。");
+                $"敌人点位 '{point.name}' 无法解析 canonical archetype。");
+        }
+
+        private static Dictionary<string, string> ReadPreviousArchetypes(
+            SerializedProperty spawns)
+        {
+            var result = new Dictionary<string, string>(StringComparer.Ordinal);
+            for (var index = 0; index < spawns.arraySize; index++)
+            {
+                var spawn = spawns.GetArrayElementAtIndex(index);
+                var spawnId = spawn.FindPropertyRelative("_spawnId").stringValue;
+                var archetypeId = spawn.FindPropertyRelative("_archetypeId").stringValue;
+                if (!string.IsNullOrWhiteSpace(spawnId) &&
+                    !result.ContainsKey(spawnId))
+                {
+                    result.Add(spawnId, archetypeId);
+                }
+            }
+
+            return result;
+        }
+
+        private static Dictionary<string, int> ReadSpawnIndexes(
+            SerializedProperty spawns)
+        {
+            var result = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (var index = 0; index < spawns.arraySize; index++)
+            {
+                var spawnId = spawns
+                    .GetArrayElementAtIndex(index)
+                    .FindPropertyRelative("_spawnId")
+                    .stringValue;
+                if (!string.IsNullOrWhiteSpace(spawnId) &&
+                    !result.ContainsKey(spawnId))
+                {
+                    result.Add(spawnId, index);
+                }
+            }
+
+            return result;
+        }
+
+        private static void NormalizeLevelDefinitions()
+        {
+            foreach (var guid in AssetDatabase.FindAssets(
+                         "t:LevelDefinition",
+                         new[] { LevelDataFolder }))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var definition = AssetDatabase.LoadAssetAtPath<LevelDefinition>(path);
+                if (definition == null)
+                {
+                    continue;
+                }
+
+                var serialized = new SerializedObject(definition);
+                var spawns = serialized.FindProperty("_enemySpawns");
+                for (var index = 0; index < spawns.arraySize; index++)
+                {
+                    var spawn = spawns.GetArrayElementAtIndex(index);
+                    var spawnId = spawn.FindPropertyRelative("_spawnId").stringValue;
+                    var archetypeId = spawn.FindPropertyRelative("_archetypeId").stringValue;
+                    if (spawnId.IndexOf(
+                            "sentinel",
+                            StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        archetypeId = "overload_sentinel";
+                    }
+
+                    if (!EnemyArchetypeEditorCatalog.TryGet(
+                            archetypeId,
+                            out var prefabLocation))
+                    {
+                        throw new InvalidOperationException(
+                            $"Level '{definition.name}' spawn '{spawnId}' references " +
+                            $"unknown archetype '{archetypeId}'.");
+                    }
+
+                    spawn.FindPropertyRelative("_archetypeId").stringValue = archetypeId;
+                    spawn.FindPropertyRelative("_prefabLocation").stringValue = prefabLocation;
+                }
+
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(definition);
+            }
+        }
+
+        private static LevelDefinition FindDefinition(Scene scene)
+        {
+            foreach (var guid in AssetDatabase.FindAssets(
+                         "t:LevelDefinition",
+                         new[] { LevelDataFolder }))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var definition = AssetDatabase.LoadAssetAtPath<LevelDefinition>(path);
+                if (definition != null &&
+                    MatchesSceneLocation(definition.SceneLocation, scene))
+                {
+                    return definition;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool MatchesSceneLocation(
+            string sceneLocation,
+            Scene scene)
+        {
+            if (string.Equals(
+                    sceneLocation,
+                    scene.path,
+                    StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            return string.Equals(
+                sceneLocation,
+                "Playable_" + scene.name,
+                StringComparison.Ordinal);
+        }
+
+        private static void RemoveSceneEnemyCopies(Scene scene)
+        {
+            foreach (var enemy in UnityEngine.Object.FindObjectsByType<EnemyController>(
+                         FindObjectsInactive.Include,
+                         FindObjectsSortMode.None))
+            {
+                if (enemy != null && enemy.gameObject.scene == scene)
+                {
+                    UnityEngine.Object.DestroyImmediate(enemy.gameObject);
+                }
+            }
         }
 
         private static List<EnemySpawnPoint> FindEnemyPoints(Scene scene)

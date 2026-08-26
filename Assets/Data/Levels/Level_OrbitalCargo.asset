@@ -46,7 +46,7 @@ MonoBehaviour:
     _position: {x: -33, y: 1.4, z: -12}
     _eulerAngles: {x: -0, y: 270, z: 0}
   - _spawnId: sentinel_01
-    _archetypeId: elite_knight
+    _archetypeId: overload_sentinel
     _prefabLocation: Assets/Prefabs/Enemies/Enemy_OverloadSentinel.prefab
     _position: {x: -47, y: 0, z: -13}
     _eulerAngles: {x: 0, y: 180, z: 0}

@@ -50,6 +50,7 @@ namespace Train.EditorTools.Combat
 
         private static void BuildIfOutdated()
         {
+            EnsureLoopingAnimationClips();
             CleanupInterruptedBuild();
 
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
@@ -67,6 +68,47 @@ namespace Train.EditorTools.Combat
             {
                 Build();
             }
+        }
+
+        private static void EnsureLoopingAnimationClips()
+        {
+            if (AssetImporter.GetAtPath(ModelPath) is not ModelImporter importer)
+            {
+                return;
+            }
+
+            var clips = importer.clipAnimations;
+            var copiedDefaultClipAnimations = clips.Length == 0;
+            if (copiedDefaultClipAnimations)
+            {
+                clips = importer.defaultClipAnimations;
+            }
+
+            var changed = copiedDefaultClipAnimations && clips.Length > 0;
+            for (var index = 0; index < clips.Length; index++)
+            {
+                var clip = clips[index];
+                var isLoopingClip =
+                    string.Equals(clip.name, "Idle", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(clip.name, "Walking_A", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(clip.name, "Running_A", StringComparison.OrdinalIgnoreCase);
+                if (!isLoopingClip || clip.loopTime)
+                {
+                    continue;
+                }
+
+                clip.loopTime = true;
+                clips[index] = clip;
+                changed = true;
+            }
+
+            if (!changed)
+            {
+                return;
+            }
+
+            importer.clipAnimations = clips;
+            importer.SaveAndReimport();
         }
 
         private static void CleanupInterruptedBuild()
@@ -230,13 +272,17 @@ namespace Train.EditorTools.Combat
             EnemyAnimationId stateId,
             string clipName)
         {
-            var clip = AssetDatabase.LoadAllAssetsAtPath(ModelPath)
+            var clips = AssetDatabase.LoadAllAssetsAtPath(ModelPath)
                 .OfType<AnimationClip>()
-                .FirstOrDefault(candidate =>
-                    !candidate.name.StartsWith("__preview__", StringComparison.OrdinalIgnoreCase) &&
-                    (string.Equals(candidate.name, clipName, StringComparison.OrdinalIgnoreCase) ||
-                     candidate.name.EndsWith(clipName, StringComparison.OrdinalIgnoreCase) ||
-                     candidate.name.Contains(clipName, StringComparison.OrdinalIgnoreCase)));
+                .Where(candidate =>
+                    !candidate.name.StartsWith("__preview__", StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+            var clip = clips.FirstOrDefault(candidate =>
+                           string.Equals(candidate.name, clipName, StringComparison.OrdinalIgnoreCase)) ??
+                       clips.FirstOrDefault(candidate =>
+                           candidate.name.EndsWith(clipName, StringComparison.OrdinalIgnoreCase)) ??
+                       clips.FirstOrDefault(candidate =>
+                           candidate.name.Contains(clipName, StringComparison.OrdinalIgnoreCase));
 
             var state = stateMachine.AddState(stateId.ToString());
             state.motion = clip;

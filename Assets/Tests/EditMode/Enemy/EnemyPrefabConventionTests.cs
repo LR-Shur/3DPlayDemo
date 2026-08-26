@@ -1,8 +1,12 @@
 using System;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using Train.GameFlow.Data;
 using Train.GameFlow.Runtime;
+using Train.Gameplay.Combat;
+using Train.Gameplay.Enemy.Core;
+using Train.Gameplay.Enemy.Movement;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -13,11 +17,13 @@ namespace Train.Tests.EditMode.Enemy
 {
     public sealed class EnemyPrefabConventionTests
     {
-        private static readonly string[] PlayableScenes =
-        {
-            "Assets/Scenes/Playable/Level_Combat_001.unity",
-            "Assets/Scenes/Playable/Level_EnergyRelay.unity"
-        };
+        private static string[] PlayableScenes => AssetDatabase.FindAssets(
+                "t:Scene",
+                new[] { "Assets/Scenes/Playable" })
+            .Select(AssetDatabase.GUIDToAssetPath)
+            .Where(path => FindDefinition(path) != null)
+            .OrderBy(path => path, StringComparer.Ordinal)
+            .ToArray();
 
         [Test]
         public void EnemyPrefabs_KeepRootScaleAndAlignAgentWithBody()
@@ -133,6 +139,7 @@ namespace Train.Tests.EditMode.Enemy
             var originalScenePath = SceneManager.GetActiveScene().path;
             try
             {
+                Assert.That(PlayableScenes, Is.Not.Empty);
                 foreach (var scenePath in PlayableScenes)
                 {
                     var scene = EditorSceneManager.OpenScene(
@@ -144,21 +151,14 @@ namespace Train.Tests.EditMode.Enemy
                         .Where(point => point.gameObject.scene == scene)
                         .ToArray();
 
-                    Assert.That(points, Is.Not.Empty, scenePath);
                     foreach (var point in points)
                     {
                         Assert.That(point.transform.localScale, Is.EqualTo(Vector3.one), point.name);
                     }
 
-                    var definition = AssetDatabase.LoadAssetAtPath<LevelDefinition>(
-                        scenePath.Replace(
-                            "Assets/Scenes/Playable/",
-                            "Assets/Data/Levels/")
-                            .Replace(".unity", ".asset"));
-                    if (definition == null)
-                    {
-                        continue;
-                    }
+                    var definition = FindDefinition(scenePath);
+                    Assert.That(definition, Is.Not.Null, scenePath);
+                    Assert.That(definition.EnemySpawns, Is.Not.Empty, scenePath);
 
                     Assert.That(
                         definition.EnemySpawns.Select(spawn => spawn.SpawnId).Distinct().Count(),
@@ -173,6 +173,59 @@ namespace Train.Tests.EditMode.Enemy
                     EditorSceneManager.OpenScene(originalScenePath, OpenSceneMode.Single);
                 }
             }
+        }
+
+        [Test]
+        public void CanonicalEnemyPrefabs_HaveRequiredComponentsAndNavMeshAgent()
+        {
+            var csv = AssetDatabase.LoadAssetAtPath<TextAsset>(
+                "Assets/Config/Luban/Data/enemy_archetypes.csv");
+            Assert.That(csv, Is.Not.Null);
+
+            foreach (var line in csv.text.Split(
+                         new[] { '\r', '\n' },
+                         StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (!line.StartsWith(",", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var columns = line.Split(',');
+                if (columns.Length < 4 || columns[1] == "training_dummy")
+                {
+                    continue;
+                }
+
+                var archetypeId = columns[1].Trim();
+                var prefabPath = columns[3].Trim().Replace('\\', '/');
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+                Assert.That(prefab, Is.Not.Null, prefabPath);
+                Assert.That(prefab.GetComponent<Health>(), Is.Not.Null, archetypeId);
+                Assert.That(
+                    prefab.GetComponent<EnemyController>(),
+                    Is.Not.Null,
+                    archetypeId);
+                Assert.That(prefab.GetComponent<EnemyMotor>(), Is.Not.Null, archetypeId);
+                Assert.That(
+                    prefab.GetComponentInChildren<NavMeshAgent>(true),
+                    Is.Not.Null,
+                    archetypeId);
+            }
+        }
+
+        private static LevelDefinition FindDefinition(string scenePath)
+        {
+            var sceneName = Path.GetFileNameWithoutExtension(scenePath);
+            return AssetDatabase.FindAssets(
+                    "t:LevelDefinition",
+                    new[] { "Assets/Data/Levels" })
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<LevelDefinition>)
+                .FirstOrDefault(definition =>
+                    definition != null &&
+                    (definition.SceneLocation == scenePath ||
+                     definition.SceneLocation == "Playable_" + sceneName));
         }
     }
 }

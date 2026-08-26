@@ -22,32 +22,32 @@ MonoBehaviour:
   _enemySpawns:
   - _spawnId: scout_01
     _archetypeId: scout_knight
-    _prefabLocation: Enemies_Enemy_ScoutKnight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_ScoutKnight.prefab
     _position: {x: -35, y: 0, z: -45}
     _eulerAngles: {x: 0, y: 160, z: 0}
   - _spawnId: scout_02
     _archetypeId: scout_knight
-    _prefabLocation: Enemies_Enemy_ScoutKnight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_ScoutKnight.prefab
     _position: {x: -60, y: 0, z: -45}
     _eulerAngles: {x: 0, y: 20, z: 0}
   - _spawnId: elite_01
     _archetypeId: elite_knight
-    _prefabLocation: Enemies_Enemy_EliteKnight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_EliteKnight.prefab
     _position: {x: -35, y: 0, z: -34}
     _eulerAngles: {x: 0, y: 180, z: 0}
   - _spawnId: elite_02
     _archetypeId: elite_knight
-    _prefabLocation: Enemies_Enemy_EliteKnight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_EliteKnight.prefab
     _position: {x: -60, y: 0, z: -34}
     _eulerAngles: {x: 0, y: 225, z: 0}
   - _spawnId: scout_03
     _archetypeId: scout_knight
-    _prefabLocation: Enemies_Enemy_ScoutKnight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_ScoutKnight.prefab
     _position: {x: -47, y: 0, z: -52}
     _eulerAngles: {x: 0, y: 45, z: 0}
   - _spawnId: elite_03
     _archetypeId: elite_knight
-    _prefabLocation: Enemies_Enemy_EliteKnight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_EliteKnight.prefab
     _position: {x: -47, y: 0, z: -40}
     _eulerAngles: {x: 0, y: 180, z: 0}
   _rewards:

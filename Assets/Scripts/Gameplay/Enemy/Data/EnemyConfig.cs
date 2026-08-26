@@ -40,8 +40,8 @@ namespace Train.Gameplay.Enemy.Data
         {
             var heavy = damage >= 40f || damageType == DamageType.Earth;
             return heavy
-                ? Mathf.Clamp(_hitReactionDuration, .35f, .5f)
-                : Mathf.Clamp(_hitReactionDuration, .18f, .28f);
+                ? Mathf.Clamp(_hitReactionDuration, .32f, .42f)
+                : Mathf.Clamp(_hitReactionDuration, .18f, .24f);
         }
 
         /// <summary>按 Luban 的移动速度创建运行时副本，不修改项目中的原始配置资产。</summary>

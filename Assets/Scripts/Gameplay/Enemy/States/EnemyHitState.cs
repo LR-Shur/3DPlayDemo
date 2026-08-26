@@ -8,6 +8,10 @@ namespace Train.Gameplay.Enemy.States
     /// </summary>
     public sealed class EnemyHitState : EnemyState
     {
+        private const float MinDuration = .18f;
+        private const float MaxDuration = .42f;
+        private const float MaxRefreshExtension = .12f;
+
         private float _elapsed;
         private float _duration;
         private float _nextDuration;
@@ -31,18 +35,41 @@ namespace Train.Gameplay.Enemy.States
             Context.Animation.Play(EnemyAnimationId.Hit, 0.05f);
         }
 
+        /// <summary>保留已消耗时间，并限制连续命中对剩余僵直的单次延长。</summary>
+        public static float CalculateRefreshedDuration(
+            float elapsed,
+            float currentDuration,
+            float requestedDuration)
+        {
+            var safeElapsed = Mathf.Max(0f, elapsed);
+            var currentRemaining = Mathf.Max(0f, currentDuration - safeElapsed);
+            var requestedRemaining = Mathf.Clamp(
+                requestedDuration,
+                MinDuration,
+                MaxDuration);
+            var maxRemaining = Mathf.Min(
+                MaxDuration,
+                currentRemaining + MaxRefreshExtension);
+            var refreshedRemaining = Mathf.Max(
+                currentRemaining,
+                Mathf.Min(requestedRemaining, maxRemaining));
+            return safeElapsed + refreshedRemaining;
+        }
+
         public void SetNextDuration(float duration)
         {
-            _nextDuration = Mathf.Clamp(duration, .18f, .5f);
+            _nextDuration = Mathf.Clamp(duration, MinDuration, MaxDuration);
         }
 
         /// <summary>连续飞刃再次命中时延长僵直，但不重启整套状态和攻击动画。</summary>
         public void Refresh(float duration = -1f)
         {
-            _elapsed = 0f;
             if (duration > 0f)
             {
-                _duration = Mathf.Clamp(duration, .18f, .5f);
+                _duration = CalculateRefreshedDuration(
+                    _elapsed,
+                    _duration,
+                    duration);
             }
             Context.Motor.Stop();
             Context.Combat.EndAttack();

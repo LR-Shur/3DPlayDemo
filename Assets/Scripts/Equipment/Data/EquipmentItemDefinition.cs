@@ -150,6 +150,7 @@ namespace Train.Equipment.Data
         public static EquipmentItemDefinition CreateRuntime(
             string itemId,
             string displayName,
+            string description,
             EquipmentRarity rarity,
             EquipmentItemCategory category,
             IReadOnlyList<EquipmentStatModifierDefinition> modifiers,
@@ -167,7 +168,7 @@ namespace Train.Equipment.Data
             definition.name = $"LubanEquipment_{itemId}";
             definition._itemId = itemId;
             definition._displayName = displayName;
-            definition._description = $"由 Luban 配置的 {displayName}。";
+            definition._description = description ?? string.Empty;
             definition._rarity = rarity;
             definition._category = category;
             definition._setId = setId ?? string.Empty;

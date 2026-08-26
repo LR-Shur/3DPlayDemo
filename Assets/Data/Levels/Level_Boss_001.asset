@@ -22,17 +22,17 @@ MonoBehaviour:
   _enemySpawns:
   - _spawnId: boss_rusk
     _archetypeId: boss_rusk
-    _prefabLocation: Enemies_Enemy_BossRuskPrototype
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_BossRuskPrototype.prefab
     _position: {x: -47, y: 0, z: -48}
     _eulerAngles: {x: 0, y: 180, z: 0}
   - _spawnId: elite_guard_01
     _archetypeId: elite_knight
-    _prefabLocation: Enemies_Enemy_EliteKnight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_EliteKnight.prefab
     _position: {x: -36, y: 0, z: -42}
     _eulerAngles: {x: 0, y: 225, z: 0}
   - _spawnId: elite_guard_02
     _archetypeId: elite_knight
-    _prefabLocation: Enemies_Enemy_EliteKnight
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_EliteKnight.prefab
     _position: {x: -58, y: 0, z: -42}
     _eulerAngles: {x: 0, y: 135, z: 0}
   _rewards:

@@ -13,6 +13,7 @@ namespace Train.Gameplay.Enemy.Animation
         [SerializeField, Min(0f)] private float _liftDistance = 0.05f;
 
         private Coroutine _routine;
+        private bool _hasRestPose;
         private Vector3 _restPosition;
         private Quaternion _restRotation;
 
@@ -26,13 +27,40 @@ namespace Train.Gameplay.Enemy.Animation
         {
             ResolveVisualRoot();
             if (_visualRoot == null) return;
+            if (!_hasRestPose) CacheRestPose();
 
-            if (_routine != null) StopCoroutine(_routine);
+            if (_routine != null)
+            {
+                StopCoroutine(_routine);
+                _routine = null;
+            }
+
             RestorePose();
-            var direction = hitDirection;
+            var worldDirection = hitDirection;
+            worldDirection.y = 0f;
+            if (worldDirection.sqrMagnitude <= 0.001f)
+            {
+                worldDirection = -transform.forward;
+                worldDirection.y = 0f;
+            }
+
+            var parent = _visualRoot.parent;
+            var direction = parent != null
+                ? parent.InverseTransformDirection(worldDirection)
+                : worldDirection;
             direction.y = 0f;
-            if (direction.sqrMagnitude <= 0.001f) direction = -transform.forward;
             _routine = StartCoroutine(HitRoutine(direction.normalized));
+        }
+
+        private void OnDisable()
+        {
+            if (_routine != null)
+            {
+                StopCoroutine(_routine);
+                _routine = null;
+            }
+
+            RestorePose();
         }
 
         private IEnumerator HitRoutine(Vector3 direction)
@@ -40,7 +68,7 @@ namespace Train.Gameplay.Enemy.Animation
             var elapsed = 0f;
             while (elapsed < _duration)
             {
-                elapsed += Time.deltaTime;
+                elapsed += Time.unscaledDeltaTime;
                 var t = Mathf.Clamp01(elapsed / _duration);
                 var impulse = Mathf.Sin(t * Mathf.PI);
                 _visualRoot.localPosition = _restPosition + direction * (_kickDistance * impulse) +
@@ -79,11 +107,12 @@ namespace Train.Gameplay.Enemy.Animation
             if (_visualRoot == null) return;
             _restPosition = _visualRoot.localPosition;
             _restRotation = _visualRoot.localRotation;
+            _hasRestPose = true;
         }
 
         private void RestorePose()
         {
-            if (_visualRoot == null) return;
+            if (_visualRoot == null || !_hasRestPose) return;
             _visualRoot.localPosition = _restPosition;
             _visualRoot.localRotation = _restRotation;
         }

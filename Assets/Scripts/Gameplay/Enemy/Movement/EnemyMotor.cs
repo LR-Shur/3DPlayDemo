@@ -78,14 +78,33 @@ namespace Train.Gameplay.Enemy.Movement
         {
             _destination = transform.position;
             var agent = ResolveAgent();
-            if (agent != null && agent.enabled)
+            if (agent != null && agent.enabled && agent.isOnNavMesh)
             {
                 agent.isStopped = true;
-                if (agent.isOnNavMesh)
-                {
-                    agent.ResetPath();
-                }
+                agent.ResetPath();
             }
+        }
+
+        public bool TrySnapToNavMesh()
+        {
+            var agent = ResolveAgent();
+            if (agent == null || !agent.enabled)
+            {
+                return false;
+            }
+
+            if (agent.isOnNavMesh)
+            {
+                return true;
+            }
+
+            if (!NavMesh.SamplePosition(transform.position, out var hit, .75f, NavMesh.AllAreas))
+            {
+                return false;
+            }
+
+            agent.Warp(hit.position);
+            return agent.isOnNavMesh;
         }
 
         public void SetMovementEnabled(bool enabled)
@@ -145,18 +164,7 @@ namespace Train.Gameplay.Enemy.Movement
                 return true;
             }
 
-            if (NavMesh.SamplePosition(transform.position, out var hit, .75f, NavMesh.AllAreas))
-            {
-                agent.Warp(hit.position);
-            }
-
-            if (!agent.isOnNavMesh)
-            {
-                agent.isStopped = true;
-                return false;
-            }
-
-            return true;
+            return TrySnapToNavMesh();
         }
 
         private NavMeshAgent ResolveAgent()

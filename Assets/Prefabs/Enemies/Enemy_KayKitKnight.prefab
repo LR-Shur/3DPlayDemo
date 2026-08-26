@@ -268,7 +268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c9aee41fb298fb40a2cbb0d52788bfc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Train.Gameplay::Train.Gameplay.Enemy.Movement.EnemyMotor
-  _agent: {fileID: 0}
+  _agent: {fileID: 207073803285495717}
 --- !u!114 &3786994309364561069
 MonoBehaviour:
   m_ObjectHideFlags: 0

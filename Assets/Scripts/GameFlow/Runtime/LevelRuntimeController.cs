@@ -17,6 +17,7 @@ using Train.Gameplay.Camera;
 using Train.Gameplay.Enemy.Core;
 using Train.Gameplay.Enemy.Combat;
 using Train.Gameplay.Enemy.Data;
+using Train.Gameplay.Enemy.Movement;
 using Train.Gameplay.Player.Application.Events;
 using Train.Gameplay.Player.Core;
 using Train.Gameplay.Player.Input;
@@ -179,6 +180,7 @@ namespace Train.GameFlow.Runtime
             }
 
             await assets.InitializeAsync(cancellationToken);
+            await WaitForCanonicalProviderAsync(cancellationToken);
 
             // 玩家预制体的 Awake 会尝试读取 Camera.main；先确保主相机存在，避免动态实例化时序导致玩家被误判为无效。
             PlayerCameraRuntimeBinder.EnsureMainCamera();
@@ -194,15 +196,18 @@ namespace Train.GameFlow.Runtime
                 foreach (var spawn in _definition.EnemySpawns)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (spawn == null ||
-                        string.IsNullOrWhiteSpace(spawn.PrefabLocation))
+                    if (spawn == null)
                     {
-                        continue;
+                        throw new InvalidOperationException(
+                            "Level definition contains a null enemy spawn entry.");
                     }
+
+                    var archetype = ResolveCanonicalArchetype(spawn);
 
                     var lease = await InstantiateEnemyAsync(
                         assets,
                         spawn,
+                        archetype.PrefabLocation,
                         cancellationToken);
                     pendingLeases.Add(lease);
 
@@ -226,15 +231,19 @@ namespace Train.GameFlow.Runtime
 
                     var health = instance.GetComponent<Health>();
                     var controller = instance.GetComponent<EnemyController>();
-                    if (health == null || controller == null)
+                    if (health == null ||
+                        controller == null ||
+                        instance.GetComponent<EnemyMotor>() == null ||
+                        instance.GetComponentInChildren<UnityEngine.AI.NavMeshAgent>(true) == null)
                     {
                         throw new InvalidOperationException(
-                            $"Enemy prefab '{spawn.PrefabLocation}' requires " +
-                            "Health and EnemyController components.");
+                            $"Canonical enemy prefab '{archetype.PrefabLocation}' for " +
+                            $"archetype '{archetype.Id}' requires Health, EnemyController, " +
+                            "EnemyMotor and NavMeshAgent components.");
                     }
 
                     controller.enabled = false;
-                    ApplyLubanArchetype(spawn, instance, health, controller);
+                    ApplyLubanArchetype(archetype, instance, health, controller);
                     pendingActors.Add((health, identity, controller));
                 }
             }
@@ -267,11 +276,12 @@ namespace Train.GameFlow.Runtime
         private async Task<IInstanceLease> InstantiateEnemyAsync(
             IAssetService assets,
             EnemySpawnDefinition spawn,
+            string prefabLocation,
             CancellationToken cancellationToken)
         {
             var spawnTransform = ResolveEnemySpawnTransform(spawn);
             return await assets.InstantiateAsync(
-                spawn.PrefabLocation,
+                prefabLocation,
                 _spawnedActorsRoot,
                 spawnTransform.Position,
                 spawnTransform.Rotation,
@@ -436,20 +446,68 @@ namespace Train.GameFlow.Runtime
             _definition = _ownedDefinitionLease.Asset;
         }
 
-        /// <summary>把 Luban 敌人原型的生命、攻击、防御和移动速度应用到实例。</summary>
-        private static void ApplyLubanArchetype(
-            EnemySpawnDefinition spawn,
-            GameObject instance,
-            Health health,
-            EnemyController controller)
+        private static EnemyArchetypeRuntimeData ResolveCanonicalArchetype(
+            EnemySpawnDefinition spawn)
         {
-            if (!GameBootstrap.Instance.Context.Services.TryResolve<IEnemyArchetypeProvider>(
-                    out var provider) ||
-                !provider.TryGet(spawn.ArchetypeId, out var data))
+            if (!GameBootstrap.Instance.Context.Services.TryResolve<
+                    IEnemyArchetypeProvider>(out var provider))
+            {
+                throw new InvalidOperationException(
+                    "Enemy spawn requires an installed IEnemyArchetypeProvider: " +
+                    spawn.ArchetypeId);
+            }
+
+            if (!provider.TryGet(spawn.ArchetypeId, out var data))
+            {
+                throw new InvalidOperationException(
+                    $"Enemy archetype '{spawn.ArchetypeId}' is missing from the " +
+                    "canonical provider.");
+            }
+
+            if (string.IsNullOrWhiteSpace(data.PrefabLocation))
+            {
+                throw new InvalidOperationException(
+                    $"Enemy archetype '{data.Id}' has an empty canonical prefab location.");
+            }
+
+            return data;
+        }
+
+        private async Task WaitForCanonicalProviderAsync(
+            CancellationToken cancellationToken)
+        {
+            if (_definition == null || _definition.EnemySpawns.Count == 0)
             {
                 return;
             }
 
+            var archetypeId = _definition.EnemySpawns[0].ArchetypeId;
+            for (var frame = 0; frame < 240; frame++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (GameBootstrap.Instance.Context.Services.TryResolve<
+                        IEnemyArchetypeProvider>(out var provider) &&
+                    provider.TryGet(archetypeId, out _))
+                {
+                    return;
+                }
+
+                await Task.Yield();
+            }
+
+            // Keep the final failure explicit: a missing provider row must not
+            // be hidden by a legacy spawn prefab address.
+            ResolveCanonicalArchetype(
+                _definition.EnemySpawns[0]);
+        }
+
+        /// <summary>把 canonical 敌人原型的生命、攻击、防御和移动速度应用到实例。</summary>
+        private static void ApplyLubanArchetype(
+            EnemyArchetypeRuntimeData data,
+            GameObject instance,
+            Health health,
+            EnemyController controller)
+        {
             health.SetMaxHealth(data.MaxHealth, true);
             var stats = instance.GetComponent<CombatStatModifierComponent>();
             if (stats == null)

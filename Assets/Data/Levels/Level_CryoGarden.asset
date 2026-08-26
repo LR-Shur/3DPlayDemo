@@ -21,33 +21,33 @@ MonoBehaviour:
   _maxPlayerDeaths: 2
   _enemySpawns:
   - _spawnId: sentinel_01
-    _archetypeId: elite_knight
-    _prefabLocation: Enemies_Enemy_OverloadSentinel
+    _archetypeId: overload_sentinel
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_OverloadSentinel.prefab
     _position: {x: -47, y: 0, z: -36}
     _eulerAngles: {x: 0, y: 180, z: 0}
   - _spawnId: scout_01
     _archetypeId: human_brute
-    _prefabLocation: Enemies_Enemy_HumanBrute
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_HumanBrute.prefab
     _position: {x: -38, y: 0, z: -38}
     _eulerAngles: {x: 0, y: 160, z: 0}
   - _spawnId: scout_02
     _archetypeId: human_duelist
-    _prefabLocation: Enemies_Enemy_HumanDuelist
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_HumanDuelist.prefab
     _position: {x: -56, y: 0, z: -38}
     _eulerAngles: {x: 0, y: 20, z: 0}
   - _spawnId: elite_01
     _archetypeId: human_caster
-    _prefabLocation: Enemies_Enemy_HumanCaster
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_HumanCaster.prefab
     _position: {x: -42, y: 0, z: -46}
     _eulerAngles: {x: 0, y: 180, z: 0}
   - _spawnId: hound_01
     _archetypeId: roller_bot
-    _prefabLocation: Enemies_Enemy_RollerBot
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_RollerBot.prefab
     _position: {x: -60, y: 0, z: -49}
     _eulerAngles: {x: 0, y: 45, z: 0}
   - _spawnId: hound_02
     _archetypeId: lobber_bot
-    _prefabLocation: Enemies_Enemy_LobberBot
+    _prefabLocation: Assets/Prefabs/Enemies/Enemy_LobberBot.prefab
     _position: {x: -34, y: 0, z: -49}
     _eulerAngles: {x: 0, y: -45, z: 0}
   _rewards:

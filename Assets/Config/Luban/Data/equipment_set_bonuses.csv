@@ -6,3 +6,15 @@
 ,guard_2_defense,street_guard,2,DEFENSE,ADDITIVE_PERCENT,0.2
 ,guard_4_health,street_guard,4,MAX_HEALTH,ADDITIVE_PERCENT,0.15
 ,guard_4_flat_defense,street_guard,4,DEFENSE,FLAT,25
+,ember_2_attack,ember_combo,2,ATTACK,FLAT,8
+,ember_4_attack,ember_combo,4,ATTACK,ADDITIVE_PERCENT,0.15
+,ember_5_crit,ember_combo,5,CRIT_RATE,FLAT,0.08
+,tide_2_health,tide_sustain,2,MAX_HEALTH,FLAT,50
+,tide_4_defense,tide_sustain,4,DEFENSE,ADDITIVE_PERCENT,0.15
+,tide_5_health,tide_sustain,5,MAX_HEALTH,ADDITIVE_PERCENT,0.2
+,gale_2_attack,gale_mobility,2,ATTACK,FLAT,6
+,gale_4_crit,gale_mobility,4,CRIT_RATE,FLAT,0.1
+,gale_5_attack,gale_mobility,5,ATTACK,ADDITIVE_PERCENT,0.18
+,seismic_2_defense,seismic_breaker,2,DEFENSE,FLAT,10
+,seismic_4_attack,seismic_breaker,4,ATTACK,ADDITIVE_PERCENT,0.12
+,seismic_5_crit_damage,seismic_breaker,5,CRIT_DAMAGE,ADDITIVE_PERCENT,0.25

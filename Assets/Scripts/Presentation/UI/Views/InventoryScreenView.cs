@@ -32,6 +32,10 @@ namespace Train.Presentation.UI.Views
         [SerializeField] private Image _detailIcon;
         [SerializeField] private Button _discardButton;
         private TMP_Text _discardLabel;
+        private UIScreenMotion _screenMotion;
+        private UIInteractionMotion _detailMotion;
+        private string _lastDetailKey;
+        private bool _hasDetailKey;
         private readonly List<SlotControls> _slots = new();
 
         /// <inheritdoc />
@@ -95,10 +99,7 @@ namespace Train.Presentation.UI.Views
         /// <summary>设置背包页面根节点的显示状态。</summary>
         public void SetVisible(bool visible)
         {
-            if (_screenRoot != null)
-            {
-                _screenRoot.SetActive(visible);
-            }
+            EnsureScreenMotion().SetVisible(visible);
         }
 
         /// <inheritdoc />
@@ -172,18 +173,23 @@ namespace Train.Presentation.UI.Views
 
         private void Awake()
         {
+            EnsureScreenMotion();
             ValidateSlotLayout();
             _closeButton?.onClick.AddListener(HandleClose);
+            BindButtonFeedback(_closeButton);
 
             for (var index = 0; index < _categoryButtons.Length; index++)
             {
                 var captured = index;
                 _categoryButtons[index]?.onClick.AddListener(
                     () => CategorySelected?.Invoke(captured));
+                BindButtonFeedback(_categoryButtons[index]);
             }
 
             ConfigureDiscardButton();
             AttachDiscardListener();
+            BindButtonFeedback(_discardButton);
+            EnsureDetailMotion();
         }
 
         private void ValidateSlotLayout()
@@ -274,6 +280,7 @@ namespace Train.Presentation.UI.Views
             }
 
             controls.Button.onClick.AddListener(() => SlotSelected?.Invoke(index));
+            BindButtonFeedback(controls.Button);
             return controls;
         }
 
@@ -350,6 +357,15 @@ namespace Train.Presentation.UI.Views
 
         private void RenderDetail(InventoryItemDetailViewModel detail)
         {
+            var detailKey = DetailKey(detail);
+            var detailChanged = !_hasDetailKey ||
+                                !string.Equals(
+                                    _lastDetailKey,
+                                    detailKey,
+                                    StringComparison.Ordinal);
+            _lastDetailKey = detailKey;
+            _hasDetailKey = true;
+
             if (detail == null || !detail.HasItem)
             {
                 SetDiscardState(false, false, false);
@@ -368,6 +384,10 @@ namespace Train.Presentation.UI.Views
                 _detailDescription.text =
                     "选择左侧槽位以查看物品信息。";
                 _detailQuantity.text = "持有  --";
+                if (detailChanged)
+                {
+                    _detailMotion?.PlayRefresh();
+                }
                 return;
             }
 
@@ -384,6 +404,57 @@ namespace Train.Presentation.UI.Views
                 _detailIcon.sprite = LoadItemIcon(detail.ItemId);
                 _detailIcon.gameObject.SetActive(_detailIcon.sprite != null);
             }
+
+            if (detailChanged)
+            {
+                _detailMotion?.PlayRefresh();
+            }
+        }
+
+        private UIScreenMotion EnsureScreenMotion()
+        {
+            var target = _screenRoot ?? gameObject;
+            if (_screenMotion == null)
+            {
+                _screenMotion = target.GetComponent<UIScreenMotion>() ??
+                                target.AddComponent<UIScreenMotion>();
+            }
+
+            _screenMotion.Bind(target);
+            return _screenMotion;
+        }
+
+        private void EnsureDetailMotion()
+        {
+            if (_detailMotion != null || _detailName == null)
+            {
+                return;
+            }
+
+            var detailRoot = _detailName.transform.parent;
+            if (detailRoot == null)
+            {
+                return;
+            }
+
+            _detailMotion = detailRoot.GetComponent<UIInteractionMotion>() ??
+                            detailRoot.gameObject.AddComponent<UIInteractionMotion>();
+        }
+
+        private static void BindButtonFeedback(Button button)
+        {
+            if (button != null &&
+                button.GetComponent<UIInteractionMotion>() == null)
+            {
+                button.gameObject.AddComponent<UIInteractionMotion>();
+            }
+        }
+
+        private static string DetailKey(InventoryItemDetailViewModel detail)
+        {
+            return detail == null || !detail.HasItem
+                ? "empty"
+                : $"{detail.SlotIndex}:{detail.ItemId}";
         }
 
 

@@ -45,6 +45,10 @@ namespace Train.Presentation.UI.Views
         private readonly TMP_Text[] _activeItemSlotLabels = new TMP_Text[4];
         private readonly TMP_Text[] _activeItemSlotQuantities = new TMP_Text[4];
         private readonly Button[] _activeItemSlotButtons = new Button[4];
+        private UIScreenMotion _screenMotion;
+        private UIInteractionMotion _detailMotion;
+        private string _lastDetailKey;
+        private bool _hasDetailKey;
 
         /// <inheritdoc />
         public event Action<int> ItemSelected;
@@ -125,10 +129,7 @@ namespace Train.Presentation.UI.Views
         /// <summary>切换装备页面可见性。</summary>
         public void SetVisible(bool visible)
         {
-            if (_screenRoot != null)
-            {
-                _screenRoot.SetActive(visible);
-            }
+            EnsureScreenMotion().SetVisible(visible);
         }
 
         /// <summary>渲染装备页面中的主动道具 1～4 槽位。</summary>
@@ -192,6 +193,7 @@ namespace Train.Presentation.UI.Views
                 var captured = index;
                 _activeItemSlotButtons[index].onClick.AddListener(
                     () => ActiveItemSlotSelected?.Invoke(captured));
+                BindButtonFeedback(_activeItemSlotButtons[index]);
                 var label = CreateActiveSlotText(slot.transform, "Label");
                 var quantity = CreateActiveSlotText(slot.transform, "Quantity");
                 quantity.alignment = TextAlignmentOptions.BottomRight;
@@ -242,18 +244,23 @@ namespace Train.Presentation.UI.Views
         /// </summary>
         private void Awake()
         {
+            EnsureScreenMotion();
             _closeButton?.onClick.AddListener(
                 () => CloseRequested?.Invoke());
             _equipButton?.onClick.AddListener(
                 () => EquipRequested?.Invoke());
             _unequipButton?.onClick.AddListener(
                 () => UnequipRequested?.Invoke());
+            BindButtonFeedback(_closeButton);
+            BindButtonFeedback(_equipButton);
+            BindButtonFeedback(_unequipButton);
 
             for (var index = 0; index < _slotButtons.Length; index++)
             {
                 var captured = index;
                 _slotButtons[index]?.onClick.AddListener(
                     () => SlotSelected?.Invoke((EquipmentSlot)captured));
+                BindButtonFeedback(_slotButtons[index]);
             }
 
             for (var index = 0; index < _itemButtons.Length; index++)
@@ -261,7 +268,10 @@ namespace Train.Presentation.UI.Views
                 var captured = index;
                 _itemButtons[index]?.onClick.AddListener(
                     () => ItemSelected?.Invoke(captured));
+                BindButtonFeedback(_itemButtons[index]);
             }
+
+            EnsureDetailMotion();
         }
 
         private void OnDestroy()
@@ -333,6 +343,14 @@ namespace Train.Presentation.UI.Views
         /// <summary>渲染当前候选装备详情与套装状态。</summary>
         private void RenderDetail(EquipmentScreenViewModel viewModel)
         {
+            var detailKey = DetailKey(viewModel);
+            var detailChanged = !_hasDetailKey ||
+                                !string.Equals(
+                                    _lastDetailKey,
+                                    detailKey,
+                                    StringComparison.Ordinal);
+            _lastDetailKey = detailKey;
+            _hasDetailKey = true;
             _detailIcon.sprite = viewModel.SelectedIcon;
             _detailIcon.enabled = viewModel.SelectedIcon != null;
             _detailRarity.text = FormatRarity(viewModel.SelectedRarity);
@@ -341,6 +359,64 @@ namespace Train.Presentation.UI.Views
             _detailDescription.text = viewModel.SelectedDescription;
             _detailModifiers.text = viewModel.ModifiersText;
             _activeSets.text = viewModel.ActiveSetsText;
+            if (detailChanged)
+            {
+                _detailMotion?.PlayRefresh();
+            }
+        }
+
+        private UIScreenMotion EnsureScreenMotion()
+        {
+            var target = _screenRoot ?? gameObject;
+            if (_screenMotion == null)
+            {
+                _screenMotion = target.GetComponent<UIScreenMotion>() ??
+                                target.AddComponent<UIScreenMotion>();
+            }
+
+            _screenMotion.Bind(target);
+            return _screenMotion;
+        }
+
+        private void EnsureDetailMotion()
+        {
+            if (_detailMotion != null || _detailName == null)
+            {
+                return;
+            }
+
+            var detailRoot = _detailName.transform.parent;
+            if (detailRoot == null)
+            {
+                return;
+            }
+
+            _detailMotion = detailRoot.GetComponent<UIInteractionMotion>() ??
+                            detailRoot.gameObject.AddComponent<UIInteractionMotion>();
+        }
+
+        private static void BindButtonFeedback(Button button)
+        {
+            if (button != null &&
+                button.GetComponent<UIInteractionMotion>() == null)
+            {
+                button.gameObject.AddComponent<UIInteractionMotion>();
+            }
+        }
+
+        private static string DetailKey(EquipmentScreenViewModel viewModel)
+        {
+            var selectedItemId = string.Empty;
+            for (var index = 0; index < viewModel.Items.Count; index++)
+            {
+                if (viewModel.Items[index].IsSelected)
+                {
+                    selectedItemId = viewModel.Items[index].ItemId;
+                    break;
+                }
+            }
+
+            return $"{(int)viewModel.SelectedSlot}:{selectedItemId}:{viewModel.SelectedName}";
         }
 
         /// <summary>渲染基础属性与最终属性对照。</summary>

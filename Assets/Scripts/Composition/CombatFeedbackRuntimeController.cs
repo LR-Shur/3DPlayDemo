@@ -18,6 +18,14 @@ namespace Train.Composition
     [DisallowMultipleComponent]
     public sealed class CombatFeedbackRuntimeController : MonoBehaviour
     {
+        private const float LightHitStopDuration = .022f;
+        private const float HeavyHitStopDuration = .05f;
+        private const float LightHitStopScale = .2f;
+        private const float HeavyHitStopScale = .09f;
+        private const float HitStopRetriggerInterval = .03f;
+        private const float LightShakeStrength = .025f;
+        private const float HeavyShakeStrength = .055f;
+
         private const float FloatingTextLifetime = 0.72f;
         private const int MaxFloatingTexts = 20;
 
@@ -27,6 +35,8 @@ namespace Train.Composition
         private Material _particleMaterial;
         private float _hitStopUntil;
         private float _hitStopScale = 1f;
+        private bool _hitStopIsHeavy;
+        private float _lastHitStopTriggerAt = float.NegativeInfinity;
         private float _previousTimeScale = 1f;
         private float _shakeUntil;
         private float _shakeStrength;
@@ -113,16 +123,31 @@ namespace Train.Composition
             DamageType damageType)
         {
             var heavy = damage >= 40f || damageType == DamageType.Earth;
-            var hitStopSeconds = heavy ? .065f : .035f;
-            if (_hitStopUntil <= Time.unscaledTime)
+            var now = Time.unscaledTime;
+            var hitStopActive = _hitStopUntil > now;
+            var canRetrigger = now - _lastHitStopTriggerAt >= HitStopRetriggerInterval;
+            var canUpgrade = heavy && hitStopActive && !_hitStopIsHeavy;
+            if (!canRetrigger && !canUpgrade)
+            {
+                return;
+            }
+
+            if (!hitStopActive)
             {
                 _previousTimeScale = Mathf.Max(.01f, Time.timeScale);
+                _hitStopIsHeavy = false;
             }
-            _hitStopScale = heavy ? .035f : .06f;
-            _hitStopUntil = Mathf.Max(_hitStopUntil, Time.unscaledTime + hitStopSeconds);
+
+            _hitStopIsHeavy |= heavy;
+            _hitStopScale = _hitStopIsHeavy ? HeavyHitStopScale : LightHitStopScale;
+            var hitStopSeconds = heavy ? HeavyHitStopDuration : LightHitStopDuration;
+            _hitStopUntil = Mathf.Max(_hitStopUntil, now + hitStopSeconds);
             Time.timeScale = _hitStopScale;
-            _shakeUntil = Mathf.Max(_shakeUntil, Time.unscaledTime + (heavy ? .12f : .08f));
-            _shakeStrength = Mathf.Max(_shakeStrength, heavy ? .08f : .04f);
+            _lastHitStopTriggerAt = now;
+            _shakeUntil = Mathf.Max(_shakeUntil, now + (heavy ? .12f : .08f));
+            _shakeStrength = Mathf.Max(
+                _shakeStrength,
+                heavy ? HeavyShakeStrength : LightShakeStrength);
         }
 
         private void UpdateHitStop()
@@ -131,6 +156,7 @@ namespace Train.Composition
             {
                 Time.timeScale = _previousTimeScale;
                 _hitStopUntil = 0f;
+                _hitStopIsHeavy = false;
             }
         }
 
@@ -158,7 +184,9 @@ namespace Train.Composition
 
             _shakeCamera = camera;
             var fade = Mathf.Clamp01((_shakeUntil - Time.unscaledTime) / .12f);
-            _lastShakeOffset = UnityEngine.Random.insideUnitSphere * (_shakeStrength * fade);
+            var planarOffset = UnityEngine.Random.insideUnitCircle * (_shakeStrength * fade);
+            _lastShakeOffset = camera.transform.right * planarOffset.x +
+                camera.transform.up * planarOffset.y;
             camera.transform.position += _lastShakeOffset;
         }
 
